@@ -15,6 +15,15 @@ class User extends Authenticatable
         'name', 'email', 'password',
     ];
 
+    const ADMIN = 1;
+    const ACTIVATED = 2;
+    const USER = 3;
+
+    protected $casts = [
+        'id' => 'integer',
+        'role_id' => 'integer'
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -23,4 +32,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function role() {
+        return $this->belongsTo('App\Role');
+    }
+
+    public static function getFullRelated(User $user) {
+        $user->load('role');
+        return $user;
+    }
+
 }

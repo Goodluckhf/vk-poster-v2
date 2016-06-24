@@ -12,5 +12,15 @@
 */
 
 Route::get('/', function () {
+    
     return view('welcome');
+});
+
+Route::post('/captcha', function() {
+    $c = new App\Http\Controllers\Api\Auth;
+    try {
+        $c->checkEmail();
+    } catch (App\Exceptions\Api\Api $e) {
+        dd($e->toArray());
+    }
 });

@@ -4,6 +4,8 @@
         <title>Laravel</title>
 
         <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
+        <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+        <script src='https://www.google.com/recaptcha/api.js'></script>
 
         <style>
             html, body {
@@ -39,6 +41,25 @@
         <div class="container">
             <div class="content">
                 <div class="title">Laravel 5</div>
+                <form >
+                    <div class="g-recaptcha" data-sitekey="6Ld4ZSMTAAAAAPZ-ojtCODY3hWj1IpEdM-ZxzbMT"></div>
+                    <input type="text" name="email">
+                    <input type="submit" value="ok">
+                    <input type="hidden" name="_token" value="{{csrf_token()}}">
+                </form>
+                <script>
+                    $(function() {
+                        $('form').submit(function(e) {
+                            e.preventDefault();
+                            var data = $(this).serialize();
+                            $.ajax({
+                                url: '/captcha',
+                                data: data,
+                                method:'post'
+                            });
+                        });
+                    });
+                </script>
             </div>
         </div>
     </body>
