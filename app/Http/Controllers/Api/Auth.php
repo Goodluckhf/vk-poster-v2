@@ -5,6 +5,9 @@ use Auth as AuthManager;
 use Request;
 use App\Exceptions\Api\AuthAlready;
 use App\Exceptions\Api\AuthFail;
+use App\Exceptions\Api\TokenFail;
+use App\Exceptions\Api\TokenInactive;
+use App\Exceptions\Api\TokenTooMuch;
 use Mail;
 
 
@@ -85,8 +88,7 @@ class Auth extends Api {
                 ->first();
         
         if($email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
-            //ошибка слишком часто отправляется письмо
-
+            throw new TokenTooMuch($this->_controllerName, $this->_methodName, self::DELAY_TOKEN_FOR_EMAIL);
         }
         
         $newEmail = new App\EmailCheck;
@@ -123,11 +125,11 @@ class Auth extends Api {
                 ->first();
 
         if(!$email) {
-            //нет такого кода
+            throw new TokenFail($this->_controllerName, $this->_methodName);
         }
 
         if(!$email->active(self::ACTIVE_TOKEN_FOR_EMAIL)) {
-            //просрочен
+            throw new TokenInactive($this->_controllerName, $this->_methodName);
         }
 
         $user = new User;
