@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     
-    return view('welcome');
+    return view('template');
 });
 
 Route::post('/captcha', function() {

@@ -1,0 +1,95 @@
+ 
+/*.cont {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+.cancel {
+    background-color: #cc0836;
+    color: white;
+    margin-left: auto;
+    margin-top: 50px;
+    text-align: right;
+}
+.cancel:hover {
+    background-color: #e01f4c;
+}
+.photo_loader {
+    margin-top: 150px;
+}
+.error {
+    color: red;
+    display: block;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 300px;
+    text-align: center;
+    width: auto;
+}
+.login {
+    background-color: #4e7097;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 300px;
+    text-decoration: none;
+    display: block !important;
+    width: 250px;
+}
+.login:hover {
+    background-color: #6287ae;
+}
+.loader {
+    display: block;
+    margin: 100px auto;
+    text-align: center;
+    width: auto;
+}
+.info {
+    color: black;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 20px;
+    margin-bottom: 25px;
+    margin-top: 25px;
+    width: auto;
+}
+.search-input {
+
+    min-height: 600px;
+    
+}
+.search-input input {
+    margin: 0 auto;
+    width: 300px;
+}
+.search-cont {
+    margin: 0 auto;
+    display:none;
+    width: 400px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}*/
+
+.post-message {
+    white-space: pre-line;
+}
+.date-picker-div,
+.group-inp-div {
+    margin: 10px;
+}
+
+.date-picker,
+.group-inp {
+    background-color: #374850;
+    border: 1px solid transparent;
+    border-radius: 3px !important;
+    box-shadow: none;
+    height: 35px;
+}
+
+div.button-wrapper {
+    margin: 0 auto;
+    width:100px;
+}

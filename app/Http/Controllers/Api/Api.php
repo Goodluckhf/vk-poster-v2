@@ -96,7 +96,10 @@ class Api extends \App\Http\Controllers\Controller {
     }
 
     public function toArray() {
-        return $this->_data;
+        return [
+            'success' => 'true',
+            'data'    => $this->_data
+        ];
     }
     
     public function toJson() {

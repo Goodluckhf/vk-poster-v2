@@ -151,5 +151,28 @@ class Auth extends Api {
         return $this;
     }
 
+    public function loginVk() {
+        $this->_methodName = 'loginVk';
+        
+        $arNeed = [
+            'code' => 'required'
+        ];
+        $this->checkAttr($arNeed);
+        
+        $res = file_get_contents('https://oauth.vk.com/access_token?code=' . Request::get('code') . '&client_id=5180832&client_secret=G8PLjiQIwCSfD5jaNclV&redirect_uri=https://oauth.vk.com/blank.html');
+
+        $result = (array)json_decode($res);
+        if(isset($result['access_token'])) {
+            setcookie("vk-token",$result['access_token'],time()+60*60*24*30, '/');
+            setcookie("vk-user-id",$result['user_id'],time()+60*60*24*30, '/');
+            //header("Location: /");
+        }
+        else {
+            print_r($result);
+        }
+
+        return $this;
+    }
+
 
 }

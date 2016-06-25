@@ -8,6 +8,7 @@ class ParamsBad extends Api {
     public function __construct($controllerName, $methodName, $messages) {
         $this->errorMessages = $messages;
         $message = 'Ошибка валидации данных!';
+        $this->code = 400;
         parent::__construct($controllerName, $methodName, $message);
     }
 
