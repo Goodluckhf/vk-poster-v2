@@ -10,7 +10,7 @@ var AuthService = (new function() {
         events.listen(event, callback);
     };
 
-    this.auth = function(data) {
+    this.login = function(data) {
         var credentials = {
             login: data.login,
             password: data.password

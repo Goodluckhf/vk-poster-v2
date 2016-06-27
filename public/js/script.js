@@ -129,12 +129,18 @@ $(function () {
         });
 
     });
+
+
+
+
+
+    /**
+     * авторизация VK.COM
+     */
     var form = new VKLoginForm();
     form.onClickLogin(function() {
         App.start();
     });
-
-
 
     form.onClickConfirmLogin(function(code) {
         form.removeError();
@@ -149,9 +155,15 @@ $(function () {
             form.activeLogin();
         });
     });
-    
 
-    
     form.show();
+
+    /**
+     * Авторизация в приложении
+     */
+
+    $('body').on('click', '.open-login-form', function() {
+        var loginForm = new LoginForm();
+    });
 
 });

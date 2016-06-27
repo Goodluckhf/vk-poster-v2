@@ -10,6 +10,8 @@ and open the template in the editor.
         <meta charset="UTF-8">
         <!--meta name="viewport" content="width=device-width, initial-scale=1.0"-->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
+
         <script src="/js/vendor/jquery.js"></script>
         <script src="/js/vendor/jquery-ui.js"></script>
         <!--script src="/js/vendor/slimscroll.js" type="text/javascript"></script-->
@@ -53,6 +55,7 @@ and open the template in the editor.
         <script src="/js/AuthService.js" type="text/javascript"></script>
         <script src="/js/Posts.js" type="text/javascript"></script>
         <script src="/js/VKLoginForm.js" type="text/javascript"></script>
+        <script src="/js/LoginForm.js" type="text/javascript"></script>
         <script src="/js/PostProvider.js" type="text/javascript"></script>
         <script src="/js/script.js" type="text/javascript"></script>
 
@@ -117,7 +120,7 @@ and open the template in the editor.
 
                                     <span class="hidden-xs">Войти</span>
                                 </a>
-                                <ul class="dropdown-menu">
+                                <ul style="display:none;" class="dropdown-menu">
                                     <!-- User image -->
                                     <li class="user-header">
                                         <img src="" class="img-circle" alt="User Image">
