@@ -3,7 +3,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 class EmailCheck extends Model {
-    protected $table = 'EmailChecks';
+    protected $table = 'email_checks';
 
     /**
     * @param int $time (minutes)

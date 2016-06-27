@@ -23,7 +23,7 @@ var Request = (new function() {
 
     this.api = function(method, data) {
         var ob = {};
-        ob.data = typeof data === undefined ? {} : data;
+        ob.data =  data ? data : {};
         ob.url = '/api/' + method;
         return self.send(ob);
     };

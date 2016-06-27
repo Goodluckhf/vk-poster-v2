@@ -6,11 +6,11 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>Выгрузка продуктов</title>
+        <title>Постер vk.com</title>
         <meta charset="UTF-8">
         <!--meta name="viewport" content="width=device-width, initial-scale=1.0"-->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-        <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
+        <script src="https://www.google.com/recaptcha/api.js?render=explicit&hl=ru" ></script>
 
         <script src="/js/vendor/jquery.js"></script>
         <script src="/js/vendor/jquery-ui.js"></script>
@@ -52,8 +52,10 @@ and open the template in the editor.
         <script src="/js/EventsContainer.js" type="text/javascript"></script>
         <script src="/js/Request.js" type="text/javascript"></script>
         <script src="/js/VKAuthService.js" type="text/javascript"></script>
+        <script src="/js/User.js" type="text/javascript"></script>
         <script src="/js/AuthService.js" type="text/javascript"></script>
         <script src="/js/Posts.js" type="text/javascript"></script>
+        <script src="/js/UserBlock.js" type="text/javascript"></script>
         <script src="/js/VKLoginForm.js" type="text/javascript"></script>
         <script src="/js/LoginForm.js" type="text/javascript"></script>
         <script src="/js/PostProvider.js" type="text/javascript"></script>
@@ -120,8 +122,8 @@ and open the template in the editor.
 
                                     <span class="hidden-xs">Войти</span>
                                 </a>
-                                <ul style="display:none;" class="dropdown-menu">
-                                    <!-- User image -->
+<!--                                <ul style="display:none;" class="dropdown-menu">
+                                     User image 
                                     <li class="user-header">
                                         <img src="" class="img-circle" alt="User Image">
                                         <p>
@@ -129,7 +131,7 @@ and open the template in the editor.
                                             <small>Member since Nov. 2012</small>
                                         </p>
                                     </li>
-                                    <!-- Menu Body -->
+                                     Menu Body 
                                     <li class="user-body">
                                         <div class="col-xs-4 text-center">
                                             <a href="#">Followers</a>
@@ -141,7 +143,7 @@ and open the template in the editor.
                                             <a href="#">Friends</a>
                                         </div>
                                     </li>
-                                    <!-- Menu Footer-->
+                                     Menu Footer
                                     <li class="user-footer">
                                         <div class="pull-left">
                                             <a href="#" class="btn btn-default btn-flat">Profile</a>
@@ -150,7 +152,7 @@ and open the template in the editor.
                                             <a href="#" class="btn btn-default btn-flat">Sign out</a>
                                         </div>
                                     </li>
-                                </ul>
+                                </ul>-->
                             </li>
                             <!-- Control Sidebar Toggle Button -->
 

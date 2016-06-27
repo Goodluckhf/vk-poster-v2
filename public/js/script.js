@@ -1,14 +1,17 @@
 var App = (new function () {
     var events = new EventsContainer();
+    
     var csrfToken;
     events.register('ready');
 
     this.setToken = function(token) {
         csrfToken = token;
-    }
+    };
+
+    
 
 
-    Request.on('beforeSend', function(data) {
+    Request.on('beforeSend', function(data) {        
         data.data._token = csrfToken;
     });
     
@@ -19,6 +22,21 @@ var App = (new function () {
         }
     });
     
+    AuthService.on('afterAuth', function(user) {
+        var old = $('.user.user-menu');
+        var container = old.parent('ul');
+        old.remove();
+        
+        var userBlock = new UserBlock(container);
+        userBlock.render(user);
+        userBlock.onClickLogout(function() {
+            AuthService.logout();
+        });
+    });
+
+
+    //
+
     this.getCookie = function(name) {
         var matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
@@ -127,6 +145,7 @@ $(function () {
         $('a.sort-by-reposts').click(function() {            
             PostProvider.sortByReposts();            
         });
+        AuthService.getUser();
 
     });
 

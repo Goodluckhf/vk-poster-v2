@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use Auth as AuthManager;
 use Request;
+use Hash;
 use App\Exceptions\Api\AuthAlready;
 use App\Exceptions\Api\AuthFail;
 use App\Exceptions\Api\TokenFail;
@@ -34,12 +35,12 @@ class Auth extends Api {
         }
 
         if (AuthManager::attempt([
-                'name' => Request::get('login'),
+                'email' => Request::get('login'),
                 'password' => Request::get('password')
             ], 1)) {
 
-            $user = Auth::user();
-            $this->_data['data'] = User::getFullRelated($user);
+            $user = AuthManager::user();
+            $this->_data = \App\User::getFullRelated($user);
             
         } else {
             throw new AuthFail($this->_controllerName, $this->_methodName);
@@ -51,11 +52,11 @@ class Auth extends Api {
     public function logout() {
         $this->_methodName = 'logout';        
 
-        if (!Auth::check()) {            
+        if (!AuthManager::check()) {
             throw new AuthRequire($this->_controllerName, $this->_methodName);
         }
 
-        Auth::logout();
+        AuthManager::logout();
         return $this;
     }
 
@@ -69,7 +70,7 @@ class Auth extends Api {
         $this->_methodName = 'getUser';
         $this->checkAuth();
         $user = AuthManager::user();
-        $this->_data['data'] = User::getFullRelated($user);
+        $this->_data = \App\User::getFullRelated($user);
         return $this;
     }
 
@@ -83,15 +84,18 @@ class Auth extends Api {
         
         $this->checkAttr($arNeed);
         $this->checkCaptcha(Request::get('g-recaptcha-response'));
-        $email = App\EmailCheck::whereEmail(Request::get('email'))
+        $email = \App\EmailCheck::whereEmail(Request::get('email'))
                 ->orderBy('email', 'DESC')
                 ->first();
         
-        if($email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
-            throw new TokenTooMuch($this->_controllerName, $this->_methodName, self::DELAY_TOKEN_FOR_EMAIL);
+        if($email) {
+            if($email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
+                throw new TokenTooMuch($this->_controllerName, $this->_methodName, self::DELAY_TOKEN_FOR_EMAIL);
+            }
         }
+       
         
-        $newEmail = new App\EmailCheck;
+        $newEmail = new \App\EmailCheck;
         $newEmail->email = Request::get('email');
         $token = $this->getGUID();
         $newEmail->token = $token;
@@ -108,45 +112,45 @@ class Auth extends Api {
 
 
     public function register() {
-        $this->_methodName = 'loginFirst';
+        $this->_methodName = 'register';
         $this->mergeParams();
-        if (Auth::check()) {
+        if (AuthManager::check()) {
             throw new AuthAlready($this->_controllerName, $this->_methodName);
         }
         
         $arNeed = [
-            'login' => 'email|required|unique',
+            'email' => 'email|required|unique:users',
             'password' => 'confirmed|required',
             'post_code' => 'required'
         ];
         $this->checkAttr($arNeed);
-        $email = \App\EmailCheck::whereEmail(Request::get('login'))
+        $email = \App\EmailCheck::whereEmail(Request::get('email'))
                 ->whereToken(Request::get('post_code'))
                 ->first();
-
+        //dd($email);
         if(!$email) {
             throw new TokenFail($this->_controllerName, $this->_methodName);
         }
 
-        if(!$email->active(self::ACTIVE_TOKEN_FOR_EMAIL)) {
+        if(!$email->isActive(self::ACTIVE_TOKEN_FOR_EMAIL)) {
             throw new TokenInactive($this->_controllerName, $this->_methodName);
         }
 
-        $user = new User;
+        $user = new \App\User;
         $user->email = Request::get('email');
-        $user->role = App\User::USER;
+        $user->role_id = \App\User::USER;
         $user->password = Hash::make(Request::get('password'));
         if(Request::has('name')) {
             $user->name = Request::get('name');
         }
         
         $user->save();
-        Auth::attempt([
-            'email' => Request::get('login'),
+        AuthManager::attempt([
+            'email' => Request::get('email'),
             'password' => Request::get('password')
         ], 1);
 
-        $this->_data['data'] = App\User::getFullRelated($user);
+        $this->_data = \App\User::getFullRelated($user);
        
         return $this;
     }

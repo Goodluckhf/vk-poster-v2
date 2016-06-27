@@ -39,7 +39,7 @@ class User extends Authenticatable
 
     public static function getFullRelated(User $user) {
         $user->load('role');
-        return $user;
+        return $user->toArray();
     }
 
 }

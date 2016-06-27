@@ -10,14 +10,20 @@ var AuthService = (new function() {
         events.listen(event, callback);
     };
 
-    this.login = function(data) {
-        var credentials = {
-            login: data.login,
-            password: data.password
-        };
-        
-        return Request.api('Auth.login', credentials).then(function(apiData) {
-            authorize(apiData.data);
+    this.getCode = function(data) {
+        return Request.api('Auth.checkEmail', data);
+    };
+
+    this.login = function(data) {        
+        return Request.api('Auth.login', data).then(function(apiData) {
+            console.log(apiData);
+            authorize(apiData);
+        });
+    };
+
+    this.register = function(data) {
+        return Request.api('Auth.register', data).then(function(apiData) {
+            console.log(apiData);
         });
     };
 
@@ -29,8 +35,27 @@ var AuthService = (new function() {
 
     var authorize = function(data) {
         isAuth = true;
-        user = data;
+        user = new User(data.data);
         events.trigger('afterAuth', user);
+        console.log(self.user());
+    };
+
+    this.getUser = function() {
+        return Request.api('Auth.getUser').then(function(data) {
+            authorize(data);
+        });
+    };
+
+    this.user = function() {
+        return user;
+    };
+
+    this.id = function() {
+        return user.id;
+    };
+
+    this.isAuth = function() {
+        return isAuth;
     };
 
 
