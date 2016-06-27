@@ -137,13 +137,13 @@ var PostProvider = (new function () {
 
     this.post = function (key) {
         var data = {};
-        data.data = {};
+        //data.data = {};
         //console.log([posts, key]);
-        data.data.post = posts[key];
-        data.data.publish_date = this.currentDate;
-        data.data.group_id = this.publicId;
-        data.url = '/upload.php';
-        return Request.send(data).done(function (r) {
+        data.post = posts[key];
+        data.publish_date = this.currentDate;
+        data.group_id = this.publicId;
+        //data.url = '/upload.php';
+        return Request.api('Post.post', data).done(function (r) {
             if (r.response) {
                 console.log(r.response);
                 me.inc();
