@@ -9,8 +9,8 @@ var App = (new function () {
 
 
     Request.on('beforeSend', function(data) {
-        if(AuthService.isAuth()) {
-            data.data.access_token = AuthService.token();
+        if(VKAuthService.isAuth()) {
+            data.data.access_token = VKAuthService.token();
         }
         data.data._token = csrfToken;
 
@@ -40,13 +40,10 @@ var App = (new function () {
 
     this.start = function () {
         //console.log(this.getCookie('vk-token'));
-        var isAuth = AuthService.auth();
+        var isAuth = VKAuthService.auth();
         var inputVkCode = $('input.vk-code');
         var btnLoginConfirm = $('button.login-confirm');
         var pDescription = $('.register-box > p');
-//        console.log(isAuth);
-//        console.log(inputVkCode);
-//        console.log(btnLoginConfirm);
         if(!isAuth) {
             inputVkCode.show();
             btnLoginConfirm.show();
@@ -83,8 +80,8 @@ $(function () {
         //posts.render();
 
     });
-    AuthService.onReady(function () {
-        console.log({user: AuthService.id(), token: AuthService.token()});
+    VKAuthService.onReady(function () {
+        console.log({user: VKAuthService.id(), token: VKAuthService.token()});
         var str = '';
         bootbox.hideAll();
         $('.date-picker').datetimepicker({
@@ -109,7 +106,7 @@ $(function () {
                                 '<h4></h4>' +                                                    
                             '</a>' +
                         '</li>';
-        var groups = AuthService.getGroups();
+        var groups = VKAuthService.getGroups();
         for(var i in groups) {
             var $item = $(menuItem);
             $item.find('img').attr('src', groups[i].photo_50);
@@ -129,7 +126,7 @@ $(function () {
         });
 
     });
-    var form = new LoginForm();
+    var form = new VKLoginForm();
     form.onClickLogin(function() {
         App.start();
     });

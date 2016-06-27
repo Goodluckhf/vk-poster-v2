@@ -49,6 +49,7 @@ and open the template in the editor.
 
         <script src="/js/EventsContainer.js" type="text/javascript"></script>
         <script src="/js/Request.js" type="text/javascript"></script>
+        <script src="/js/VKAuthService.js" type="text/javascript"></script>
         <script src="/js/AuthService.js" type="text/javascript"></script>
         <script src="/js/Posts.js" type="text/javascript"></script>
         <script src="/js/LoginForm.js" type="text/javascript"></script>
@@ -112,9 +113,9 @@ and open the template in the editor.
                                 </ul>
                             </li>
                             <li class="dropdown user user-menu">
-                                <a aria-expanded="false" href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a aria-expanded="false" href="#" class="dropdown-toggle open-login-form" data-toggle="dropdown">
 
-                                    <span class="hidden-xs">Подробнее</span>
+                                    <span class="hidden-xs">Войти</span>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <!-- User image -->

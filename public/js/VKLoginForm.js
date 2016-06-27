@@ -1,4 +1,4 @@
-var LoginForm = function() {
+var VKLoginForm = function() {
     var self = this;
 
     var template = '<div class="register-box" style="margin: 0 18% auto;">' +
@@ -34,7 +34,7 @@ var LoginForm = function() {
         $('body').off('click', '.login');
         $('body').off('click', '.login-confirm');
         
-    }
+    };
 
     this.onClickLogin = function(cb) {
         $('body').on('click', '.login', cb);
@@ -57,7 +57,7 @@ var LoginForm = function() {
         }
         
         $('.register-box .row').prepend('<p class="error-message" style="color:red;">' + text + '</p>');
-    }
+    };
 
     this.onClickConfirmLogin = function(cb) {
         $('body').on('click', '.login-confirm', function() {
