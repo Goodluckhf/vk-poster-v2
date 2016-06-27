@@ -40,9 +40,24 @@ var App = (new function () {
 
     this.start = function () {
         //console.log(this.getCookie('vk-token'));
-        AuthService.auth();
+        var isAuth = AuthService.auth();
+        var inputVkCode = $('input.vk-code');
+        var btnLoginConfirm = $('button.login-confirm');
+        var pDescription = $('.register-box > p');
+//        console.log(isAuth);
+//        console.log(inputVkCode);
+//        console.log(btnLoginConfirm);
+        if(!isAuth) {
+            inputVkCode.show();
+            btnLoginConfirm.show();
+            pDescription.show();
+        } else {
+            inputVkCode.hide();
+            btnLoginConfirm.hide();
+            pDescription.hide();
+        }
         
-    }
+    };
 
 });
 

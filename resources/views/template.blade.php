@@ -57,9 +57,9 @@ and open the template in the editor.
 
         <script type="text/javascript">
             App.setToken("{{csrf_token()}}");
-            VK.init({
-                apiId: 	5180832
-            });
+//            VK.init({
+//                apiId: 	5180832
+//            });
 
         </script>
         <link rel='stylesheet' href="/css/style.css">

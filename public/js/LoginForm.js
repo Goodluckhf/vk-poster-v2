@@ -2,18 +2,20 @@ var LoginForm = function() {
     var self = this;
 
     var template = '<div class="register-box" style="margin: 0 18% auto;">' +
-                        'Скопируйте из адресной строки открывшегося окна все, что идет после слова <b>"code="</b> как в примере:<br>' +
-  '                         https://oauth.vk.com/blank.html#code=<u>bb34c6198f28819b19</u><div class="register-box-body">' +
+                        '<p style="display:none;">Скопируйте из адресной строки открывшегося окна все, что идет после слова <b>"code="</b> как в примере:<br>' +
+  '                         https://oauth.vk.com/blank.html#code=<u>bb34c6198f28819b19</u>' +
+                        '</p>' +
+                        '<div class="register-box-body">' +
                             //'<form>' +
                                 '<div class="form-group has-feedback">' +
                                     '<button class="btn btn-primary btn-block login btn-flat">Войти vk.com</button>' +
                                 '</div>' +
                                 '<div class="form-group has-feedback">' +
-                                    '<input type="text" class="form-control vk-code" placeholder="Код из открывшегося окна">' +
+                                    '<input type="text" style="display:none;" class="form-control vk-code" placeholder="Код из открывшегося окна">' +
                                 '</div>' +
                                 '<div class="row">' +
                                     '<div class="col-xs-6 col-lg-offset-3">' +
-                                        '<button class="btn btn-primary btn-block btn-flat login-confirm">Подтвердить</button>' +
+                                        '<button style="display:none;" class="btn btn-primary btn-block btn-flat login-confirm">Подтвердить</button>' +
                                     '</div>' +
                                 '</div>' +
                             //'</form>' +
