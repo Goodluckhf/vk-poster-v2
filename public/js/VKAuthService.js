@@ -21,28 +21,6 @@ var VKAuthService = (new function () {
         }
     }
 
-//    this.auth = function () {
-//        VK.Auth.login(function (data) {
-//            if (!data.session) {
-//                alert("Нужно авторизоваться!");
-//            }
-//            else {
-//                user = data.session.user;
-//                token = data.session.sid;
-//                isReady = true;
-//                isAuth = true;
-//                Request.api('groups.get', {
-//                    filter: 'admin',
-//                    extended: 1,
-//                    v: 5.40
-//                }).done(function(gr) {
-//                    groups = gr.response.items;
-//                    events.trigger('ready');
-//                })
-//                
-//            }
-//        }, 270340);
-//    }
     this.getCookie = function(name) {
         var matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"

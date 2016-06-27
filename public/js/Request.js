@@ -4,6 +4,7 @@ var Request = (new function() {
     var events = new EventsContainer();
 
     events.register('beforeSend');
+    events.register('beforeVKSend');
 
     this.on = function(event, callback) {
         events.listen(event, callback);
@@ -11,9 +12,7 @@ var Request = (new function() {
     
     this.vkApi = function(method, data) {
         data = typeof data === undefined ? {} : data;
-        if(AuthService.isAuth()) {
-            data.access_token = AuthService.token();
-        }
+        events.trigger('beforeVKSend', data);
         return $.ajax({
             url: 'https://api.vk.com/method/' + method,
             dataType: 'jsonp',

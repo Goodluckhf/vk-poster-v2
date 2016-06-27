@@ -9,11 +9,14 @@ var App = (new function () {
 
 
     Request.on('beforeSend', function(data) {
-        if(VKAuthService.isAuth()) {
-            data.data.access_token = VKAuthService.token();
-        }
         data.data._token = csrfToken;
-
+    });
+    
+    Request.on('beforeVKSend', function(data) {
+        console.log(data);
+        if(VKAuthService.isAuth()) {
+            data.access_token = VKAuthService.token();
+        }
     });
     
     this.getCookie = function(name) {

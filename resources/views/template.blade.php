@@ -52,7 +52,7 @@ and open the template in the editor.
         <script src="/js/VKAuthService.js" type="text/javascript"></script>
         <script src="/js/AuthService.js" type="text/javascript"></script>
         <script src="/js/Posts.js" type="text/javascript"></script>
-        <script src="/js/LoginForm.js" type="text/javascript"></script>
+        <script src="/js/VKLoginForm.js" type="text/javascript"></script>
         <script src="/js/PostProvider.js" type="text/javascript"></script>
         <script src="/js/script.js" type="text/javascript"></script>
 
