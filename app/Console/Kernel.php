@@ -28,25 +28,22 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function() {
-            //Log::info('start');
             $now = Carbon::now();
             $jobs = \App\Job::whereIsFinish(0)
                     ->where('started_at', '<=', $now->toDateTimeString())->get();
-           // Log::info('jobs' . $jobs);
+            
             foreach($jobs as $job) {
                 $this->post($job);
             }
             
 
         })->everyMinute();
-        // $schedule->command('inspire')
-        //          ->hourly();
+
     }
 
     private function post($job) {
 
         $data = json_decode($job->data, true);
-       //Log::info('data' . $data);
         $imgDir = public_path() . '/vk-images/';
         $vk = new VkApi($data['token'], $data['groupId'], $data['vkUserId'], $imgDir);
         $vk->setPost($data['post']);

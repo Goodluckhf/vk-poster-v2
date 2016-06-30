@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Vk\VkApi;
 use Request;
 use Carbon\Carbon;
-use Queue;
-use App\Jobs\VkPost;
+use Auth;
 
 class Post extends Api {
     protected $_controllerName = 'Post';
@@ -20,7 +19,10 @@ class Post extends Api {
             'post' => 'array'
         ];
         $this->checkAttr($arNeed);
-        $time = Carbon::now()->addMinutes(2);
+        $time = new Carbon;
+       // dd();
+        $time->timestamp = Request::get('publish_date');
+        
 
         $data = [
             'post'     => Request::get('post'),
@@ -28,15 +30,32 @@ class Post extends Api {
             'token'    => $_COOKIE['vk-token'],
             'vkUserId' => $_COOKIE['vk-user-id']
         ];
+        $images = [];
+
+        foreach($data['post']['attachments'] as $attach) {
+            if($attach['type'] !== 'photo') {
+                continue;
+            }
+
+            $images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
+        }
+
         $jsonData = json_encode($data);
         $newJob = new \App\Job;
-        $newJob->started_at = $time;
+        $newJob->started_at = $time->toDateTimeString();
         $newJob->data = $jsonData;
         $newJob->save();
 
-        //$time->timestamp = Request::get('publish_data');
-        //$res = Queue::later($time, new VkPost(Request::get('post'), Request::get('group_id'), $_COOKIE['vk-token'], $_COOKIE['vk-user-id']));
-        $this->_data = $newJob->id;
+
+        $newPost = new \App\Post;
+        $newPost->text = $data['post']['text'];
+        $newPost->user_id = Auth::id();
+        $newPost->publish_date = $time->toDateTimeString();
+        $newPost->save();
+        $newPost->images()->saveMany($images);
+
+        $this->_data['job_id'] = $newJob->id;
+        $this->_data['post_id'] = $newPost->id;
         return $this;
         //dd(Request::all());
     }
