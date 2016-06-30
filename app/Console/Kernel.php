@@ -29,25 +29,23 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(function() {
             $now = Carbon::now();
-            $jobs = \App\Job::with('\App\Post')
+            $jobs = \App\Job::with(['post', 'user'])
                     ->whereIsFinish(0)
                     ->where('started_at', '<=', $now->toDateTimeString())->get();
             
             foreach($jobs as $job) {
                 $this->post($job);
             }
-            
-
         })->everyMinute();
 
     }
 
     private function post($job) {
-        $post = $job->post;
+        
         //$data = json_decode($job->data, true);
         $imgDir = public_path() . '/vk-images/';
-        $vk = new VkApi($data['token'], $data['groupId'], $data['vkUserId'], $imgDir);
-        $vk->setPost($data['post']);
+        $vk = new VkApi($job->user->vk_token, $job->group_id, $job->user->vk_user_id, $imgDir);
+        $vk->setPost($job->post->toArray());
         $result = $vk->curlPost();
         $resPost = $vk->post(null, $vk->getPhotosByResponse($result));
         $job->is_finish = 1;
