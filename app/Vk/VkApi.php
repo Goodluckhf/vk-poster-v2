@@ -1,5 +1,6 @@
 <?php
 namespace App\Vk;
+use Log;
 
 
 class VkApi {
@@ -16,6 +17,8 @@ class VkApi {
 
 
     public function __construct($token, $groupId, $userId, $imgDir) {
+         Log::info('grouup_id: ' . $groupId);
+        //die();
         $this->imgDir = $imgDir;
         $this->userId = $userId;
         $this->token = $token;
@@ -94,14 +97,17 @@ class VkApi {
 
 
     public function curlPost() {
-        $photos = $this->post['attachments'];
+        //$photos = $this->post['attachments'];
+        $photos = $this->post['images'];
         $imgs = [];
         $resultPhotoResponse = [];
         foreach($photos as $key => $photo) {
-            if($photo['type'] != 'photo') {
-                continue;
-            }
-            $url = $photo['photo']['photo_604'];
+//            if($photo['type'] != 'photo') {
+//                continue;
+//            }
+//            $url = $photo['photo']['photo_604'];
+            $url = $photo['url'];
+            Log::info('url: "' . $url .'"');
             $imgFile = $this->loadImgByUrl($url, ($key + 1));
             $imgs['file' . ($key + 1) ] = curl_file_create($imgFile, 'image/jpeg','test_name.jpg');
         }

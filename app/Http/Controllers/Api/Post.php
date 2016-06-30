@@ -44,14 +44,17 @@ class Post extends Api {
          $newPost = new \App\Post;
         $newPost->text = $data['post']['text'];
         $newPost->user_id = Auth::id();
-        $newPost->publish_date = $time->toDateTimeString();
+        $newPost->publish_date = Carbon::now()->addMinute(1)->toDateTimeString();
+        //$newPost->publish_date = $time->toDateTimeString();
         $newPost->group_id = Request::get('group_id');
+       
         $newPost->save();
         $newPost->images()->saveMany($images);
 
         
         $newJob = new \App\Job;
-        $newJob->started_at = $time->toDateTimeString();
+        $newJob->started_at = Carbon::now()->addMinute(1)->toDateTimeString();
+        //$newJob->started_at = $time->toDateTimeString();
         $newJob->post_id = $newPost->id;
         $newJob->save();
 
@@ -69,8 +72,20 @@ class Post extends Api {
         $this->checkAuth(\App\User::ACTIVATED);
         $arNeed = [
             'group_id' => 'required',
-            
         ];
+        $this->checkAttr($arNeed);
+        $now = Carbon::now();
+        $posts = \App\Post::whereUserId(Auth::id())
+                ->whereGroupId(Request::get('group_id'))
+                ->where('publish_date', '>=', $now->toDayDateTimeString())
+                ->get();
+        if($posts->count() === 0) {
+            //throw new
+        }
+        $this->_data = $posts->toArray();
+        return $this;
+
+
     }
 
     /**

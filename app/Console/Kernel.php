@@ -6,7 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Carbon\Carbon;
 use App\Vk\VkApi;
-//use Log;
+use Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(function() {
             $now = Carbon::now();
-            $jobs = \App\Job::with(['post', 'user'])
+            $jobs = \App\Job::with(['post.user', 'post.images'])
                     ->whereIsFinish(0)
                     ->where('started_at', '<=', $now->toDateTimeString())->get();
             
@@ -44,10 +44,11 @@ class Kernel extends ConsoleKernel
         
         //$data = json_decode($job->data, true);
         $imgDir = public_path() . '/vk-images/';
-        $vk = new VkApi($job->user->vk_token, $job->group_id, $job->user->vk_user_id, $imgDir);
+        $vk = new VkApi($job->post->user->vk_token, $job->post->group_id, $job->post->user->vk_user_id, $imgDir);
         $vk->setPost($job->post->toArray());
         $result = $vk->curlPost();
         $resPost = $vk->post(null, $vk->getPhotosByResponse($result));
+        Log::info(json_encode($resPost));
         $job->is_finish = 1;
         $job->save();
     }
