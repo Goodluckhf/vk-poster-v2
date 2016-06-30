@@ -5,6 +5,7 @@ use App\Vk\VkApi;
 use Request;
 use Carbon\Carbon;
 use Auth;
+use App\Exceptions\Api\NotFound;
 
 class Post extends Api {
     protected $_controllerName = 'Post';
@@ -44,8 +45,8 @@ class Post extends Api {
          $newPost = new \App\Post;
         $newPost->text = $data['post']['text'];
         $newPost->user_id = Auth::id();
-        $newPost->publish_date = Carbon::now()->addMinute(1)->toDateTimeString();
-        //$newPost->publish_date = $time->toDateTimeString();
+        //$newPost->publish_date = Carbon::now()->addMinute(1)->toDateTimeString();
+        $newPost->publish_date = $time->toDateTimeString();
         $newPost->group_id = Request::get('group_id');
        
         $newPost->save();
@@ -53,8 +54,8 @@ class Post extends Api {
 
         
         $newJob = new \App\Job;
-        $newJob->started_at = Carbon::now()->addMinute(1)->toDateTimeString();
-        //$newJob->started_at = $time->toDateTimeString();
+        //$newJob->started_at = Carbon::now()->addMinute(1)->toDateTimeString();
+        $newJob->started_at = $time->toDateTimeString();
         $newJob->post_id = $newPost->id;
         $newJob->save();
 
@@ -77,15 +78,15 @@ class Post extends Api {
         $now = Carbon::now();
         $posts = \App\Post::whereUserId(Auth::id())
                 ->whereGroupId(Request::get('group_id'))
-                ->where('publish_date', '>=', $now->toDayDateTimeString())
+                ->where('publish_date', '>=', $now->toDateTimeString())
                 ->get();
+        //dd($posts);
         if($posts->count() === 0) {
-            //throw new
+            throw new NotFound($this->_controllerName, $this->_methodName);
         }
+        
         $this->_data = $posts->toArray();
         return $this;
-
-
     }
 
     /**
