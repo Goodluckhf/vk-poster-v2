@@ -143,7 +143,7 @@ var PostProvider = (new function () {
         data.publish_date = this.currentDate;
         data.group_id = this.publicId;
         //data.url = '/upload.php';
-        return Request.api('Post.post', data).done(function (r) {
+        return Request.api('Post.postDelay', data).done(function (r) {
             if (r.response) {
                 console.log(r.response);
                 me.inc();

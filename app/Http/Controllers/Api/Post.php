@@ -3,10 +3,43 @@
 namespace App\Http\Controllers\Api;
 use App\Vk\VkApi;
 use Request;
+use Carbon\Carbon;
+use Queue;
+use App\Jobs\VkPost;
 
 class Post extends Api {
     protected $_controllerName = 'Post';
 
+
+    public function postDelay() {
+        $this->_methodName = 'postDelay';
+        $this->checkAuth(\App\User::ACTIVATED);
+        $arNeed = [
+            'group_id' => 'required|integer',
+            'publish_date' => 'required',
+            'post' => 'array'
+        ];
+        $this->checkAttr($arNeed);
+        $time = Carbon::now()->addMinutes(2);
+
+        $data = [
+            'post'     => Request::get('post'),
+            'groupId'  => Request::get('group_id'),
+            'token'    => $_COOKIE['vk-token'],
+            'vkUserId' => $_COOKIE['vk-user-id']
+        ];
+        $jsonData = json_encode($data);
+        $newJob = new \App\Job;
+        $newJob->started_at = $time;
+        $newJob->data = $jsonData;
+        $newJob->save();
+
+        //$time->timestamp = Request::get('publish_data');
+        //$res = Queue::later($time, new VkPost(Request::get('post'), Request::get('group_id'), $_COOKIE['vk-token'], $_COOKIE['vk-user-id']));
+        $this->_data = $newJob->id;
+        return $this;
+        //dd(Request::all());
+    }
 
 
     public function post() {
@@ -14,7 +47,7 @@ class Post extends Api {
         $this->checkAuth(\App\User::ACTIVATED);
         $arNeed = [
             'group_id' => 'required|integer',
-            'publish_data' => 'required',
+            'publish_date' => 'required',
             'post' => 'array'
         ];
         $this->checkAttr($arNeed);

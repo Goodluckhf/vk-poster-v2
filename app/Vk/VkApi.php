@@ -20,7 +20,8 @@ class VkApi {
         $this->userId = $userId;
         $this->token = $token;
         $this->groupId = $groupId;
-        $this->user_agent = $_SERVER['HTTP_USER_AGENT'];
+        $this->user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0';
+        //dd($this->user_agent);
     }
 
     public function setPost($post) {
@@ -171,9 +172,13 @@ class VkApi {
         $data = [
             'owner_id'     => $this->groupId,
             'message'      => $this->post['text'],
-            'attachments'  => implode(',', $photos),
-            'publish_date' => $publishDate
+            'attachments'  => implode(',', $photos),            
         ];
+        
+        if(!is_null($publishDate)) {
+            $data['publish_date'] = $publishDate;
+        }
+        
         $result = $this->callApi('wall.post', $data, 'post');
         return $result;
 
