@@ -172,7 +172,8 @@ class VkApi {
         $data = [
             'owner_id'     => $this->groupId,
             'message'      => $this->post['text'],
-            'attachments'  => implode(',', $photos),            
+            'attachments'  => implode(',', $photos),
+            'from_group'   => 1
         ];
         
         if(!is_null($publishDate)) {

@@ -35,15 +35,20 @@ var Posts = function() {
         // при загрузки другой группы событие срабатывает 2 раза
 
         var key = $this.data('id');        
-        PostProvider.post(key).done(function(data) {            
-            if(data.response) {
-                toastr["success"]("Пост отправлен!", 'Ура');
-                block.fadeOut();
-            }
-            else {
-                toastr["error"]('Что-то пошло не так!', 'Ой');
-                block.find('.ajax-loader').remove();
-            }
+        PostProvider.post(key).done(function(data) {
+            toastr["success"]("Пост отправлен!", 'Ура');
+            block.fadeOut();
+//            if(data.response) {
+//                toastr["success"]("Пост отправлен!", 'Ура');
+//                block.fadeOut();
+//            }
+//            else {
+//                toastr["error"]('Что-то пошло не так!', 'Ой');
+//                block.find('.ajax-loader').remove();
+//            }
+        }).fail(function() {
+            toastr["error"]('Что-то пошло не так!', 'Ой');
+            block.find('.ajax-loader').remove();
         });
         
     });

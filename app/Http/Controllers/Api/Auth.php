@@ -178,5 +178,19 @@ class Auth extends Api {
         return $this;
     }
 
+    public function updateVk() {
+        $this->_methodName = 'updateVk';
+        $this->checkAuth();
+        
+        if(isset($_COOKIE['vk-token']) && isset($_COOKIE["vk-user-id"])) {
+            $user = AuthManager::user();
+            $user->vk_token = $_COOKIE['vk-token'];
+            $user->vk_user_id = $_COOKIE["vk-user-id"];
+            $user->save();
+        }
+        return $this;
+
+    }
+
 
 }

@@ -40,19 +40,23 @@ class Post extends Api {
             $images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
         }
 
-        $jsonData = json_encode($data);
-        $newJob = new \App\Job;
-        $newJob->started_at = $time->toDateTimeString();
-        $newJob->data = $jsonData;
-        $newJob->save();
-
-
-        $newPost = new \App\Post;
+        //$jsonData = json_encode($data);
+         $newPost = new \App\Post;
         $newPost->text = $data['post']['text'];
         $newPost->user_id = Auth::id();
         $newPost->publish_date = $time->toDateTimeString();
+        $newPost->group_id = Request::get('group_id');
         $newPost->save();
         $newPost->images()->saveMany($images);
+
+        
+        $newJob = new \App\Job;
+        $newJob->started_at = $time->toDateTimeString();
+        $newJob->post_id = $newPost->id;
+        $newJob->save();
+
+
+       
 
         $this->_data['job_id'] = $newJob->id;
         $this->_data['post_id'] = $newPost->id;
@@ -60,7 +64,18 @@ class Post extends Api {
         //dd(Request::all());
     }
 
+    public function getDelayed() {
+        $this->_methodName = 'getDelayed';
+        $this->checkAuth(\App\User::ACTIVATED);
+        $arNeed = [
+            'group_id' => 'required',
+            
+        ];
+    }
 
+    /**
+     * @deprecated
+     */
     public function post() {
         $this->_methodName = 'post';
         $this->checkAuth(\App\User::ACTIVATED);
@@ -86,4 +101,5 @@ class Post extends Api {
             //die();
         
     }
+
 }

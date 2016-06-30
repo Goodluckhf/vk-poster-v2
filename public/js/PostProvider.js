@@ -144,14 +144,10 @@ var PostProvider = (new function () {
         data.group_id = this.publicId;
         //data.url = '/upload.php';
         return Request.api('Post.postDelay', data).done(function (r) {
-            if (r.response) {
-                console.log(r.response);
+            //if (r.response) {
+                console.log(r);
                 me.inc();
-            }
-            else {
-                toastr["error"]('Что-то пошло не так!', 'Ой');
-            }
-
+           
         });
     }
 
@@ -200,6 +196,10 @@ var PostProvider = (new function () {
         time = yyyy + '-' + mm + '-' + dd + ', ' + h + ':' + min;
 
         return time;
+    }
+
+    this.getDelayed = function() {
+        return Request.api('Post.getDelayed');
     }
 
 

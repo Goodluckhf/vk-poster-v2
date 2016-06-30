@@ -43,8 +43,13 @@ var AuthService = (new function() {
     this.getUser = function() {
         return Request.api('Auth.getUser').then(function(data) {
             authorize(data);
+            return self.updateVk();
         });
     };
+
+    this.updateVk = function() {
+        return Request.api('Auth.updateVk');
+    }
 
     this.user = function() {
         return user;

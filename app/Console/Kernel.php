@@ -29,7 +29,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(function() {
             $now = Carbon::now();
-            $jobs = \App\Job::whereIsFinish(0)
+            $jobs = \App\Job::with('\App\Post')
+                    ->whereIsFinish(0)
                     ->where('started_at', '<=', $now->toDateTimeString())->get();
             
             foreach($jobs as $job) {
@@ -42,8 +43,8 @@ class Kernel extends ConsoleKernel
     }
 
     private function post($job) {
-
-        $data = json_decode($job->data, true);
+        $post = $job->post;
+        //$data = json_decode($job->data, true);
         $imgDir = public_path() . '/vk-images/';
         $vk = new VkApi($data['token'], $data['groupId'], $data['vkUserId'], $imgDir);
         $vk->setPost($data['post']);
