@@ -5,8 +5,8 @@ var Posts = function() {
                             '<div class="box-header with-border">' +
                                 '<div class="user-block">' +
                                     '<div class="pull-left">' +
-                                        '<span class="username"><a></a></span>' +
-                                        '<span class="description"></span>' +
+                                        '<span class="username"><a target="_blank"></a></span>' +
+                                        '<span style="font-size: 15px; font-weight: 800;" class="description"></span>' +
                                     '</div>' +
                                     '<span class="pull-right post-likes-reposts"></span>' +                                    
                                 '</div>' +
@@ -56,9 +56,6 @@ var Posts = function() {
     
     
     this.render = function(data) {
-        
-        //return this.load().done(function(data) {
-            //$(containerSelector).html(" ");
         $('.ajax-loader').remove();
         var posts = data['items'];    
         for(var i = 0; i < 50; i++) {
@@ -77,9 +74,7 @@ var Posts = function() {
             $item.find('span.username a').text(data.group);
             $item.find('.user-block .description').text('Дата публикации: ' + posts[i].date);
             $item.find('.post-likes-reposts').html('Репостов: ' + posts[i].reposts + '<br>Лайков: ' + posts[i].likes);
-            //$item.find('.user-block .description').text(posts[i].date);
             var attachments = posts[i].attachments;
-            //console.log(attachments);
 
             for(var j in attachments) {
                  $item.find('.attachment-block').append('<img src="' + attachments[j].photo.photo_130 + '">');
@@ -88,8 +83,40 @@ var Posts = function() {
             $item.find('span.username a').attr('href', 'http://vk.com/' + data.group);
             $(containerSelector).append($item);
         }
-        //});
-    }
+    };
+
+    this.renderForDelayaed = function(data) {
+        $('.ajax-loader').remove();
+        console.log(data);
+        //return;
+        var posts = data['data'];
+        for(var i in posts) {
+            var $item = $(templateItem);
+            var text;
+            if(posts[i].text.length > 300) {
+                var visible = posts[i].text.slice(0, 300);
+                var hidden = posts[i].text.slice(301);
+                text = visible + '<a class="expand-text" href="#">Показать полностью...</a><span class="hidden-text" style="display:none;">' + hidden + '</span>';
+            }
+            else {
+                text = posts[i].text;
+            }
+            $item.find('p.post-message').html(text);
+            $item.find('button.accept-post').data('id', posts[i].id);
+            $item.find('span.username a').text(PostProvider.publicName);
+            var localMoment = App.getLocalMoment(posts[i].publish_date);
+            $item.find('.user-block .description').text('Дата публикации: ' + localMoment.format('YYYY-MM-DD, HH:mm'));
+           // $item.find('.post-likes-reposts').html('Репостов: ' + posts[i].reposts + '<br>Лайков: ' + posts[i].likes);
+            var attachments = posts[i].images;
+
+            for(var j in attachments) {
+                 $item.find('.attachment-block').append('<img src="' + attachments[j].url + '">');
+
+            }
+            $item.find('span.username a').attr('href', 'http://vk.com/club' + (PostProvider.publicId * (-1)));
+            $(containerSelector).append($item);
+        }
+    };
     
     PostProvider.onPostLoad(function(data) {
         me.render(data); 
@@ -97,6 +124,14 @@ var Posts = function() {
     PostProvider.onSorted(function(data) {
         $(App.contentSelector).html(" ");
         me.render(data); 
+    });
+    PostProvider.onPostGetDelayed(function(data) {
+       $(App.contentSelector).html(" ");
+       me.renderForDelayaed(data);
+    });
+    PostProvider.onPostLoadFail(function(data) {
+        $('.ajax-loader').remove();
+        $(App.contentSelector).html('<center><span style="color:red;">' + data.message + '</span></center>');
     });
     
     this.loadingBlock = function (block) {

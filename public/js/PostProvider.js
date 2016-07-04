@@ -5,7 +5,8 @@ var PostProvider = (new function () {
 
     events.register('postLoadSuccess')
             .register('postLoadFail')
-            .register('sorted');
+            .register('sorted')
+            .register('postGetDelayed');
 
     this.datePicker;
 
@@ -20,6 +21,8 @@ var PostProvider = (new function () {
 
     this.publicId;
 
+    this.publicName;
+
     this.postAsGroup = 1;
 
     this.lastKey = 0;
@@ -27,15 +30,19 @@ var PostProvider = (new function () {
 
     var renderTime = function () {
         $('a.next-post-date span').text($('.date-picker').val().trim());
-    }
+    };
 
     this.onPostLoad = function (callback) {
         events.listen('postLoadSuccess', callback);
-    }
+    };
 
     this.onPostLoadFail = function (callback) {
         events.listen('postLoadFail', callback);
-    }
+    };
+
+    this.onPostGetDelayed = function(callback) {
+        events.listen('postGetDelayed', callback);
+    };
     
     this.onSorted = function (callback) {
         events.listen('sorted', callback);
@@ -131,25 +138,21 @@ var PostProvider = (new function () {
 
     }
 
-    this.setPublic = function (publicId) {
+    this.setPublic = function (publicId, name) {
         this.publicId = publicId;
-    }
+        this.publicName = name;
+    };
 
     this.post = function (key) {
         var data = {};
-        //data.data = {};
-        //console.log([posts, key]);
         data.post = posts[key];
         data.publish_date = this.currentDate;
         data.group_id = this.publicId;
-        //data.url = '/upload.php';
         return Request.api('Post.postDelay', data).done(function (r) {
-            //if (r.response) {
-                console.log(r);
-                me.inc();
-           
+            console.log(r);
+            me.inc();
         });
-    }
+    };
 
     this.inc = function () {
         var newTime = $('.date-picker').data('DateTimePicker').date().add(this.dateInterval, 'm').toDate();
@@ -159,7 +162,7 @@ var PostProvider = (new function () {
         //console.log(unixTime);
         this.currentDate = unixTime;
         renderTime();
-    }
+    };
 
 //    this.loadAllPosts = function(group) {
 //        var firstReq = {};
@@ -196,11 +199,20 @@ var PostProvider = (new function () {
         time = yyyy + '-' + mm + '-' + dd + ', ' + h + ':' + min;
 
         return time;
-    }
+    };
 
     this.getDelayed = function() {
-        return Request.api('Post.getDelayed');
-    }
+        return Request.api('Post.getDelayed', {
+            group_id: me.publicId
+        }).then(function(data) {
+            events.trigger('postGetDelayed', data);
+        }).fail(function(err) {
+            events.trigger('postLoadFail', err.responseJSON);
+        });
+    };
 
+    this.update = function(id, post) {
+        return Request.api('Post.update', post);
+    };
 
 });

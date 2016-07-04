@@ -21,15 +21,16 @@ class Post extends Api {
         ];
         $this->checkAttr($arNeed);
         $time = new Carbon;
-       // dd();
         $time->timestamp = Request::get('publish_date');
         
 
         $data = [
-            'post'     => Request::get('post'),
-            'groupId'  => Request::get('group_id'),
-            'token'    => $_COOKIE['vk-token'],
-            'vkUserId' => $_COOKIE['vk-user-id']
+            'post'         => Request::get('post'),
+            'group_id'      => Request::get('group_id'),
+            'token'        => $_COOKIE['vk-token'],
+            'vkUserId'     => $_COOKIE['vk-user-id'],
+            'user_id'      => Auth::id(),
+            'publish_date' => Request::get('publish_date'),
         ];
         $images = [];
 
@@ -40,18 +41,10 @@ class Post extends Api {
 
             $images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
         }
-
+        $data['images'] = $images;
         //$jsonData = json_encode($data);
-         $newPost = new \App\Post;
-        $newPost->text = $data['post']['text'];
-        $newPost->user_id = Auth::id();
-        //$newPost->publish_date = Carbon::now()->addMinute(1)->toDateTimeString();
-        $newPost->publish_date = $time->toDateTimeString();
-        $newPost->group_id = Request::get('group_id');
-       
-        $newPost->save();
-        $newPost->images()->saveMany($images);
-
+        $newPost = new \App\Post;
+        $newPost->populateByRequestData($data);
         
         $newJob = new \App\Job;
         //$newJob->started_at = Carbon::now()->addMinute(1)->toDateTimeString();
@@ -59,13 +52,34 @@ class Post extends Api {
         $newJob->post_id = $newPost->id;
         $newJob->save();
 
-
-       
-
         $this->_data['job_id'] = $newJob->id;
         $this->_data['post_id'] = $newPost->id;
         return $this;
         //dd(Request::all());
+    }
+
+    public function update() {
+        $this->_methodName = 'update';
+        $this->checkAuth(\App\User::ACTIVATED);
+        $arNeed = [
+            'post_id' => 'required|integer',
+            'post'=> 'required|array'
+        ];
+        $this->checkAttr($arNeed);
+        $newPost = Request::get('post');
+        $data = [
+            'post'     => $newPost,
+            'group_id'  => $newPost['group_id'],
+            'token'    => $_COOKIE['vk-token'],
+            'vkUserId' => $_COOKIE['vk-user-id'],
+            'user_id'  => Auth::id(),
+            'publish_date'     => $newPost['publish_date'],
+        ];
+
+        $post = \App\Post::find(Request::get('post_id'));
+        $post->populateByRequestData($data);
+
+        return $this;
     }
 
     public function getDelayed() {
@@ -75,10 +89,13 @@ class Post extends Api {
             'group_id' => 'required',
         ];
         $this->checkAttr($arNeed);
+        
         $now = Carbon::now();
-        $posts = \App\Post::whereUserId(Auth::id())
+        $posts = \App\Post::with('images')
+                ->whereUserId(Auth::id())
                 ->whereGroupId(Request::get('group_id'))
                 ->where('publish_date', '>=', $now->toDateTimeString())
+                ->orderBy('publish_date')
                 ->get();
         //dd($posts);
         if($posts->count() === 0) {

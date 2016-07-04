@@ -8,6 +8,12 @@ var App = (new function () {
         csrfToken = token;
     };
 
+    this.getLocalMoment = function(date) {
+        console.log(date);
+        var utc = moment.utc(date, 'YYYY-MM-DD HH:mm:ss');
+        var local = moment(utc.toDate());
+        return local;
+    };
     
 
 
@@ -32,6 +38,19 @@ var App = (new function () {
         userBlock.onClickLogout(function() {
             AuthService.logout();
         });
+
+        userBlock.onClickGetDelyaed(function() {
+            if(!PostProvider.publicId) {
+                alert('Группа не выбрана!');
+                return;
+            }
+            $(App.header).html('<i class="fa fa-inbox"></i>Отложенные посты');
+            $(App.contentSelector).html(" ");
+            App.loadingBlock(App.contentSelector);
+            PostProvider.getDelayed().fail(function(err) {
+                console.log(err.responseJSON);
+            });
+        });
     });
 
 
@@ -44,6 +63,7 @@ var App = (new function () {
         return matches ? decodeURIComponent(matches[1]) : undefined;
     }
     this.contentSelector = 'section.content .tab-content';
+    this.header = '.app-header';
 
     this.loadingBlock = function (block) {
         var $block = $(block);
@@ -94,6 +114,7 @@ $(function () {
         $(App.contentSelector).html(" ");
         App.loadingBlock(App.contentSelector);
         var group = $('.group-search-inp').val().trim();
+        $(App.header).html('<i class="fa fa-inbox"></i>Посты');
         // переделать на setData
         
         //posts.setGroup(group);
@@ -139,7 +160,7 @@ $(function () {
             $('.group-list-select').text($(this).data('name'));
             $('.group-list-select').data('id', $(this).data('id'));
             //console.log($('.group-list-select').data());
-            PostProvider.setPublic($(this).data('id'));
+            PostProvider.setPublic($(this).data('id'), $(this).data('name'));
         });
         
         $('a.sort-by-reposts').click(function() {            

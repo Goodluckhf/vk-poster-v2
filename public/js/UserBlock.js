@@ -10,7 +10,7 @@
                             '</li>' +
                             '<li class="user-body">' +
                                 '<div class="col-xs-4 text-center">' +
-                                    '<a href="#">Followers</a>' +
+                                    '<a class="getDelayaed" href="#">Отложенные</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
                                     '<a href="#">Sales</a>' +
@@ -41,5 +41,9 @@
 
     this.onClickLogout = function(cb) {
         $('body').on('click', '.user.user-menu .logout', cb);
+    };
+
+    this.onClickGetDelyaed = function(cb) {
+        $('body').on('click', '.user-body .getDelayaed', cb);
     };
 };

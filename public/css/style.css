@@ -95,3 +95,9 @@ div.button-wrapper {
     margin: 0 auto;
     width:100px;
 }
+.attachment-block.clearfix > img {
+    height: 130px;
+    margin-left: 10px;
+    margin-top: 10px;
+    width: auto;
+}
