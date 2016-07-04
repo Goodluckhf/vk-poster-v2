@@ -82,6 +82,19 @@ class Post extends Api {
         return $this;
     }
 
+    public function remove() {
+        $this->_methodName = 'remove';
+        $this->checkAuth(\App\User::ACTIVATED);
+        $arNeed = [
+            'id' => 'required|integer'
+        ];
+        $this->checkAttr($arNeed);
+        \App\Post::destroy(Request::get('id'));
+        \App\Image::wherePostId(Request::get('id'))->delete();
+        \App\Job::wherePostId(Request::get('id'))->delete();
+        return $this;
+    }
+
     public function getDelayed() {
         $this->_methodName = 'getDelayed';
         $this->checkAuth(\App\User::ACTIVATED);

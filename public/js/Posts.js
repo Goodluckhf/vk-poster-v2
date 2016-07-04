@@ -32,27 +32,26 @@ var Posts = function() {
         var block = $this.parents('.box-widget');
         me.loadingBlock($this.parents('div.button-wrapper'));
         console.log($this);
-        // при загрузки другой группы событие срабатывает 2 раза
-
         var key = $this.data('id');        
         PostProvider.post(key).done(function(data) {
             toastr["success"]("Пост отправлен!", 'Ура');
             block.fadeOut();
-//            if(data.response) {
-//                toastr["success"]("Пост отправлен!", 'Ура');
-//                block.fadeOut();
-//            }
-//            else {
-//                toastr["error"]('Что-то пошло не так!', 'Ой');
-//                block.find('.ajax-loader').remove();
-//            }
         }).fail(function() {
             toastr["error"]('Что-то пошло не так!', 'Ой');
             block.find('.ajax-loader').remove();
         });
         
     });
-    
+
+    $(containerSelector).on('click', '.post-remove', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        return PostProvider.remove($(this).data('id')).then(function() {
+            toastr["success"]("Пост удален!", 'Ура');
+            var block = $this.parents('.box-widget');
+            block.fadeOut();
+        });
+    });
     
     
     this.render = function(data) {
@@ -106,6 +105,10 @@ var Posts = function() {
             $item.find('span.username a').text(PostProvider.publicName);
             var localMoment = App.getLocalMoment(posts[i].publish_date);
             $item.find('.user-block .description').text('Дата публикации: ' + localMoment.format('YYYY-MM-DD, HH:mm'));
+            $btnWrapper = $item.find('.button-wrapper button');
+            $btnWrapper.remove();
+            $btnWrapper.append('<button class="btn btn-flat btn-block btn-primary update-post" type="button"><i class="fa fa-share"></i>Изменить!</button>');
+            $item.find('.user-block').append('<div class="pull-right"><button data-id="' + posts[i].id + '" title="удалить" style="font-size:20px;" type="button" class="btn btn-box-tool post-remove"><i class="fa fa-times"></i></button></div>');
            // $item.find('.post-likes-reposts').html('Репостов: ' + posts[i].reposts + '<br>Лайков: ' + posts[i].likes);
             var attachments = posts[i].images;
 

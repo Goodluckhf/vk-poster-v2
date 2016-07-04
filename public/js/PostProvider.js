@@ -215,4 +215,8 @@ var PostProvider = (new function () {
         return Request.api('Post.update', post);
     };
 
+    this.remove = function(id) {
+        return Request.api('Post.remove', {id: id});
+    };
+
 });
