@@ -141,7 +141,7 @@ var PostProvider = (new function () {
                 lastKey: me.lastKey
             });
         });
-    }
+    };
 
     this.start = function (data) {
         console.log(data);

@@ -22,7 +22,14 @@ var Posts = function() {
                         '</div>',
         containerSelector = App.contentSelector;
     
-    
+    var delay = function(ms) {
+        var def = $.Deferred();
+        setTimeout(function() {
+            def.resolve();
+        }, ms);
+        return def.promise();
+    };
+
     $(containerSelector).on('click', '.accept-post', function(e) {
         if(!PostProvider.startDate || !PostProvider.publicId) {
             alert('Не выбрана дата, и/или группа, в которую нужно постить!');
@@ -111,36 +118,76 @@ var Posts = function() {
         });
     });
     
-    
+    var populate = function(post, group, i) {
+        var $item = $(templateItem);
+        var text;
+        if(post.text.length > 300) {
+            var visible = post.text.slice(0, 300);
+            var hidden = post.text.slice(301);
+            text = visible + '<a class="expand-text" href="#">Показать полностью...</a><span class="hidden-text" style="display:none;">' + hidden + '</span>';
+        }
+        else {
+            text = post.text;
+        }
+        $item.find('p.post-message').html(text);
+        $item.data('id', i);
+        $item.find('button.accept-post').data('id', i);
+        $item.find('span.username a').text(group);
+        $item.find('.user-block .description').text('Дата публикации: ' + post.date);
+        $item.find('.post-likes-reposts').html('Репостов: ' + post.reposts + '<br>Лайков: ' + post.likes);
+        var attachments = post.attachments;
+
+        for(var j in attachments) {
+             $item.find('.attachment-block').append('<img src="' + attachments[j].photo.photo_130 + '">');
+
+        }
+        $item.find('span.username a').attr('href', 'http://vk.com/' + group);
+        $(containerSelector).append($item);
+    };
+
     this.render = function(data) {
         $('.ajax-loader').remove();
-        var posts = data['items'];    
-        for(var i = 0; i < 50; i++) {
-            var $item = $(templateItem);
-            var text;
-            if(posts[i].text.length > 300) {
-                var visible = posts[i].text.slice(0, 300);
-                var hidden = posts[i].text.slice(301);
-                text = visible + '<a class="expand-text" href="#">Показать полностью...</a><span class="hidden-text" style="display:none;">' + hidden + '</span>';
-            }
-            else {
-                text = posts[i].text;
-            }
-            $item.find('p.post-message').html(text);
-            $item.data('id', i);
-            $item.find('button.accept-post').data('id', i);
-            $item.find('span.username a').text(data.group);
-            $item.find('.user-block .description').text('Дата публикации: ' + posts[i].date);
-            $item.find('.post-likes-reposts').html('Репостов: ' + posts[i].reposts + '<br>Лайков: ' + posts[i].likes);
-            var attachments = posts[i].attachments;
+        var posts = data['items'];
 
-            for(var j in attachments) {
-                 $item.find('.attachment-block').append('<img src="' + attachments[j].photo.photo_130 + '">');
 
-            }
-            $item.find('span.username a').attr('href', 'http://vk.com/' + data.group);
-            $(containerSelector).append($item);
+        var def = new $.Deferred();
+        def.resolve();
+        for(var i = 0, len = posts.length; i < len; i++) {
+            (function(i) {
+                def = def.then(function() {
+                    return delay(10).then(function() {
+                        populate(posts[i], data.group, i);
+                    });
+                });
+            })(i);
         }
+
+//        for(var i = 0; i < 50; i++) {
+//            var $item = $(templateItem);
+//            var text;
+//            if(posts[i].text.length > 300) {
+//                var visible = posts[i].text.slice(0, 300);
+//                var hidden = posts[i].text.slice(301);
+//                text = visible + '<a class="expand-text" href="#">Показать полностью...</a><span class="hidden-text" style="display:none;">' + hidden + '</span>';
+//            }
+//            else {
+//                text = posts[i].text;
+//            }
+//            $item.find('p.post-message').html(text);
+//            $item.data('id', i);
+//            $item.find('button.accept-post').data('id', i);
+//            $item.find('span.username a').text(data.group);
+//            $item.find('.user-block .description').text('Дата публикации: ' + posts[i].date);
+//            $item.find('.post-likes-reposts').html('Репостов: ' + posts[i].reposts + '<br>Лайков: ' + posts[i].likes);
+//            var attachments = posts[i].attachments;
+//
+//            for(var j in attachments) {
+//                 $item.find('.attachment-block').append('<img src="' + attachments[j].photo.photo_130 + '">');
+//
+//            }
+//            $item.find('span.username a').attr('href', 'http://vk.com/' + data.group);
+//            $(containerSelector).append($item);
+//        }
     };
 
     this.renderForDelayaed = function(data) {
