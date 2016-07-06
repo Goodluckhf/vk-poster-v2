@@ -78,6 +78,12 @@ class Post extends Api {
 
         $post = \App\Post::find(Request::get('post_id'));
         $post->populateByRequestData($data);
+        $time = new Carbon;
+        $time->timestamp = Request::get('post')['publish_date'];
+
+        $job = \App\Job::wherePostId(Request::get('post_id'))->first();
+        $job->started_at = $time->toDateTimeString();
+        $job->save();
 
         return $this;
     }

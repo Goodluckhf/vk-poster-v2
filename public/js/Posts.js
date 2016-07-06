@@ -52,6 +52,64 @@ var Posts = function() {
             block.fadeOut();
         });
     });
+
+    $(containerSelector).on('click', '.update-post', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $this.addClass('accept-update');
+        $this.removeClass('update-post');
+        var block = $this.parents('.box-widget');
+        block.find('a.expand-text').click();
+        //console.log();
+        var post = PostProvider.getById(block.data('id'));
+        console.log(post);
+        var height = block.find('.post-message').outerHeight(true);
+        var width = block.find('.box-body').width();
+        //var text = block.find('.post-message').text();
+        var textArea = $('<textarea style="width:' + width + 'px; height:' + height + 'px;" class="post-updating-area">' + post.text + '</textarea>');
+        block.find('.box-body').prepend(textArea);
+        var pos = $('.user-block .pull-left .description').eq(0).position();
+        var dateWidth = $('.user-block .pull-left .description').eq(0).width();
+       // var input = '<input style="position:absolute; left:' + (pos.left + 50) + 'px; top:' + pos.top + 'px"></input>';
+        
+        var dateInput = $('<div style="width: ' + dateWidth + 'px; margin: 0; position:absolute; left:' + (pos.left + 50) + 'px; top:' + pos.top + 'px;" class="date-picker-div updating-date-area">' +
+                            '<input type="text" placeholder="Дата публикации:" class="form-control date-picker">' +
+                        '</div>');
+        block.find('.user-block .pull-left').append(dateInput);
+        var localDate = App.getLocalMoment(post.publish_date);
+        dateInput.find('.date-picker').datetimepicker({
+            locale: 'ru',
+            stepping: 5,
+            toolbarPlacement: 'bottom',
+            defaultDate: localDate
+            //sideBySide: true
+        });
+        textArea.focus();
+    });
+
+    $(containerSelector).on('click', '.accept-update', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var block = $this.parents('.box-widget');
+        var timePicker = block.find('.date-picker').data("DateTimePicker");
+        $this.addClass('accept-update');
+        $this.removeClass('update-post');
+        var textArea = block.find('.post-updating-area');
+        //console.log(timePicker.date().unix());
+        var post = {
+            text: textArea.val().trim(),
+            publish_date: timePicker.date().unix(),
+            group_id: PostProvider.publicId,
+        };
+        PostProvider.update(block.data('id'), post).then(function() {
+            toastr["success"]("Пост изменен!", 'Ура');
+            block.find('.post-message').text(textArea.val().trim());
+            textArea.remove();
+            localMoment = App.getLocalMoment(timePicker.date());
+            block.find('.user-block .description').text('Дата публикации: ' + localMoment.format('DD-MM-YYYY HH:mm'));
+            block.find('.updating-date-area').remove();
+        });
+    });
     
     
     this.render = function(data) {
@@ -69,6 +127,7 @@ var Posts = function() {
                 text = posts[i].text;
             }
             $item.find('p.post-message').html(text);
+            $item.data('id', i);
             $item.find('button.accept-post').data('id', i);
             $item.find('span.username a').text(data.group);
             $item.find('.user-block .description').text('Дата публикации: ' + posts[i].date);
@@ -101,13 +160,14 @@ var Posts = function() {
                 text = posts[i].text;
             }
             $item.find('p.post-message').html(text);
+            $item.data('id', posts[i].id);
             $item.find('button.accept-post').data('id', posts[i].id);
             $item.find('span.username a').text(PostProvider.publicName);
             var localMoment = App.getLocalMoment(posts[i].publish_date);
-            $item.find('.user-block .description').text('Дата публикации: ' + localMoment.format('YYYY-MM-DD, HH:mm'));
-            $btnWrapper = $item.find('.button-wrapper button');
-            $btnWrapper.remove();
-            $btnWrapper.append('<button class="btn btn-flat btn-block btn-primary update-post" type="button"><i class="fa fa-share"></i>Изменить!</button>');
+            $item.find('.user-block .description').text('Дата публикации: ' + localMoment.format('DD-MM-YYYY HH:mm'));
+            $btnWrapper = $item.find('.button-wrapper');
+            $btnWrapper.find('button').remove();
+            $btnWrapper.append('<button class="btn btn-flat btn-block btn-primary update-post" type="button">Изменить!</button>');
             $item.find('.user-block').append('<div class="pull-right"><button data-id="' + posts[i].id + '" title="удалить" style="font-size:20px;" type="button" class="btn btn-box-tool post-remove"><i class="fa fa-times"></i></button></div>');
            // $item.find('.post-likes-reposts').html('Репостов: ' + posts[i].reposts + '<br>Лайков: ' + posts[i].likes);
             var attachments = posts[i].images;

@@ -101,3 +101,6 @@ div.button-wrapper {
     margin-top: 10px;
     width: auto;
 }
+.post-updating-area {
+    position: absolute;
+}

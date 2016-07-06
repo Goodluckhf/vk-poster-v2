@@ -32,6 +32,22 @@ var PostProvider = (new function () {
         $('a.next-post-date span').text($('.date-picker').val().trim());
     };
 
+    this.getById = function(id) {
+        for(var i in posts) {
+            if(posts[i].id === id) {
+                return posts[i];
+            }
+        }
+        return false;
+    };
+
+    this.update = function(id, newPost) {
+        return Request.api('Post.update',{
+            post:newPost,
+            post_id: id
+        });
+    };
+
     this.onPostLoad = function (callback) {
         events.listen('postLoadSuccess', callback);
     };
@@ -201,18 +217,26 @@ var PostProvider = (new function () {
         return time;
     };
 
+
+    
     this.getDelayed = function() {
+        posts = [];
         return Request.api('Post.getDelayed', {
             group_id: me.publicId
         }).then(function(data) {
             events.trigger('postGetDelayed', data);
+            posts = data.data;
+            //console.log(data);
         }).fail(function(err) {
             events.trigger('postLoadFail', err.responseJSON);
         });
     };
 
     this.update = function(id, post) {
-        return Request.api('Post.update', post);
+        return Request.api('Post.update', {
+            post_id: id,
+            post: post
+        });
     };
 
     this.remove = function(id) {
