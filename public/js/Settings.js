@@ -1,5 +1,6 @@
 ;var Settings = function() {
-    var self = this;
+    var self = this,
+        template = '';
 
 
     this.show = function() {

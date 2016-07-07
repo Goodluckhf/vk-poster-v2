@@ -104,3 +104,19 @@ div.button-wrapper {
 .post-updating-area {
     position: absolute;
 }
+
+/**
+*   SWITCH CONTROL
+*/
+
+.switch-container input {
+    width: 60px;
+    border-left:none;
+    border-right:none;
+}
+
+.switch-container button,
+.switch-container input {
+    float:left;
+    background-color: white !important;
+}

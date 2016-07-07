@@ -125,15 +125,18 @@ var PostProvider = (new function () {
                 events.trigger('postLoadFail', {group: group});
             }
         }).then(function () {            
-            return Request.vkApi('wall.get', {domain: group, count: 100, offset: 100, v: 5.40}).done(function (data) {
+            return Request.vkApi('wall.get', {domain: group, count: 50, offset: 100, v: 5.40}).done(function (data) {
                 var items = data.response.items;
                 postByResponse(items);
             });
-        }).then(function () {            
-            return Request.vkApi('wall.get', {domain: group, count: 100, offset: 200, v: 5.40}).done(function (data) {
-                var items = data.response.items;
-                postByResponse(items);
-            });
+
+        }).then(function () {
+            //throw new Error();
+//            return Request.vkApi('wall.get', {domain: group, count: 100, offset: 200, v: 5.40}).done(function (data) {
+//                var items = data.response.items;
+//                postByResponse(items);
+//            });
+            return true;
         }).done(function() {
             events.trigger('postLoadSuccess', {
                 items: posts,

@@ -55,6 +55,9 @@ and open the template in the editor.
         <script src="/js/User.js" type="text/javascript"></script>
         <script src="/js/AuthService.js" type="text/javascript"></script>
         <script src="/js/Posts.js" type="text/javascript"></script>
+        <script src="/js/Switcher.js" type="text/javascript"></script>
+        <script src="/js/Settings.js" type="text/javascript"></script>
+
         <script src="/js/UserBlock.js" type="text/javascript"></script>
         <script src="/js/VKLoginForm.js" type="text/javascript"></script>
         <script src="/js/LoginForm.js" type="text/javascript"></script>
