@@ -51,6 +51,11 @@ var App = (new function () {
                 console.log(err.responseJSON);
             });
         });
+
+        userBlock.onClickSettings(function() {
+            var settings = new Settings();
+            settings.show();
+        });
     });
 
 

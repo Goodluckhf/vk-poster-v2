@@ -21,7 +21,7 @@
                             '</li>' +
                             '<li class="user-footer">' +
                                 '<div class="pull-left">' +
-                                    '<a href="#" class="btn btn-default btn-flat">Настройки</a>' +
+                                    '<a href="#" class="btn btn-default btn-flat open-settings">Настройки</a>' +
                                 '</div>' +
                                 '<div class="pull-right">' +
                                     '<a href="#" class="btn btn-default btn-flat logout">Выйти</a>' +
@@ -45,5 +45,9 @@
 
     this.onClickGetDelyaed = function(cb) {
         $('body').on('click', '.user-body .getDelayaed', cb);
+    };
+
+    this.onClickSettings = function(cb) {
+        $('body').on('click', '.open-settings', cb);
     };
 };
