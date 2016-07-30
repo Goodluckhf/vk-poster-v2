@@ -43,8 +43,9 @@ var Posts = function() {
         PostProvider.post(key).done(function(data) {
             toastr["success"]("Пост отправлен!", 'Ура');
             block.fadeOut();
-        }).fail(function() {
-            toastr["error"]('Что-то пошло не так!', 'Ой');
+        }).fail(function(e) {
+            console.log(e.responseJSON.message);
+            toastr["error"](e.responseJSON.message, 'Ошибка!');
             block.find('.ajax-loader').remove();
         });
         

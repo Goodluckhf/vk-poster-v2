@@ -142,6 +142,8 @@
             name: name,
             //access_key: checkCode,
             post_code: postCode,
+        }).done(function() {
+            bootbox.hideAll();
         }).fail(function (data) {
             console.log(data.responseJSON);
             var alert = '<div class="alert alert-danger alert-dismissable">' +
