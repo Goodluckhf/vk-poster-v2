@@ -35,7 +35,7 @@ var VKAuthService = (new function () {
             isReady = true;
             isAuth = true;
             Request.vkApi('groups.get', {
-                filter: 'admin',
+                filter: 'moder',
                 extended: 1,
                 v: 5.40
             }).done(function(gr) {
