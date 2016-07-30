@@ -38,6 +38,11 @@ class Kernel extends ConsoleKernel
             }
         })->everyMinute();
 
+//        $schedule->call(function() {
+//            $now = Carbon::now();
+//            $usersForDeActivate = ''
+//        })->hourly();
+
     }
 
     private function post($job) {

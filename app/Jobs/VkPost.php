@@ -38,7 +38,7 @@ class VkPost extends Job implements ShouldQueue
      */
     public function handle()
     {
-         Log::info('начало создание поста');
+         //Log::info('начало создание поста');
         $imgDir = public_path() . '/vk-images/';
         
         //if(isset($_REQUEST['group_id']) && isset($_REQUEST['publish_date'])) {
@@ -47,7 +47,7 @@ class VkPost extends Job implements ShouldQueue
         $result = $vk->curlPost();
 
         $resPost = $vk->post(null, $vk->getPhotosByResponse($result));
-        Log::info('ответ на создание поста: '.$resPost);
+        //Log::info('ответ на создание поста: '.$resPost);
         //$this->_data = $resPost['response']['post_id'];
     }
 }
