@@ -1,13 +1,28 @@
 ;var Settings = function() {
     var self = this,
         template = '<div class="settings">' +
-                        '<div class="form-group post-interval col-xs-12">' +
-                            '<label class="col-sm-4 control-label" >Интервал постинга</label>' +
+                        '<div class="row">' +
+                            '<div class="form-group post-interval col-xs-12">' +
+                                '<label class="col-sm-4 control-label" >Интервал постинга</label>' +
 
-                  
+
+                            '</div>' +
                         '</div>' +
                         '<button class="btn btn-sm btn-primary save-interval" >Сохранить</button>' +
                         '<hr>' +
+//                        '<div class="row">' +
+//                            //'<div class="form-group col-xs-12">' +
+//                                '<label class="col-sm-6 control-label" >Постинг по расписанию</label>' +
+//                                '<div class="date-picker-div col-xs-8">' +
+//                                    '<input type="text" placeholder="Дата поста" class="form-control date-picker timetable-picker">' +
+//
+//                                '</div>' +
+//                                '<div class="date-picker-div col-xs-2">' +
+//                                    '<button class="btn btn-sm btn-primary add-time">Добавить</button>' +
+//                                '</div>' +
+//
+//                            //'</div>' +
+//                        '</div>' +
                     '</div>',
         switcher;
 
@@ -26,6 +41,14 @@
         $('.save-interval').click(function() {
             PostProvider.dateInterval = switcher.val();
         });
+
+
+//        $('.timetable-picker').datetimepicker({
+//            locale: 'ru',
+//            stepping: 5,
+//            toolbarPlacement: 'bottom'
+//            //sideBySide: true
+//        });
         //console.log(switcher.val());
     };
 
