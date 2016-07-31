@@ -195,7 +195,7 @@ $(function () {
             App.start();
         }, function(err) {
             console.log(err);
-            form.showError(err.responseJSON.error);
+            form.showError(err.responseJSON.message);
         }).always(function() {
             form.activeLogin();
         });

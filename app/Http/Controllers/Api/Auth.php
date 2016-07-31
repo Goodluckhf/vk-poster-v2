@@ -163,7 +163,9 @@ class Auth extends Api {
         ];
         $this->checkAttr($arNeed);
         
-        $res = file_get_contents('https://oauth.vk.com/access_token?code=' . Request::get('code') . '&client_id=5180832&client_secret=G8PLjiQIwCSfD5jaNclV&redirect_uri=https://oauth.vk.com/blank.html');
+        $res = @file_get_contents('https://oauth.vk.com/access_token?code=' . Request::get('code') . '&client_id=5180832&client_secret=G8PLjiQIwCSfD5jaNclV&redirect_uri=https://oauth.vk.com/blank.html');
+        
+            
 
         $result = (array)json_decode($res);
         if(isset($result['access_token'])) {
@@ -172,9 +174,9 @@ class Auth extends Api {
             //header("Location: /");
         }
         else {
-            print_r($result);
+            throw new \App\Exceptions\Api\VkAuthFail($this->_controllerName, $this->_methodName);
         }
-
+        //$this->_data = $res;
         return $this;
     }
 
