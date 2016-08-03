@@ -30,10 +30,11 @@ class Api extends \App\Http\Controllers\Controller {
     }
 
     protected function checkAuth($needRole = null) {
+        if(!Auth::check()) {
+            throw new AuthRequire($this->_controllerName, $this->_methodName);
+        }
+        
         if(is_null($needRole)) {
-            if(!Auth::check()) {
-                throw new AuthRequire($this->_controllerName, $this->_methodName);
-            }
             return;
         }
 
