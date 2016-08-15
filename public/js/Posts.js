@@ -36,19 +36,51 @@ var Posts = function() {
             return;
         }
         var $this = $(this);
-        var block = $this.parents('.box-widget');
-        me.loadingBlock($this.parents('div.button-wrapper'));
-        console.log($this);
-        var key = $this.data('id');        
-        PostProvider.post(key).done(function(data) {
-            toastr["success"]("Пост отправлен!", 'Ура');
-            block.fadeOut();
-        }).fail(function(e) {
-            console.log(e.responseJSON.message);
-            toastr["error"](e.responseJSON.message, 'Ошибка!');
-            block.find('.ajax-loader').remove();
-        });
+
+        var def = new $.Deferred();
+        var postDate = $('.date-picker').data('DateTimePicker').date();
+        if($('.date-picker').data('DateTimePicker').date().isBefore()) {
+            bootbox.dialog({
+                message: 'указанное время уже прошло!<br>Нажмите "Отмена" для отмены или нажмите "Запостить", что бы запостить сейчас',
+                title: 'Предупреждение',
+                buttons: {
+                    danger: {
+                        label: 'Отмена',
+                        className: "btn-danger",
+                        callback: function() {
+                            def.reject();
+                        }
+                    },
+                    success: {
+                        label: 'Запостить',
+                        className: "btn-success",
+                        callback: function() {
+                            def.resolve();
+                        }
+                    }
+                }
+            });
+        } else {
+            def.resolve();
+        }
+
+       
         
+        def.done(function() {
+           
+            var block = $this.parents('.box-widget');
+            me.loadingBlock($this.parents('div.button-wrapper'));
+            console.log($this);
+            var key = $this.data('id');
+            PostProvider.post(key).done(function(data) {
+                toastr["success"]("Пост отправлен!", 'Ура');
+                block.fadeOut();
+            }).fail(function(e) {
+                console.log(e.responseJSON.message);
+                toastr["error"](e.responseJSON.message, 'Ошибка!');
+                block.find('.ajax-loader').remove();
+            });
+        });
     });
 
     $(containerSelector).on('click', '.post-remove', function(e) {
