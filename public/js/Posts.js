@@ -61,6 +61,40 @@ var Posts = function() {
         });
     });
 
+
+    $(containerSelector).on('click', '.update-for-post', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $this.addClass('accept-update-post');
+        $this.removeClass('update-for-post');
+        var block = $this.parents('.box-widget');
+        block.find('a.expand-text').click();
+        //console.log();
+        var post = PostProvider.getByKey(block.data('id'));
+        console.log(post);
+        var height = block.find('.post-message').outerHeight(true);
+        var width = block.find('.box-body').width();
+        var textArea = $('<textarea style="width:' + width + 'px; height:' + height + 'px;" class="post-updating-area">' + post.text + '</textarea>');
+        block.find('.box-body').prepend(textArea);
+        textArea.focus();
+    });
+
+
+    $(containerSelector).on('click', '.accept-update-post', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var block = $this.parents('.box-widget');
+        $this.removeClass('accept-update-post');
+        $this.addClass('update-for-post');
+        var textArea = block.find('.post-updating-area');
+        PostProvider.updateById(block.data('id'), textArea.val().trim());
+        block.find('.post-message').text(textArea.val().trim());
+        textArea.remove();
+        block.find('.updating-date-area').remove();
+        
+    });
+
+
     $(containerSelector).on('click', '.update-post', function(e) {
         e.preventDefault();
         var $this = $(this);
@@ -95,15 +129,17 @@ var Posts = function() {
         textArea.focus();
     });
 
+
+
     $(containerSelector).on('click', '.accept-update', function(e) {
         e.preventDefault();
         var $this = $(this);
         var block = $this.parents('.box-widget');
         var timePicker = block.find('.date-picker').data("DateTimePicker");
-        $this.addClass('accept-update');
-        $this.removeClass('update-post');
+        $this.removeClass('accept-update');
+        $this.addClass('update-post');
         var textArea = block.find('.post-updating-area');
-        //console.log(timePicker.date().unix());
+        
         var post = {
             text: textArea.val().trim(),
             publish_date: timePicker.date().unix(),
@@ -133,6 +169,18 @@ var Posts = function() {
         $item.find('p.post-message').html(text);
         $item.data('id', i);
         $item.find('button.accept-post').data('id', i);
+        $item.find('.button-wrapper').css({
+            width: '35%'
+        });
+        $item.find('.button-wrapper').append('<button class="btn btn-flat btn-block btn-primary update-for-post"type="button"><i class="fa fa-edit"></i>Изменить</button>')
+
+        $item.find('.button-wrapper button').css({
+            float:'left',
+            marginLeft: '30px',
+            width: '110px',
+            marginTop: '0px'
+
+        });
         $item.find('span.username a').text(group);
         $item.find('.user-block .description').text('Дата публикации: ' + post.date);
         $item.find('.post-likes-reposts').html('Репостов: ' + post.reposts + '<br>Лайков: ' + post.likes);

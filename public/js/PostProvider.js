@@ -4,6 +4,7 @@ var PostProvider = (new function () {
             posts = [];
 
     events.register('postLoadSuccess')
+            .register('onPostUpdate')
             .register('postLoadFail')
             .register('sorted')
             .register('postGetDelayed');
@@ -40,12 +41,28 @@ var PostProvider = (new function () {
         }
         return false;
     };
+    
+    this.getByKey = function(key) {
+        return posts[key];
+    };
 
     this.update = function(id, newPost) {
         return Request.api('Post.update',{
             post:newPost,
             post_id: id
         });
+    };
+
+    this.updateById = function(id, text) {
+        posts[id].text = text;
+        events.trigger('onPostUpdate', {
+            id: id,
+            text: text
+        });
+    };
+
+    this.onPostUpdate = function(callback) {
+        events.listen('onPostUpdate', callback);
     };
 
     this.onPostLoad = function (callback) {
@@ -235,12 +252,7 @@ var PostProvider = (new function () {
         });
     };
 
-    this.update = function(id, post) {
-        return Request.api('Post.update', {
-            post_id: id,
-            post: post
-        });
-    };
+    
 
     this.remove = function(id) {
         return Request.api('Post.remove', {id: id});
