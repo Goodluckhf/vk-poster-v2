@@ -55,7 +55,9 @@ class Auth extends Api {
         if (!AuthManager::check()) {
             throw new AuthRequire($this->_controllerName, $this->_methodName);
         }
-
+        //dd($_COOKIE);
+        setcookie("vk-token","",time()-1000, '/');
+        setcookie("vk-user-id","",time()-1000, '/');
         AuthManager::logout();
         return $this;
     }
