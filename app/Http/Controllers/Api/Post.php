@@ -22,8 +22,11 @@ class Post extends Api {
         $this->checkAttr($arNeed);
         $time = new Carbon;
         $time->timestamp = Request::get('publish_date');
-        
 
+
+        //$this->_data = Request::get('post')['text'];
+        //return $this;
+        //dd();
         $data = [
             'post'         => Request::get('post'),
             'group_id'      => Request::get('group_id'),
@@ -45,12 +48,13 @@ class Post extends Api {
         //$jsonData = json_encode($data);
         $newPost = new \App\Post;
         $newPost->populateByRequestData($data);
-        
+       // dd($newPost->text);
         $newJob = new \App\Job;
         //$newJob->started_at = Carbon::now()->addMinute(1)->toDateTimeString();
         $newJob->started_at = $time->toDateTimeString();
         $newJob->post_id = $newPost->id;
         $newJob->save();
+
 
         $this->_data['job_id'] = $newJob->id;
         $this->_data['post_id'] = $newPost->id;
