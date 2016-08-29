@@ -112,6 +112,7 @@ class VkApi {
             $imgs['file' . ($key + 1) ] = curl_file_create($imgFile, 'image/jpeg','test_name.jpg');
         }
         $uploadResult = $this->getUploadServer();
+        Log::info('uploadResult: ' . $uploadResult);
         //PR($uploadResult);
 
 //        PR($imgs);
@@ -150,7 +151,9 @@ class VkApi {
             $resultPhotoResponse['response'] = $resultPhotoResponseList;
         }
         else {
+            
             $result = $this->sendImgs($uploadResult['response']['upload_url'], $imgs);
+
             $resultPhotoResponse = $this->saveWallPhoto($result['photo'], $result['server'], $result['hash']);
         }
         //PR($imgs);
