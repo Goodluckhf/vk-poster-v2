@@ -115,6 +115,10 @@ class VkApi {
         Log::info('uploadResult: ' . json_encode($uploadResult));
         //PR($uploadResult);
 
+        if($uploadResult['error']) {
+            Log::info('uploadResut error:' . json_encode($uploadResult));
+            return false;
+        }
 //        PR($imgs);
 //        die();
         if(count($imgs) > 6) {

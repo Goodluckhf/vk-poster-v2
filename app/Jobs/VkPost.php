@@ -45,7 +45,7 @@ class VkPost extends Job implements ShouldQueue
         $vk = new VkApi($this->token, $this->groupId, $this->vkUserId, $imgDir);
         $vk->setPost($this->post);
         $result = $vk->curlPost();
-
+        
         $resPost = $vk->post(null, $vk->getPhotosByResponse($result));
         //Log::info('ответ на создание поста: '.$resPost);
         //$this->_data = $resPost['response']['post_id'];

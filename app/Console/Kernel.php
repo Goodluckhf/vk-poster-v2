@@ -52,6 +52,11 @@ class Kernel extends ConsoleKernel
         $vk = new VkApi($job->post->user->vk_token, $job->post->group_id, $job->post->user->vk_user_id, $imgDir);
         $vk->setPost($job->post->toArray());
         $result = $vk->curlPost();
+        if(!$result) {
+            Log::info('Error post_id:' . $job->post->id);
+            return;
+
+        }
         $resPost = $vk->post(null, $vk->getPhotosByResponse($result));
         Log::info(json_encode($resPost));
         $job->is_finish = 1;
