@@ -112,7 +112,7 @@ class VkApi {
             $imgs['file' . ($key + 1) ] = curl_file_create($imgFile, 'image/jpeg','test_name.jpg');
         }
         $uploadResult = $this->getUploadServer();
-        Log::info('uploadResult: ' . $uploadResult);
+        Log::info('uploadResult: ' . json_encode($uploadResult));
         //PR($uploadResult);
 
 //        PR($imgs);
