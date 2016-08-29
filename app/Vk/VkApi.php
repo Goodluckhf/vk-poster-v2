@@ -115,7 +115,7 @@ class VkApi {
         Log::info('uploadResult: ' . json_encode($uploadResult));
         //PR($uploadResult);
 
-        if($uploadResult['error']) {
+        if(isset($uploadResult['error'])) {
             Log::info('uploadResut error:' . json_encode($uploadResult));
             return false;
         }
