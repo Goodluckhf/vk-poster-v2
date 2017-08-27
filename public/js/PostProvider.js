@@ -184,7 +184,7 @@ var PostProvider = (new function () {
         data.post = posts[key];
         data.publish_date = this.currentDate;
         data.group_id = this.publicId;
-        return Request.api('Post.postDelay', data).done(function (r) {
+        return Request.api('Post.post', data).done(function (r) {
             console.log(r);
             me.inc();
         });

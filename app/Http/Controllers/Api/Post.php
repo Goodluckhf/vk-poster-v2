@@ -145,8 +145,29 @@ class Post extends Api {
         $imgDir = public_path() . '/vk-images/';
 
         //if(isset($_REQUEST['group_id']) && isset($_REQUEST['publish_date'])) {
+        $data = [
+            'post'         => Request::get('post'),
+            'group_id'      => Request::get('group_id'),
+            'token'        => $_COOKIE['vk-token'],
+            'vkUserId'     => $_COOKIE['vk-user-id'],
+            'user_id'      => Auth::id(),
+            'publish_date' => Request::get('publish_date'),
+        ];
+        $images = [];
+
+        foreach($data['post']['attachments'] as $attach) {
+            if($attach['type'] !== 'photo') {
+                continue;
+            }
+
+            $images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
+        }
+        $data['images'] = $images;
+        //$jsonData = json_encode($data);
+        $newPost = new \App\Post;
+        $newPost->populateByRequestData($data);
         $vk = new VkApi($_COOKIE['vk-token'], Request::get('group_id'), $_COOKIE['vk-user-id'], $imgDir);
-        $vk->setPost(Request::get('post'));
+        $vk->setPost($newPost);
         $result = $vk->curlPost();
 
         $resPost = $vk->post(Request::get('publish_date'), $vk->getPhotosByResponse($result));
