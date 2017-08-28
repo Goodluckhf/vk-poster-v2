@@ -129,7 +129,19 @@ var PostProvider = (new function () {
     
     this.loadPosts = function (group, count) {
         posts = [];
-        Request.vkApi('wall.get', {domain: group, count: 100, v: 5.40}).done(function (data) {
+        var data = {
+            v: 5.40
+        };
+
+        if (/^public|club[0-9]+/.test(group)) {
+            data['owner_id'] = '-' + group.replace(/^public|club/, "");
+        } else {
+            data['domain'] = group;
+        }
+
+        data['count'] = 100;
+
+        Request.vkApi('wall.get', data).done(function (data) {
 
             if (data.response) {
                 var items = data.response.items;
@@ -141,8 +153,10 @@ var PostProvider = (new function () {
             else {
                 events.trigger('postLoadFail', {group: group});
             }
-        }).then(function () {            
-            return Request.vkApi('wall.get', {domain: group, count: 50, offset: 100, v: 5.40}).done(function (data) {
+        }).then(function () {
+            data['count'] = 50;
+            data['offset'] = 100;
+            return Request.vkApi('wall.get', data).done(function (data) {
                 var items = data.response.items;
                 postByResponse(items);
             });
