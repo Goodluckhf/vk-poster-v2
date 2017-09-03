@@ -120,3 +120,24 @@ div.button-wrapper {
     float:left;
     background-color: white !important;
 }
+
+/**
+ *   JOB
+ */
+
+.jobs {
+    margin-bottom: 10px;
+}
+
+.job {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.job button {
+    margin-left: 20px;
+}
+
+.jobAddForm {
+    margin-bottom: 10px;
+}

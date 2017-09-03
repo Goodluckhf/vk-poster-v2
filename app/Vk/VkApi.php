@@ -16,7 +16,7 @@ class VkApi {
     private $user_agent;
 
 
-    public function __construct($token, $groupId, $userId, $imgDir) {
+    public function __construct($token, $groupId='', $userId='', $imgDir='') {
          Log::info('grouup_id: ' . $groupId);
         //die();
         $this->imgDir = $imgDir;
@@ -51,15 +51,16 @@ class VkApi {
             $res = file_get_contents($url);
         }
         else if($httpMethod == 'post') {
-            $opts = array('http' =>
-                array(
+
+            $opts = [
+                'https' => [
                     'method'  => 'POST',
                     'header'  => 'Content-type: application/x-www-form-urlencoded\r\n'.
                                  'Content-length: ' . strlen($params),
                     'content' => $params,
-                    'timeout' => 60
-                )
-            );
+                    'timeout' => 60,
+                ],
+            ];
 
           $context  = stream_context_create($opts);
           //PR($context);

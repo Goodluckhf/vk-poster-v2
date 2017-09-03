@@ -56,6 +56,11 @@ var App = (new function () {
             var settings = new Settings();
             settings.show();
         });
+
+        userBlock.onClickGroupSeek(function() {
+            var seekBlock = new SeekBlock();
+            seekBlock.render();
+        });
     });
 
 

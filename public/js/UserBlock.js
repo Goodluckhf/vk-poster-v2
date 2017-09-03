@@ -13,7 +13,7 @@
                                     '<a class="getDelayaed" href="#">Отложенные</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
-                                    '<a href="#">Sales</a>' +
+                                    '<a class="groupSeek" href="#">Слежка</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
                                     '<a href="#">Friends</a>' +
@@ -49,5 +49,9 @@
 
     this.onClickSettings = function(cb) {
         $('body').on('click', '.open-settings', cb);
+    };
+
+    this.onClickGroupSeek = function(cb) {
+        $('body').on('click', '.groupSeek', cb);
     };
 };

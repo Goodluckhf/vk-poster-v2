@@ -5,7 +5,7 @@ class NotFound extends Api {
 
     public function __construct($controllerName, $methodName) {
         $message = "Ничего не найдено!";
-        $this->code = 400;
+        $this->code = 404;
         parent::__construct($controllerName, $methodName, $message);
     }
 }

@@ -20,34 +20,17 @@ class Post extends Api {
             'post' => 'array'
         ];
         $this->checkAttr($arNeed);
-        $time = new Carbon;
-        $time->timestamp = Request::get('publish_date');
-
-
-        //$this->_data = Request::get('post')['text'];
-        //return $this;
-        //dd();
         $data = [
             'post'         => Request::get('post'),
-            'group_id'      => Request::get('group_id'),
+            'group_id'     => Request::get('group_id'),
             'token'        => $_COOKIE['vk-token'],
             'vkUserId'     => $_COOKIE['vk-user-id'],
             'user_id'      => Auth::id(),
             'publish_date' => Request::get('publish_date'),
         ];
-        $images = [];
-
-        foreach($data['post']['attachments'] as $attach) {
-            if($attach['type'] !== 'photo') {
-                continue;
-            }
-
-            $images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
-        }
-        $data['images'] = $images;
-        //$jsonData = json_encode($data);
-        $newPost = new \App\Post;
-        $newPost->populateByRequestData($data);
+        $time = new Carbon;
+        $time->timestamp = $data['publish_date'];
+        $newPost = \App\Post::postByVkData($data);
        // dd($newPost->text);
         $newJob = new \App\Job;
         //$newJob->started_at = Carbon::now()->addMinute(1)->toDateTimeString();
