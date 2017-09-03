@@ -40,7 +40,8 @@
             alert('Не правильный ввод');
             return;
         }
-
+        $form.find('.groupId').val('');
+        $form.find('.postCount').val('');
         Request.api('Group.seek', {
             group_id: groupId,
             count: count
