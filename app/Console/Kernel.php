@@ -50,7 +50,7 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seek($job);
             }
-        })->everyMinute();
+        })->everyTenMinutes();
         //})->everyMinutes();
 
 //        $schedule->call(function() {
