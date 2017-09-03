@@ -82,7 +82,13 @@ class Kernel extends ConsoleKernel
         ]);
 
         if (isset($wallRequest['error'])) {
-            Log::error('error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg']);
+            $errMessage = 'error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
+            Log::error($errMessage);
+            Mail::send('email.seekNotify', ['title' => 'ошибка VK', 'postText' => $errMessage], function($message) use ($user)
+            {
+                $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
+                $message->to($user->email, 'Support')->subject('ошибка VK!');
+            });
             $this->stopSeek($job->id);
             return;
         }
