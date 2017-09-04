@@ -53,7 +53,7 @@ class VkApi {
         else if($httpMethod == 'post') {
 
             $opts = [
-                'https' => [
+                'http' => [
                     'method'  => 'POST',
                     'header'  => 'Content-type: application/x-www-form-urlencoded\r\n'.
                                  'Content-length: ' . strlen($params),
