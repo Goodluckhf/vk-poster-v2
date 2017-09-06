@@ -50,8 +50,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seek($job);
             }
-        //})->everyTenMinutes();
-        })->everyMinute();
+        })->everyTenMinutes();
+//        })->everyMinute();
 
 //        $schedule->call(function() {
 //            $now = Carbon::now();
