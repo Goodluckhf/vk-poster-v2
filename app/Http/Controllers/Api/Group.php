@@ -32,7 +32,7 @@ class Group extends Api {
             throw new JobAlreadyExist($this->_controllerName, $this->_methodName);
         }
 
-        $vkApi = new VkApi(Auth::user()->vk_token);
+        /*$vkApi = new VkApi(Auth::user()->vk_token);
         $wallRequest = $vkApi->callApi('wall.get', [
             'owner_id' => Request::get('group_id'),
             'count'    => Request::get('count'),
@@ -51,7 +51,7 @@ class Group extends Api {
                 'user_id'  => Auth::id(),
                 'group_id' => Request::get('group_id')
             ]);
-        }
+        }*/
 
         $dataForJob = [
             'count'    => Request::get('count'),
@@ -102,8 +102,8 @@ class Group extends Api {
         if(! $job) {
             return $this;
         }
-        $jobData = json_decode($job->data, true);
-        \App\Post::removeByGroupId($jobData['group_id']);
+        /*$jobData = json_decode($job->data, true);
+        \App\Post::removeByGroupId($jobData['group_id']);*/
         $job->is_finish = 1;
         $job->save();
 

@@ -50,8 +50,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seek($job);
             }
-        })->everyTenMinutes();
-        //})->everyMinutes();
+        //})->everyTenMinutes();
+        })->everyMinute();
 
 //        $schedule->call(function() {
 //            $now = Carbon::now();
@@ -64,14 +64,13 @@ class Kernel extends ConsoleKernel
         $job = \App\Job::find($id);
         $job->is_finish = 1;
         $job->save();
-        $jobData = json_decode($job->data, true);
-        \App\Post::removeByGroupId($jobData['group_id']);
+        /*$jobData = json_decode($job->data, true);
+        \App\Post::removeByGroupId($jobData['group_id']);*/
     }
 
     private function seek($job) {
         $jobData = json_decode($job->data, true);
-        $posts = \App\Post::whereGroupId($jobData['group_id'])->get();
-        $posts->count();
+//        $posts = \App\Post::whereGroupId($jobData['group_id'])->get();
         $user = \App\User::find($jobData['user_id']);
         $vkApi = new VkApi($user->vk_token);
         $wallRequest = $vkApi->callApi('wall.get', [
@@ -94,7 +93,7 @@ class Kernel extends ConsoleKernel
         }
         $wall = $wallRequest['response'];
 
-        $savedPostsArr = $posts->toArray();
+        /*$savedPostsArr = $posts->toArray();
         for($i = 0; $i < $jobData['count']; $i++) {
             if($savedPostsArr[$i]['text'] != $wall['items'][$i]['text']) {
                 Log::error('посты удалили!');
@@ -107,7 +106,7 @@ class Kernel extends ConsoleKernel
                 $this->stopSeek($job->id);
                 return;
             }
-        }
+        }*/
 
 
         for ($i = 0; $i < $jobData['count']; $i++) {
