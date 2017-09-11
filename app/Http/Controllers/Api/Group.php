@@ -24,7 +24,10 @@ class Group extends Api {
     public function seek() {
         $this->_methodName = 'seek';
         $this->checkAuth(\App\User::ACTIVATED);
-        $this->checkAttr(['group_id', 'count']);
+        $this->checkAttr([
+            'group_id' => 'required',
+            'count'    => 'required'
+        ]);
 
         $job = \App\Job::findByGroupId(Request::get('group_id'));
 
