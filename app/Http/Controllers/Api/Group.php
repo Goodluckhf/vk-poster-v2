@@ -10,11 +10,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\Api\JobAlreadyExist;
 use App\Exceptions\Api\NotFound;
-use App\Exceptions\Api\VkApiError;
+// use App\Exceptions\Api\VkApiError;
 use Request;
-use App\Vk\VkApi;
+// use App\Vk\VkApi;
 use Auth;
-use Log;
+// use Log;
 
 class Group extends Api {
     protected $_controllerName = 'Group';
@@ -98,7 +98,9 @@ class Group extends Api {
     public function stopSeek() {
         $this->_methodName = 'stopSeek';
         $this->checkAuth(\App\User::ACTIVATED);
-        $this->checkAttr(['id']);
+        $this->checkAttr([
+            'id' => 'required'
+        ]);
 
         $job = \App\Job::find(Request::get('id'));
 
