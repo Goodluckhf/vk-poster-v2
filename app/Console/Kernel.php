@@ -41,7 +41,8 @@ class Kernel extends ConsoleKernel
             }
         })->everyMinute();
         */
-
+       
+        // Слежка группы на бан
         $schedule->call(function() {
             $jobs = \App\Job::whereType('seek')
                 ->whereIsFinish(0)
@@ -51,13 +52,98 @@ class Kernel extends ConsoleKernel
                 $this->seek($job);
             }
         })->everyTenMinutes();
-//        })->everyMinute();
+        
+        // Лайки
+        $schedule->call(function() {
+            $jobs = \App\Job::whereType('like_seek')
+                ->whereIsFinish(0)
+                ->get();
 
-//        $schedule->call(function() {
-//            $now = Carbon::now();
-//            $usersForDeActivate = ''
-//        })->hourly();
+            foreach ($jobs as $job) {
+                $this->seekLikes($job);
+            }
+        })->everyMinute();
+        // })->everyFiveMinutes();
+    }
 
+    private function getFirstPost($vkResponse) {
+        $wall = $vkResponse['response'];
+        
+        if ($wall['items'][0]['is_pinned']) {
+            return $wall['items'][1];
+        }
+        
+        return $wall['items'][0];
+    }
+    
+    private function cleanGroupId($id) {
+        $id = (int) $id;
+        
+        if ($id > 0) {
+            return $id;
+        }
+        
+        return $id * -1;
+    }
+    
+    private function hasLinkWithId($post, $id) {
+        $rext = $post['text'];
+        $cleanedId = $this->cleanGroupId($id);
+        $reg = "/\[club" . $cleanedId . "\|/";
+        Log::info('reg', $reg);
+        if (preg_match($reg, $post['text'])) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private function seekLikes($job) {
+        $jobData = json_decode($job->data, true);
+        $user = \App\User::find($jobData['user_id']);
+        $vkApi = new VkApi($user->vk_token);
+        $isFinish = true;
+        
+        foreach ($jobData['groups'] as $group) {
+            if ($group['is_finish']) {
+                continue;
+            }
+            
+            $isFinish = false;
+            $wallRequest = $vkApi->callApi('wall.get', [
+                'owner_id' => $jobData['group_id'],
+                'count'    => 2,
+                'v'        => 5.40
+            ]);
+            
+            //Если ошибка от вк то конец!
+            if (isset($wallRequest['error'])) {
+                $errMessage = 'error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
+                Log::error($errMessage);
+                Mail::send('email.seekNotify', [
+                    'title' => 'Лайки: ошибка VK - group_id: ' . $group['id'],
+                    'postText' => $errMessage
+                ], function($message) use ($user)
+                {
+                    $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
+                    $message->to($user->email, 'Support')->subject('ошибка VK!');
+                });
+                $this->stopSeek($job->id);
+                return;
+            }
+            
+            $post = $this->getFirstPost($wallRequest);
+            
+            if (! $this->hasLinkWithId($post, $group['id'])) {
+                continue;
+            }
+            
+            
+            
+        }
+        
+        
+        
     }
 
     private function stopSeek($id) {
@@ -83,7 +169,7 @@ class Kernel extends ConsoleKernel
         if (isset($wallRequest['error'])) {
             $errMessage = 'error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
             Log::error($errMessage);
-            Mail::send('email.seekNotify', ['title' => 'ошибка VK', 'postText' => $errMessage], function($message) use ($user)
+            Mail::send('email.seekNotify', ['title' => 'Слежка: ошибка VK', 'postText' => $errMessage], function($message) use ($user)
             {
                 $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
                 $message->to($user->email, 'Support')->subject('ошибка VK!');
@@ -113,7 +199,7 @@ class Kernel extends ConsoleKernel
             $vkPost = $wallRequest['response']['items'][$i];
             if(! $this->checkPost($vkPost)) {
                 Mail::send('email.seekNotify', [
-                    'title'    => 'Ссылку забанили!',
+                    'title'    => 'Слежка: Ссылку забанили!',
                     'postText' => $vkPost['text']
                 ], function($message) use ($user)
                 {

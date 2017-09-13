@@ -48,9 +48,9 @@ Route::any('/api/{model?}.{method?}', function($type = null, $method = null) {
 
         $result = $controller->$method()->toJson();
 
-        return response($result, 200)		  
+        return response($result, 200)         
             ->header('Content-Type', 'application/json');
-		   
+           
     }
     catch(Exception $e) {
         if(!$e instanceof \App\Exceptions\Api\Api) {
@@ -60,7 +60,7 @@ Route::any('/api/{model?}.{method?}', function($type = null, $method = null) {
         $result = $e->toJson();
 
         return response($result, $e->getCode())
-            ->header('Content-Type', 'application/json');		    
+            ->header('Content-Type', 'application/json');           
     }
     
 });
