@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
     ];
 
     const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
-
+    const POSTS_COUNT_FOR_LIKES = 20;
     /**
      * Define the application's command schedule.
      *
@@ -90,7 +90,9 @@ class Kernel extends ConsoleKernel
         $rext = $post['text'];
         $cleanedId = $this->cleanGroupId($id);
         $reg = "/\[club" . $cleanedId . "\|/";
-        Log::info('reg', $reg);
+        Log::info('reg', [$reg]);
+        Log::info('post', [$post['text']]);
+        Log::info('reg_res', [preg_match($reg, $post['text'])]);
         if (preg_match($reg, $post['text'])) {
             return true;
         }
@@ -98,21 +100,33 @@ class Kernel extends ConsoleKernel
         return false;
     }
     
+    private function getAvgLikes($vkResponse) {
+        $posts = $vkResponse['response']['items'];
+        $sum = 0;
+        
+        foreach ($posts as $post) {
+            $sum += $post['likes']['count'];
+        }
+        
+        return round($sum / count($posts));
+    }
+    
     private function seekLikes($job) {
         $jobData = json_decode($job->data, true);
         $user = \App\User::find($jobData['user_id']);
         $vkApi = new VkApi($user->vk_token);
         $isFinish = true;
+
         
-        foreach ($jobData['groups'] as $group) {
+        foreach ($jobData['groups'] as $key => $group) {
             if ($group['is_finish']) {
                 continue;
             }
             
             $isFinish = false;
             $wallRequest = $vkApi->callApi('wall.get', [
-                'owner_id' => $jobData['group_id'],
-                'count'    => 2,
+                'owner_id' => $group['id'],
+                'count'    => self::POSTS_COUNT_FOR_LIKES,
                 'v'        => 5.40
             ]);
             
@@ -134,20 +148,31 @@ class Kernel extends ConsoleKernel
             
             $post = $this->getFirstPost($wallRequest);
             
-            if (! $this->hasLinkWithId($post, $group['id'])) {
+            if (! $this->hasLinkWithId($post, $jobData['group_id'])) {
                 continue;
             }
             
+            Log::info("Есть ссылка");
             
+            //Поставить через api лайки
+            
+            $jobData['groups'][$key]['is_finish'] = true;
             
         }
         
-        
+        if ($isFinish) {
+            $this->stopSeek();
+        }
         
     }
 
     private function stopSeek($id) {
-        $job = \App\Job::find($id);
+        if ($id instanceof \App\Job) {
+            $job = $id;
+        } else {
+            $job = \App\Job::find($id);
+        }
+        
         $job->is_finish = 1;
         $job->save();
         /*$jobData = json_decode($job->data, true);
