@@ -16,7 +16,7 @@
                                     '<a class="groupSeek" href="#">Слежка</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
-                                    '<a href="#">Friends</a>' +
+                                    '<a class="likesSeek" href="#">Лайки</a>' +
                                 '</div>' +
                             '</li>' +
                             '<li class="user-footer">' +
@@ -53,5 +53,9 @@
 
     this.onClickGroupSeek = function(cb) {
         $('body').on('click', '.groupSeek', cb);
+    };
+    
+    this.onClickLikesSeek = function(cb) {
+        $('body').on('click', '.likesSeek', cb);
     };
 };

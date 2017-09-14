@@ -1,5 +1,5 @@
 ;SeekBlock = function() {
-    var self = this,
+    var self     = this,
         template =
             '<div class="seekBlock">' +
                 '<div class="row jobs"></div>' +

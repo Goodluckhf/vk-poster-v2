@@ -58,6 +58,7 @@ and open the template in the editor.
         <script src="/js/Switcher.js" type="text/javascript"></script>
         <script src="/js/Settings.js" type="text/javascript"></script>
         <script src="/js/SeekBlock.js" type="text/javascript"></script>
+        <script src="/js/LikesBlock.js" type="text/javascript"></script>
 
         <script src="/js/UserBlock.js" type="text/javascript"></script>
         <script src="/js/VKLoginForm.js" type="text/javascript"></script>

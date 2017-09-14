@@ -61,6 +61,11 @@ var App = (new function () {
             var seekBlock = new SeekBlock();
             seekBlock.render();
         });
+        
+        userBlock.onClickLikesSeek(function() {
+            var likesBlock = new LikesBlock();
+            likesBlock.render();
+        });
     });
 
 
@@ -137,9 +142,10 @@ $(function () {
         var str = '';
         bootbox.hideAll();
         $('.date-picker').datetimepicker({
-            locale: 'ru',
-            stepping: 5,
-            toolbarPlacement: 'bottom'
+            locale           : 'ru',
+            stepping         : 5,
+            toolbarPlacement : 'bottom',
+            minDate          : new Date()
             //sideBySide: true
         });
         $('.saveConfig').click(function() {

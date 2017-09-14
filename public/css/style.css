@@ -141,3 +141,35 @@ div.button-wrapper {
 .jobAddForm {
     margin-bottom: 10px;
 }
+
+.jobAddForm h4 {
+    text-align: center;
+}
+
+.jobAddForm .groups {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.jobAddForm .groups .group_item:nth-of-type(n + 1) {
+    margin-top: 10px;
+}
+
+.jobAddForm .close {
+    float: none;
+    font-size: 32px;
+    color: tomato;
+    opacity: 0.8;
+    outline: none;
+}
+
+.jobAddForm .closeBtn-container {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.jobAddForm .close:hover {
+    color: red;
+    opacity: 1;
+}
+
