@@ -9,7 +9,7 @@ var App = (new function () {
     };
 
     this.getLocalMoment = function(date) {
-        console.log(date);
+        //console.log(date);
         var utc = moment.utc(date, 'YYYY-MM-DD HH:mm:ss');
         var local = moment(utc.toDate());
         return local;
@@ -22,7 +22,7 @@ var App = (new function () {
     });
     
     Request.on('beforeVKSend', function(data) {
-        console.log(data);
+        //console.log(data);
         if(VKAuthService.isAuth()) {
             data.access_token = VKAuthService.token();
         }
@@ -115,9 +115,7 @@ var App = (new function () {
 });
 
 
-
 $(function () {
-
     $('body').on('click', 'a.expand-text', function (e) {
         e.preventDefault();
 
@@ -138,7 +136,8 @@ $(function () {
 
     });
     VKAuthService.onReady(function () {
-        console.log({user: VKAuthService.id(), token: VKAuthService.token()});
+        //console.log({user: VKAuthService.id(), token: VKAuthService.token()});
+        Router.init();
         var str = '';
         bootbox.hideAll();
         $('.date-picker').datetimepicker({

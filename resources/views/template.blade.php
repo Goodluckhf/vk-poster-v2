@@ -50,6 +50,7 @@ and open the template in the editor.
         <script src="/js/vendor/app.js"></script>
 
         <script src="/js/EventsContainer.js" type="text/javascript"></script>
+        <script src="/js/Router.js" type="text/javascript"></script>
         <script src="/js/Request.js" type="text/javascript"></script>
         <script src="/js/VKAuthService.js" type="text/javascript"></script>
         <script src="/js/User.js" type="text/javascript"></script>
@@ -64,6 +65,7 @@ and open the template in the editor.
         <script src="/js/VKLoginForm.js" type="text/javascript"></script>
         <script src="/js/LoginForm.js" type="text/javascript"></script>
         <script src="/js/PostProvider.js" type="text/javascript"></script>
+        <script src="/js/routes.js" type="text/javascript"></script>
         <script src="/js/script.js" type="text/javascript"></script>
 
         <script type="text/javascript">

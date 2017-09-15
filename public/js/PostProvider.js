@@ -186,7 +186,7 @@ var PostProvider = (new function () {
         //this.publicId = data.publicId || -77686561;
         renderTime();
 
-    }
+    };
 
     this.setPublic = function (publicId, name) {
         this.publicId = publicId;

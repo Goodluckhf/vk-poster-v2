@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
 
     const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
     const POSTS_COUNT_FOR_LIKES = 20;
+    const LIKE_PRICE = 1;
     /**
      * Define the application's command schedule.
      *
@@ -137,10 +138,10 @@ class Kernel extends ConsoleKernel
                 Mail::send('email.seekNotify', [
                     'title' => 'Лайки: ошибка VK - group_id: ' . $group['id'],
                     'postText' => $errMessage
-                ], function($message) use ($user)
+                ], function($message) use ($user, $group)
                 {
                     $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
-                    $message->to($user->email, 'Support')->subject('ошибка VK!');
+                    $message->to($user->email, 'Support')->subject('Лайки: ошибка VK - group_id: ' . $group['id']);
                 });
                 $this->stopSeek($job->id);
                 return;

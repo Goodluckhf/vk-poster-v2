@@ -16,7 +16,7 @@
                                     '<a class="groupSeek" href="#">Слежка</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
-                                    '<a class="likesSeek" href="#">Лайки</a>' +
+                                    '<a class="likesSeek" href="#/likes">Лайки</a>' +
                                 '</div>' +
                             '</li>' +
                             '<li class="user-footer">' +
@@ -33,7 +33,6 @@
 
     this.render = function(user) {
         var $template = $(template);
-        console.log(user);
         $template.find('li.user-header p').text(user.getDescription());
         $template.find('a.dropdown-toggle span').text(user.getNick());
         container.append($template);

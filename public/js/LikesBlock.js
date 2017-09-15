@@ -1,12 +1,15 @@
 ;var LikesBlock = function () {
 	var self    = this,
-		tplFormGroupItem = 
+		tplFormGroupItem =
 			'<div class="group_item row">' +
-        		'<div class="col-xs-6">' +
+        		'<div class="col-xs-4">' +
         			'<input type="text" class="form-control add-groupId" placeholder="ID группы с рекламой">' +
         		'</div>' +
-        		'<div class="col-xs-5">' +
+                '<div class="col-xs-4">' +
         			'<input type="text" class="form-control add-time" placeholder="Время выхода">' +
+        		'</div>' +
+        		'<div class="col-xs-3">' +
+        			'<input type="text" class="form-control add-likes_multiply" placeholder="× лайков">' +
         		'</div>' +
         		'<div class="col-xs-1 closeBtn-container">' +
         			'<button title="Удалить" type="text" class="remove-item close">×</button>' +
@@ -33,7 +36,7 @@
                 '</div>' +
             '</div>',
         $block;
-		
+
 
 	var addGroupItem = function () {
 		var $item = $(tplFormGroupItem);
@@ -61,12 +64,56 @@
 			addGroupItem();
 		}).on('click', '.remove-item', function () {
 			removeGroupItem.call(this);
-		});
+		}).on('click', '.saveJob', function () {
+            saveJob.call(this);
+        });
 		
 	};
-	
+
+	var getFromData = function () {
+        var data = {
+            group_id: $block.find('.groupId').val().trim(),
+            groups: []
+        };
+
+        var $groups = $block.find('.groups .group_item');
+
+        $groups.each(function (i, groupNode) {
+            var $group = $(groupNode);
+            var group = {
+                id: $group.find('.add-groupId').val().trim(),
+                likes_multiply: $group.find('.add-likes_multiply').val().trim(),
+                time: $group.find('.add-time').data('DateTimePicker').date().unix()
+            };
+
+            if (group['id'].length === 0 || group['time'].length === 0 || data['group_id'].length === 0) {
+                alert('Заполните обязательные поля: Время и id групп');
+                return false;
+            }
+
+            data.groups.push(group);
+        });
+
+        return data;
+    };
+
 	var saveJob = function () {
-		
+		var data = getFromData();
+
+		if (! data) {
+		    var def = new $.Deferred();
+		    def.resolve(true);
+		    return def.promise();
+        }
+
+        console.log('data', data);
+		//return;
+
+		return Request.api('Like.seek', data).then(function (data) {
+		    console.log('succes', data);
+        }, function (err) {
+		    console.log('err', err);
+        });
 	};
 	
 	/**

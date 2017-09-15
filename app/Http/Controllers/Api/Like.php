@@ -5,6 +5,7 @@ use App\Exceptions\Api\JobAlreadyExist;
 use App\Exceptions\Api\NotFound;
 use Request;
 use Auth;
+use Carbon\Carbon;
 // use Log;
 
 class Like extends Api {
@@ -32,11 +33,25 @@ class Like extends Api {
         $groups = [];
         
         foreach (Request::get('groups') as $group) {
-            $groups[] = [
-                'time'      => $group['time'],
-                'id'        => $group['id'],
-                'is_finish' => false
+            $time = new Carbon;
+            $time->timestamp = $group['time'];
+            $time->toDateTimeString();
+
+            $newGroup = [
+                'time'           => $time->toDateTimeString(),
+                'id'             => $group['id'],
+                'is_finish'      => false
             ];
+
+            $likesMultiply = (int) $group['likes_multiply'];
+
+            if ($likesMultiply > 0) {
+                $newGroup['likes_multiply'] = $group['likes_multiply'];
+            } else {
+                $newGroup['likes_multiply'] = 1;
+            }
+
+            $groups[] = $newGroup;
         }
         
         $jsonData = json_encode([
