@@ -52,19 +52,22 @@ and open the template in the editor.
         <script src="/js/EventsContainer.js" type="text/javascript"></script>
         <script src="/js/Router.js" type="text/javascript"></script>
         <script src="/js/Request.js" type="text/javascript"></script>
-        <script src="/js/VKAuthService.js" type="text/javascript"></script>
-        <script src="/js/User.js" type="text/javascript"></script>
-        <script src="/js/AuthService.js" type="text/javascript"></script>
-        <script src="/js/Posts.js" type="text/javascript"></script>
-        <script src="/js/Switcher.js" type="text/javascript"></script>
-        <script src="/js/Settings.js" type="text/javascript"></script>
-        <script src="/js/SeekBlock.js" type="text/javascript"></script>
-        <script src="/js/LikesBlock.js" type="text/javascript"></script>
+        <script src="/js/models/User.js" type="text/javascript"></script>
+        {{--Сервисы--}}
+        <script src="/js/services/VKAuthService.js" type="text/javascript"></script>
+        <script src="/js/services/AuthService.js" type="text/javascript"></script>
+        <script src="/js/services/PostProvider.js" type="text/javascript"></script>
+        {{--Контроллеры--}}
+        <script src="/js/controllers/Posts.js" type="text/javascript"></script>
+        <script src="/js/controllers/Switcher.js" type="text/javascript"></script>
+        <script src="/js/controllers/Settings.js" type="text/javascript"></script>
+        <script src="/js/controllers/SeekBlock.js" type="text/javascript"></script>
+        <script src="/js/controllers/LikesBlock.js" type="text/javascript"></script>
+        <script src="/js/controllers/UserBlock.js" type="text/javascript"></script>
+        <script src="/js/controllers/VKLoginForm.js" type="text/javascript"></script>
+        <script src="/js/controllers/LoginForm.js" type="text/javascript"></script>
 
-        <script src="/js/UserBlock.js" type="text/javascript"></script>
-        <script src="/js/VKLoginForm.js" type="text/javascript"></script>
-        <script src="/js/LoginForm.js" type="text/javascript"></script>
-        <script src="/js/PostProvider.js" type="text/javascript"></script>
+        <script src="/js/App.js" type="text/javascript"></script>
         <script src="/js/routes.js" type="text/javascript"></script>
         <script src="/js/script.js" type="text/javascript"></script>
 
