@@ -77,7 +77,7 @@ var Posts = function() {
                 block.fadeOut();
             }).fail(function(e) {
                 console.log(e.responseJSON.message);
-                toastr["error"](e.responseJSON.message, 'Ошибка!');
+
                 block.find('.ajax-loader').remove();
             });
         });

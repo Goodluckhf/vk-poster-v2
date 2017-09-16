@@ -5,10 +5,11 @@ var Request = (new function() {
 
     events.register('beforeSend');
     events.register('beforeVKSend');
+    events.register('error');
 
     this.on = function(event, callback) {
         events.listen(event, callback);
-    }
+    };
     
     this.vkApi = function(method, data) {
         data = typeof data === undefined ? {} : data;
@@ -36,6 +37,8 @@ var Request = (new function() {
             dataType: 'json',
             data: data.data,
             method: 'post'
+        }).fail(function (e) {
+            toastr["error"](e.responseJSON.message, 'Ошибка!');
         });
     };
     
