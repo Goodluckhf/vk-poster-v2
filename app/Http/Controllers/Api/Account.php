@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use App\Exceptions\Api\NotFound;
 use Request;
+use DB;
 
 class Account extends Api {
     protected $_controllerName = 'Account';
@@ -89,6 +90,30 @@ class Account extends Api {
         $user->save();
         $user->load('role');
         $this->_data = $user->toArray();
+        return $this;
+    }
+
+    /**
+     * Подругому пока не придумал.
+     * Здесь одни настройки на все приложение.
+     */
+    public function getSettings() {
+        $this->_methodName = 'getSettings';
+        $this->checkAuth(\App\User::ADMIN);
+        $this->_data = DB::table('settings')->first();
+        return $this;
+    }
+
+    public function updateSettings() {
+        $this->_methodName = 'getSettings';
+        $this->checkAuth(\App\User::ADMIN);
+        $this->checkAttr([
+            'likes_count' => 'required|integer'
+        ]);
+        DB::table('settings')->whereId(1)->update([
+            'likes_count' => Request::get('likes_count')
+        ]);
+
         return $this;
     }
 

@@ -1,12 +1,18 @@
 ;var AdminPage = function (containerSelector) {
     var self     = this,
         $userList,
+        $adminPage,
         users = [];
 
     var initListeners = function () {
         $('body').on('click.admin', '.js-edit', function () {
             var id = $(this).data('id');
             openEditForm(getUserById(id));
+        }).on('click.admin', '.js-update-likesCount', function () {
+            var count = parseInt($adminPage.find('.js-update-likesCount-val').val().trim());
+            Request.api('Account.updateSettings', {
+                likes_count: count
+            });
         });
     };
 
@@ -90,9 +96,6 @@
 
     var updateHtmlUser = function (id, data) {
         var $user = $('.user-list table tr[data-id="' + id + '"]');
-        console.log('user', $user);
-        console.log('likes', $user.find('.js-likes_count'));
-        console.log('role', $user.find('.js-user_role'));
         $user.find('.likes_count').text(data['likes_count']);
         $user.find('.user_role').text(data['role']['description']);
     };
@@ -104,6 +107,8 @@
                     '<div class="header">Пользователи</div>' +
                 '</div>' +
                 '<hr>' +
+                '<div class="settings">' +
+                '</div>' +
             '</div>';
 
         return template;
@@ -139,13 +144,27 @@
         var template = getTemplate();
         $(containerSelector).html(template);
         $userList = $(containerSelector).find('.user-list');
+        $adminPage = $(containerSelector).find('.adminPage');
         Request.api('Account.get').then(function (data) {
             users = data.data;
             $userList.append(populateTable(users));
             initListeners();
+            return Request.api('Account.getSettings');
         }, function (err) {
-            $(containerSelector).html(template);
             $userList.append('<span class="error">' + err.responseJSON.message + '</span>');
+        }).then(function (data) {
+            console.log(data);
+            $adminPage.find('.settings').html(
+                '<div class="header">Общее кол-во лайков</div>' +
+                '<div class="row">' +
+                    '<div class="col-xs-6">' +
+                        '<input class="form-control js-update-likesCount-val" type="text" value="' + data.data['likes_count'] + '">' +
+                    '</div>' +
+                    '<div class="col-xs-6">' +
+                        '<button class="btn btn-sm btn-success js-update-likesCount">Обновить</button>' +
+                    '</div>' +
+                '</div>'
+            );
         });
 
     };
