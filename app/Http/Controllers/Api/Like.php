@@ -9,7 +9,7 @@ use Carbon\Carbon;
 // use Log;
 
 class Like extends Api {
-    protected $_controllerName = 'Group';
+    protected $_controllerName = 'Like';
     
     const JOB_TYPE = 'like_seek';
     
@@ -72,7 +72,9 @@ class Like extends Api {
         $newJob->is_finish = 0;
         $newJob->type = self::JOB_TYPE;
         $newJob->save();
-        
+
+        $this->_data = $newJob->toArray();
+        $this->_data['data'] = json_decode($jsonData);
         return $this;
     }
     

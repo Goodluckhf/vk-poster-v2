@@ -186,7 +186,8 @@ button.edit:hover {
     opacity: 1;
 }
 
-.jobAddForm .close {
+.jobAddForm .close,
+.like-job-item .close{
     float: none;
     font-size: 32px;
     color: tomato;
@@ -199,7 +200,8 @@ button.edit:hover {
     vertical-align: middle;
 }
 
-.jobAddForm .close:hover {
+.jobAddForm .close:hover,
+.like-job-item .close:hover {
     color: red;
     opacity: 1;
 }
@@ -208,4 +210,16 @@ button.edit:hover {
     color:tomato;
     display:flex;
     justify-content:center;
+}
+
+button.show-groups {
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #3c8dbc;
+    opacity: 1;
+}
+
+button.show-groups:hover {
+    opacity: 0.6;
 }

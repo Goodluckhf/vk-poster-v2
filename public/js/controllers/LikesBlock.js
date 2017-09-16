@@ -35,6 +35,7 @@
                 '<div class="likesInfo">' +
                     getLikesInfo() +
                 '</div>' +
+                '<hr>' +
                 '<div class="row jobs"></div>' +
                 '<div class="jobAddForm">' +
                     '<div class="row">' +
@@ -94,7 +95,17 @@
 		
 		$(this).parents('.group_item').remove();
 	};
-	
+
+	var removeJob = function () {
+        var $this = $(this);
+        var id = $this.data('id');
+        Request.api('Like.stopSeek', {
+            id: id
+        }).then(function () {
+            $this.parents('.like-job-item').remove();
+        });
+    };
+
 	var initListener = function () {
 		$block.on('click.likes', '.addGroup', function () {
 			addGroupItem();
@@ -102,6 +113,10 @@
 			removeGroupItem.call(this);
 		}).on('click.likes', '.saveJob', function () {
             saveJob.call(this);
+        }).on('click.likes', '.js-remove-job', function () {
+            removeJob.call(this);
+        }).on('click.likes', '.show-groups', function () {
+            $(this).siblings('ul').slideToggle();
         });
 		
 	};
@@ -152,15 +167,53 @@
 		    return def.promise();
         }
 
-        console.log('data', data);
-		//return;
-
 		return Request.api('Like.seek', data).then(function (data) {
-		    console.log('succes', data);
-        }, function (err) {
-		    console.log('err', err);
+            $block.find('.jobs').append(populateList([data.data]));
         });
 	};
+
+	var populateGroupItems = function (items) {
+	    var html = '';
+        items.forEach(function (item) {
+            html +=
+                '<li>' +
+                    '<a target="_blank" href="https://vk.com/club' +
+                    item['id'].substring(1) + '">Группа</a> | ' +
+                    'Время поста: ' + item['time'] + '<br>' +
+                    ' | Статус: ' + (item['is_finish'] ? 'Запущен' : 'Ожидание') +
+                    ' | Цена: ' + item['price'] + '<br>' +
+                    ' | Множитель от среднего: ' + item['likes_multiply'] +
+                '</li>' ;
+        });
+
+        return html;
+    };
+
+	var populateList = function(data) {
+	    var html = '';
+
+        data.forEach(function (item) {
+            html +=
+                '<div class="like-job-item col-xs-12">' +
+                    '<div class="row">' +
+                        '<div class="col-xs-3">' +
+                            '<a target="_blank" href="https://vk.com/club' + item['data']['group_id'].substring(1) + '">Сливная группа</a>' +
+                        '</div>' +
+                        '<div class="col-xs-8"><button class="show-groups"><i class="fa fa-level-down"></i> Показать группы</button>' +
+                            '<ul style="display: none;">' +
+                                populateGroupItems(item['data']['groups']) +
+                            '</ul>' +
+                        '</div>' +
+                        '<div class="col-xs-1">' +
+                            '<button data-id="' + item['id'] + '" class="close js-remove-job">×</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<hr>' +
+                '</div>';
+        });
+
+        return html;
+    };
 	
 	/**
 	 * TODO: Сделать возможность подставлять прошлые данные в форму
@@ -174,8 +227,15 @@
             toolbarPlacement : 'bottom',
             minDate          : new Date()
         });
+
         $block = $('.likesBlock');
         initListener();
+
+        Request.api('Like.getInfo').then(function (data) {
+            $block.find('.jobs').html(populateList(data.data));
+        }, function (err) {
+            $block.find('.jobs').html('<span class="error">' + err.responseJSON.message + '</span>');
+        });
 	};
 
     this.unmount = function () {
