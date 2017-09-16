@@ -15,9 +15,7 @@ var App = (new function () {
         return local;
     };
     
-
-
-    Request.on('beforeSend', function(data) {        
+    Request.on('beforeSend', function(data) {
         data.data._token = csrfToken;
     });
     
@@ -29,6 +27,7 @@ var App = (new function () {
     });
     
     AuthService.on('afterAuth', function(user) {
+        Router.init();
         var old = $('.user.user-menu');
         var container = old.parent('ul');
         old.remove();
@@ -63,8 +62,7 @@ var App = (new function () {
         });
         
         userBlock.onClickLikesSeek(function() {
-            var likesBlock = new LikesBlock();
-            likesBlock.render();
+            Router.go('#/likes');
         });
     });
 
@@ -76,7 +74,8 @@ var App = (new function () {
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
         ));
         return matches ? decodeURIComponent(matches[1]) : undefined;
-    }
+    };
+
     this.contentSelector = 'section.content .tab-content';
     this.header = '.app-header';
 
@@ -92,7 +91,7 @@ var App = (new function () {
         $block.prepend(div);
 
         div.find('img').css({'margin-top': div.height() / 2 - 25 + 'px'});
-    }
+    };
 
     this.start = function () {
         //console.log(this.getCookie('vk-token'));
@@ -124,20 +123,16 @@ $(function () {
     });
     var posts = new Posts();
     $('#search-btn').click(function () {
-        $(App.contentSelector).html(" ");
-        App.loadingBlock(App.contentSelector);
+        window.location.hash = '#/';
         var group = $('.group-search-inp').val().trim();
-        $(App.header).html('<i class="fa fa-inbox"></i>Посты');
-        // переделать на setData
-        
-        //posts.setGroup(group);
+        $(App.contentSelector).html(" ");
         PostProvider.loadPosts(group, 300);
-        //posts.render();
-
+        App.loadingBlock(App.contentSelector);
     });
+
     VKAuthService.onReady(function () {
         //console.log({user: VKAuthService.id(), token: VKAuthService.token()});
-        Router.init();
+
         var str = '';
         bootbox.hideAll();
         $('.date-picker').datetimepicker({

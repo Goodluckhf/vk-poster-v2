@@ -2,7 +2,8 @@ var User = function(data) {
     this.name = data.name;
     this.email = data.email;
     this.created_at = data.created_at;
-    this.role = data.role;   
+    this.role = data.role;
+    this.likes_count = data.likes_count;
 };
 
 User.prototype.getNick = function() {
@@ -11,4 +12,8 @@ User.prototype.getNick = function() {
 
 User.prototype.getDescription = function() {
     return this.getNick() + ' - ' + this.role.description;
+};
+
+User.prototype.isAdmin = function () {
+    return this.role.name === 'admin';
 };

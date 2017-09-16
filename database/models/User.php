@@ -20,8 +20,9 @@ class User extends Authenticatable
     const USER = 3;
 
     protected $casts = [
-        'id' => 'integer',
-        'role_id' => 'integer'
+        'id'          => 'integer',
+        'role_id'     => 'integer',
+        'likes_count' => 'integer'
     ];
 
     /**

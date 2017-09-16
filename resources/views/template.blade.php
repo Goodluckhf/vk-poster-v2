@@ -260,9 +260,9 @@ and open the template in the editor.
                             <div class="nav-tabs-custom">
                                 <!-- Tabs within a box -->
                                 <ul class="nav nav-tabs pull-right">
-                                    <li class="pull-left header app-header"><i class="fa fa-inbox"></i> Посты</li>
+                                    <li class="pull-left header app-header"></li>
                                 </ul>
-                                <div class="tab-content no-padding">
+                                <div class="tab-content">
                                     <!-- Morris chart - Sales -->
 
                                 </div>

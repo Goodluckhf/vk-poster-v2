@@ -10,14 +10,8 @@
         return typeof routes[path] !== 'undefined';
     };
 
-    var parseHashFromStr = function (str) {
-        return str.match(/#.*/)[0];
-    };
-
     var cleanPath = function (path) {
-        if (path.length === 0) {
-            window.location.hash = '#/';
-        }
+        return path.length === 0 ? '#/' : path;
     };
 
     self.add = function (path, cb) {
@@ -28,7 +22,12 @@
         routes[path] = cb;
     };
 
-    self.follow = function (path) {
+    self.go = function (path) {
+        console.log(path);
+        window.location.hash = path;
+    };
+
+    var follow = function (path) {
         if (lastRoute === path) {
             return;
         }
@@ -43,17 +42,17 @@
     };
 
     self.init = function () {
-        $('body').on('click', 'a', function () {
-            var href = $(this).attr('href').trim();
-            var parsedHash = parseHashFromStr(href);
-            self.follow(parsedHash);
-        });
-
         $(window).on('hashchange', function() {
-            self.follow(window.location.hash);
+            follow(window.location.hash);
         });
 
-        cleanPath(window.location.hash);
+        var cleanedPath = cleanPath(window.location.hash);
+
+        if (cleanedPath === window.location.hash) {
+            follow(cleanedPath);
+        } else {
+            self.go(cleanedPath);
+        }
     };
 
 });
