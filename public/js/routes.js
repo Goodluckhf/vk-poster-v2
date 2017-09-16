@@ -6,7 +6,6 @@
     };
 
     Router.add('#/', function () {
-        console.log('#');
         unmountLastCountroller();
         App.prepareToFollow('<i class="fa fa-hand-grab-o"></i>Граббер постов');
     });
@@ -31,6 +30,10 @@
             Router.go('#/');
         }
 
+
+        App.prepareToFollow('<i class="fa fa-user-secret"></i>Админка');
+        App.controller = new AdminPage(App.contentSelector);
+        App.controller.render();
     });
 })();
 

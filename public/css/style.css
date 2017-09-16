@@ -165,6 +165,27 @@ div.button-wrapper {
     margin-top: 10px;
 }
 
+section.content li.app-header .fa {
+    color: red;
+}
+
+li.router-link.active .fa {
+    color: red;
+}
+
+button.edit {
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #00a65a;
+    opacity: 0.6;
+    font-size: 20px;
+}
+
+button.edit:hover {
+    opacity: 1;
+}
+
 .jobAddForm .close {
     float: none;
     font-size: 32px;
@@ -183,3 +204,8 @@ div.button-wrapper {
     opacity: 1;
 }
 
+.error {
+    color:tomato;
+    display:flex;
+    justify-content:center;
+}

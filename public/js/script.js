@@ -15,9 +15,6 @@ $(function () {
     });
 
     VKAuthService.onReady(function () {
-        //console.log({user: VKAuthService.id(), token: VKAuthService.token()});
-
-        var str = '';
         bootbox.hideAll();
         $('.date-picker').datetimepicker({
             locale           : 'ru',
@@ -61,7 +58,6 @@ $(function () {
             PostProvider.sortByReposts();            
         });
         AuthService.getUser();
-
     });
 
     /**

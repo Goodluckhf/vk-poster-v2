@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Exceptions\Api\NotFound;
 use Request;
 
 class Account extends Api {
@@ -11,6 +12,7 @@ class Account extends Api {
         $this->checkAuth(\App\User::ADMIN);
         $users = \App\User::with('role')
             ->where('role_id', '>', \App\User::ADMIN)
+            ->orderBy('role_id', 'asc')
             ->orderBy('created_at', 'asc');
 
         if(Request::has('q')) {
@@ -19,6 +21,11 @@ class Account extends Api {
         }
 
         $users = $users->get();
+
+        if ($users->count() === 0) {
+            throw new NotFound($this->_controllerName, $this->_methodName);
+        }
+
         $this->_data = $users->toArray();
         return $this;
     }
@@ -31,16 +38,14 @@ class Account extends Api {
         ];
         $this->checkAttr($arNeed);
         $user = \App\User::find(Request::get('id'));
-        $user->role_id = \App\User::ACTIVATED;
-        $user->save();
+
+        if (! $user) {
+            throw new NotFound($this->_controllerName, $this->_methodName);
+        }
+
+        $user->activate();
         return $this;
     }
-
-    private function activateUser($user) {
-        $user->role_id = \App\User::USER;
-        $user->save();
-    }
-
 
     public function deactivate() {
         $this->_methodName = 'deactivate';
@@ -50,10 +55,46 @@ class Account extends Api {
         ];
         $this->checkAttr($arNeed);
         $user = \App\User::find(Request::get('id'));
-        $this->activateUser($user);
+
+        if (! $user) {
+            throw new NotFound($this->_controllerName, $this->_methodName);
+        }
+
+        $user->deActivateUser();
         return $this;
     }
 
+    public function update() {
+        $this->_methodName = 'update';
+        $this->checkAuth(\App\User::ADMIN);
+        $arNeed = [
+            'id' => 'required|integer',
+            'likes_count' => 'integer'
+        ];
+        $this->checkAttr($arNeed);
+        $user = \App\User::find(Request::get('id'));
+
+        if (! $user) {
+            throw new NotFound($this->_controllerName, $this->_methodName);
+        }
+
+        if (Request::has('likes_count')) {
+            $user->likes_count = Request::get('likes_count');
+        }
+
+        if (Request::has('role_id')) {
+            $user->role_id = Request::get('role_id');
+        }
+
+        $user->save();
+        $user->load('role');
+        $this->_data = $user->toArray();
+        return $this;
+    }
+
+    /*
+     * TODO: Активация пользователя на время
+     */
     public function activateFor() {
         $this->_methodName = 'activateFor';
         $this->checkAuth(\App\User::ADMIN);

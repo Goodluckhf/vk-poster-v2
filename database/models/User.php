@@ -43,4 +43,14 @@ class User extends Authenticatable
         return $user->toArray();
     }
 
+    public function activate() {
+        $this->role_id = self::ACTIVATED;
+        $this->save();
+    }
+
+    public function deActivate() {
+        $this->role_id = self::USER;
+        $this->save();
+    }
+
 }

@@ -66,6 +66,7 @@ and open the template in the editor.
         <script src="/js/controllers/UserBlock.js" type="text/javascript"></script>
         <script src="/js/controllers/VKLoginForm.js" type="text/javascript"></script>
         <script src="/js/controllers/LoginForm.js" type="text/javascript"></script>
+        <script src="/js/controllers/AdminPage.js" type="text/javascript"></script>
 
         <script src="/js/App.js" type="text/javascript"></script>
         <script src="/js/routes.js" type="text/javascript"></script>
