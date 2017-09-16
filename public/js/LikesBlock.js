@@ -96,11 +96,11 @@
 	};
 	
 	var initListener = function () {
-		$block.on('click', '.addGroup', function () {
+		$block.on('click.likes', '.addGroup', function () {
 			addGroupItem();
-		}).on('click', '.remove-item', function () {
+		}).on('click.likes', '.remove-item', function () {
 			removeGroupItem.call(this);
-		}).on('click', '.saveJob', function () {
+		}).on('click.likes', '.saveJob', function () {
             saveJob.call(this);
         });
 		
@@ -177,4 +177,8 @@
         $block = $('.likesBlock');
         initListener();
 	};
+
+    this.unmount = function () {
+        $('body').off('.likes');
+    };
 };

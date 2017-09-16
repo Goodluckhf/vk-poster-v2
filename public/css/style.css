@@ -127,6 +127,10 @@ div.button-wrapper {
     margin-right: 15px;*/
 }
 
+.header.spacer {
+    padding: 5px !important;
+}
+
 /**
  *   JOB
  */

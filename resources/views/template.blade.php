@@ -193,8 +193,8 @@ and open the template in the editor.
                     <!-- /.search form -->
                     <!-- sidebar menu: : style can be found in sidebar.less -->
                     <ul class="sidebar-menu">
-                        <li class="header">MAIN NAVIGATION</li>
 
+                        <li class="header spacer"></li>
 
                         <li>
                             <a class="sort-by-reposts" href="#">
@@ -226,7 +226,11 @@ and open the template in the editor.
 
                         </li>
 
+                        <li class="header" style="margin-top: 10px;">НАВИГАЦИЯ</li>
 
+                        <li class="router-link"><a href="#/"><i class="fa fa-hand-grab-o"></i><span>Граббер постов</span></a></li>
+                        <li class="router-link"><a href="#/likes"><i class="fa fa-heart"></i><span>Авто лайки</span></a></li>
+                        <li class="router-link"><a href="#/seek"><i class="fa fa-eye"></i><span>Отслеживание группы</span></a></li>
                     </ul>
                 </section>
                 <!-- /.sidebar -->

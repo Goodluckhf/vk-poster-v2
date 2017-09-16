@@ -3,7 +3,7 @@ function EventsContainer() {
     
     this.has = function(event) {
         return typeof _events[event] !== 'undefined';
-    } 
+    };
     
     this.register = function(event) {
         if(this.has(event)) {
@@ -11,7 +11,7 @@ function EventsContainer() {
         }
         _events[event] = [];
         return this;
-    }
+    };
     
     this.listen = function(event, callback) {
         if(!this.has(event)) {
@@ -20,7 +20,7 @@ function EventsContainer() {
         else {
             _events[event].push(callback);
         }
-    }
+    };
     
     this.trigger = function(event, data) {
         if(!this.has(event)) {
@@ -31,5 +31,5 @@ function EventsContainer() {
                 _events[event][callback](data);
             }
         }
-    }
+    };
 }

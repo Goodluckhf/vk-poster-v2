@@ -14,7 +14,14 @@ var App = (new function () {
         var local = moment(utc.toDate());
         return local;
     };
-    
+
+    this.prepareToFollow = function (title) {
+        $(this.contentSelector).html(" ");
+        $(this.header).html(title);
+    };
+
+    this.controller = null;
+
     Request.on('beforeSend', function(data) {
         data.data._token = csrfToken;
     });
@@ -27,7 +34,23 @@ var App = (new function () {
     });
     
     AuthService.on('afterAuth', function(user) {
+
+        //Делаем ссылки активными
+        Router.onFollow(function (routeData) {
+            var $links = $('.router-link');
+            $links.removeClass('active');
+            $links.find('[href="' + routeData['path'] + '"]')
+                .parents('li')
+                .addClass('active');
+        });
+
         Router.init();
+
+        //Добавление ссылки для админа
+        if (user.isAdmin()) {
+            $('.sidebar-menu').append('<li><a href="#/admin"><i class="fa fa-user-secret"></i><span>Админка</span></a></li>');
+        }
+
         var old = $('.user.user-menu');
         var container = old.parent('ul');
         old.remove();
@@ -57,8 +80,7 @@ var App = (new function () {
         });
 
         userBlock.onClickGroupSeek(function() {
-            var seekBlock = new SeekBlock();
-            seekBlock.render();
+            Router.go('#/seek');
         });
         
         userBlock.onClickLikesSeek(function() {

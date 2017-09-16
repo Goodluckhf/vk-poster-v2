@@ -49,7 +49,7 @@ var AuthService = (new function() {
 
     this.updateVk = function() {
         return Request.api('Auth.updateVk');
-    }
+    };
 
     this.user = function() {
         return user;
@@ -62,6 +62,4 @@ var AuthService = (new function() {
     this.isAuth = function() {
         return isAuth;
     };
-
-
 });

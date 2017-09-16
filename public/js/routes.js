@@ -1,13 +1,36 @@
-;Router.add('#/', function () {
-    console.log('#');
-    $(App.contentSelector).html(" ");
-    $(App.header).html('<i class="fa fa-inbox"></i>Посты');
-});
+(function () {
+    var unmountLastCountroller = function () {
+        if (App.controller) {
+            App.controller.unmount();
+        }
+    };
 
-Router.add('#/likes', function () {
-    console.log('likes');
-    $(App.contentSelector).html(" ");
-    $(App.header).html('<i class="fa fa-inbox"></i>Лайки');
-    var likesBlock = new LikesBlock(App.contentSelector);
-    likesBlock.render();
-});
+    Router.add('#/', function () {
+        console.log('#');
+        unmountLastCountroller();
+        App.prepareToFollow('<i class="fa fa-hand-grab-o"></i>Граббер постов');
+    });
+
+    Router.add('#/likes', function () {
+        unmountLastCountroller();
+        App.prepareToFollow('<i class="fa fa-heart"></i>Авто лайки');
+        App.controller = new LikesBlock(App.contentSelector);
+        App.controller.render();
+    });
+
+    Router.add('#/seek', function () {
+        unmountLastCountroller();
+        App.prepareToFollow('<i class="fa fa-eye"></i>Отслеживание группы');
+        App.controller = new SeekBlock(App.contentSelector);
+        App.controller.render();
+    });
+
+    Router.add('#/admin', function () {
+        unmountLastCountroller();
+        if (! AuthService.user().isAdmin()) {
+            Router.go('#/');
+        }
+
+    });
+})();
+

@@ -43,12 +43,19 @@ class Like extends Api {
                 'is_finish'      => false
             ];
 
-            $likesMultiply = (int) $group['likes_multiply'];
+            $likesMultiply = (float) $group['likes_multiply'];
+            $price = (int) $group['price'];
 
             if ($likesMultiply > 0) {
                 $newGroup['likes_multiply'] = $group['likes_multiply'];
             } else {
                 $newGroup['likes_multiply'] = 1;
+            }
+
+            if ($price <= 0) {
+                $newGroup['price'] = 1;
+            } else {
+                $newGroup['price'] = $price;
             }
 
             $groups[] = $newGroup;

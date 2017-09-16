@@ -14,6 +14,28 @@
         return path.length === 0 ? '#/' : path;
     };
 
+    var follow = function (path) {
+        if (lastRoute === path) {
+            return;
+        }
+
+        Object.keys(routes).forEach(function (existPath) {
+            if (path === existPath) {
+                events.trigger('onFollow', {
+                    path: path
+                });
+
+                routes[existPath]();
+                lastRoute = path;
+                return;
+            }
+        });
+    };
+
+    self.onFollow = function (cb) {
+        events.listen('onFollow', cb);
+    };
+
     self.add = function (path, cb) {
         if (has(path)) {
             return;
@@ -25,20 +47,6 @@
     self.go = function (path) {
         console.log(path);
         window.location.hash = path;
-    };
-
-    var follow = function (path) {
-        if (lastRoute === path) {
-            return;
-        }
-
-        Object.keys(routes).forEach(function (existPath) {
-            if (path === existPath) {
-                routes[existPath]();
-                lastRoute = path;
-                return;
-            }
-        });
     };
 
     self.init = function () {

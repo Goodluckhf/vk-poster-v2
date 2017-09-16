@@ -1,4 +1,4 @@
-;SeekBlock = function() {
+;SeekBlock = function(containerSelector) {
     var self     = this,
         template =
             '<div class="seekBlock">' +
@@ -54,7 +54,7 @@
     };
 
     var initListeners = function () {
-        $('body').on('click', '.stopJob', function () {
+        $('body').on('click.seek', '.stopJob', function () {
             var $this = $(this);
             var id = $this.data('id');
             Request.api('Group.stopSeek', {
@@ -62,18 +62,16 @@
             }).then(function () {
                 removeJob.call($this);
             });
-        }).on('click', '.addJob', function () {
+        }).on('click.seek', '.addJob', function () {
             addJob.call(this);
         });
     };
 
     this.render = function() {
         initListeners();
-        bootbox.dialog({
-            title: 'Отслеживание группы',
-            message: template,
-            closeButton: true,
-        });
+
+        $(containerSelector).html(template);
+
 
         Request.api('Group.getSeekInfo').fail(function (err) {
             console.log(err);
@@ -81,6 +79,10 @@
         }).then(function (data) {
             populateJobs(data.data);
         });
+    };
+
+    this.unmount = function () {
+        $('body').off('.seek');
     };
 
 };
