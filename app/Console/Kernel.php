@@ -88,19 +88,20 @@ class Kernel extends ConsoleKernel
     }
     
     private function hasLinkWithId($post, $id) {
-        $rext = $post['text'];
+        $text = $post['text'];
         $cleanedId = $this->cleanGroupId($id);
         $reg = "/\[club" . $cleanedId . "\|/";
         Log::info('reg', [$reg]);
-        Log::info('post', [$post['text']]);
-        Log::info('reg_res', [preg_match($reg, $post['text'])]);
-        if (preg_match($reg, $post['text'])) {
+        Log::info('post', [$text]);
+        Log::info('reg_res', [preg_match($reg, $text)]);
+        if (preg_match($reg, $text)) {
             return true;
         }
         
         return false;
     }
-    
+
+    //TODO: убрать из расчета закреп
     private function getAvgLikes($vkResponse) {
         $posts = $vkResponse['response']['items'];
         $sum = 0;
@@ -114,7 +115,7 @@ class Kernel extends ConsoleKernel
     
     private function seekLikes($job) {
         $jobData = json_decode($job->data, true);
-        $user = \App\User::find($jobData['user_id']);
+        $user = \App\User::with('role')->find($jobData['user_id']);
         $vkApi = new VkApi($user->vk_token);
         $isFinish = true;
 
@@ -156,7 +157,23 @@ class Kernel extends ConsoleKernel
             Log::info("Есть ссылка");
             
             //Поставить через api лайки
-            
+            //Пока без среднего
+            //$avgLikesCount = $this->getAvgLikes($wallRequest);
+            $needLikesCount = $group['likes_count'];
+
+            if ($needLikesCount > $user->likes_count) {
+                Mail::send('email.seekNotify', [
+                    'title' => 'Лайки: ошибка VK - group_id: ' . $group['id'],
+                    'postText' => 'Недостаточно баллов на аккаунте. Свяжитесь с Администратором'
+                ], function($message) use ($user, $group)
+                {
+                    $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
+                    $message->to($user->email, 'Support')->subject('Лайки: ошибка VK - group_id: ' . $group['id']);
+                });
+                $this->stopSeek($job->id);
+                return;
+            }
+
             $jobData['groups'][$key]['is_finish'] = true;
             
         }

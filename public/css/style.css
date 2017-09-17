@@ -206,6 +206,11 @@ button.edit:hover {
     opacity: 1;
 }
 
+.likesBlock .likes_count,
+.likesBlock .likes_in_jobs {
+    font-weight: bold;
+}
+
 .error {
     color:tomato;
     display:flex;

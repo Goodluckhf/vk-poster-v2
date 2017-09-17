@@ -40,17 +40,11 @@ class Like extends Api {
             $newGroup = [
                 'time'           => $time->toDateTimeString(),
                 'id'             => $group['id'],
+                'likes_count'    => (int) $group['likes_count'],
                 'is_finish'      => false
             ];
 
-            $likesMultiply = (float) $group['likes_multiply'];
             $price = (int) $group['price'];
-
-            if ($likesMultiply > 0) {
-                $newGroup['likes_multiply'] = $group['likes_multiply'];
-            } else {
-                $newGroup['likes_multiply'] = 1;
-            }
 
             if ($price <= 0) {
                 $newGroup['price'] = 1;
