@@ -53,6 +53,15 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function decreaseLikes($count, $price) {
+        if ($this->isAdmin()) {
+            return;
+        }
+
+        $this->likes_count = $this->likes_count - $count * $price;
+        $this->save();
+    }
+
     public function isAdmin() {
         return $this->role_id === self::ADMIN;
     }

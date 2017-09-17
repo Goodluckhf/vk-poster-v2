@@ -64,8 +64,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seekLikes($job);
             }
-        //})->everyMinute();
-        })->everyFiveMinutes();
+        })->everyMinute();
+        //})->everyFiveMinutes();
     }
 
     private function getFirstPost($vkResponse) {
@@ -92,7 +92,8 @@ class Kernel extends ConsoleKernel
         $text = $post['text'];
         $cleanedId = $this->cleanGroupId($id);
         $reg = "/\[club" . $cleanedId . "\|/";
-
+        Log::info('reg', [$reg]);
+        Log::info('match', [preg_match($reg, $text)]);
         if (preg_match($reg, $text)) {
             return true;
         }
@@ -257,6 +258,8 @@ class Kernel extends ConsoleKernel
                         $message->to(config('api.support_mail'), 'Support')->subject('Лайки: ошибка LikeOrgazm - job_id: ' . $job->id);
                     });
                 }
+            } else {
+                $user->decreaseLikes($group['likes_count'], $group['price']);
             }
 
             $jobData['groups'][$key]['is_finish'] = true;
