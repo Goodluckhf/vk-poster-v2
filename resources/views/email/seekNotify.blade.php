@@ -5,7 +5,7 @@
 </head>
 <body>
     @if($postText)
-        текст поста: <b>{{$postText}}</b>
+        текст поста: <b>{{!! $postText !!}}</b>
     @endif
 </body>
 </html>

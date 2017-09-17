@@ -3,7 +3,7 @@
 		tplFormGroupItem =
 			'<div class="group_item row">' +
         		'<div class="col-xs-3">' +
-        			'<input type="text" class="form-control add-groupId">' +
+        			'<input type="text" class="form-control add-groupId" value="-107952301">' +
         		'</div>' +
                 '<div class="col-xs-3">' +
         			'<input type="text" class="form-control add-time">' +
@@ -49,7 +49,7 @@
                 '<div class="row jobs"></div>' +
                 '<div class="jobAddForm">' +
                     '<div class="row">' +
-                        '<div class="col-xs-12"><input type="text" class="form-control groupId" placeholder="ID сливной Группы"></div>' +
+                        '<div class="col-xs-12"><input type="text" class="form-control groupId" placeholder="ID сливной Группы" value="-70305484"></div>' +
                     '</div>' +
                     '<h4>Группы с рекламой</h4>' +
                     '<div class="group-tips">' +
@@ -91,7 +91,7 @@
             locale           : 'ru',
             stepping         : 5, //ограничение хостинга интервал 5 минут
             toolbarPlacement : 'bottom',
-            minDate          : new Date()
+            //minDate          : new Date()
         });
 		$block.find('.groups').append($item);
 	};
@@ -168,6 +168,12 @@
                 return;
             }
 
+            if (likes_count < 10) {
+                alert('Кол-во лайков должно быть >= 10');
+                isValid = false;
+                return;
+            }
+
             var group = {
                 id             : id,
                 likes_count    : likes_count,
@@ -236,7 +242,7 @@
 	var saveJob = function () {
 		var data = getFromData();
 
-        if (! data /*|| ! hasEnoughLikes(data)*/) {
+        if (! data || ! hasEnoughLikes(data)) {
             var def = new $.Deferred();
 		    def.resolve(true);
 		    return def.promise();
@@ -308,7 +314,7 @@
             locale           : 'ru',
             stepping         : 5, //ограничение хостинга интервал 5 минут
             toolbarPlacement : 'bottom',
-            minDate          : new Date()
+            //minDate          : new Date()
         });
 
         $block = $('.likesBlock');

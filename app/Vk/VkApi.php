@@ -17,7 +17,8 @@ class VkApi {
 
 
     public function __construct($token, $groupId='', $userId='', $imgDir='') {
-         Log::info('grouup_id: ' . $groupId);
+         //Log::info('grouup_id: ' . $groupId);
+         //Log::info('token: ' . $token);
         //die();
         $this->imgDir = $imgDir;
         $this->userId = $userId;

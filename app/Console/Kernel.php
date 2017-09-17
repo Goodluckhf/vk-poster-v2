@@ -22,7 +22,8 @@ class Kernel extends ConsoleKernel
 
     const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
     const POSTS_COUNT_FOR_LIKES = 20;
-    const LIKE_PRICE = 1;
+    const LIMIT_SEEK = 1;  //в часах
+    const WARNING_TIME_WAIT = 10; //в минутах
     /**
      * Define the application's command schedule.
      *
@@ -63,14 +64,14 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seekLikes($job);
             }
-        })->everyMinute();
-        // })->everyFiveMinutes();
+        //})->everyMinute();
+        })->everyFiveMinutes();
     }
 
     private function getFirstPost($vkResponse) {
         $wall = $vkResponse['response'];
         
-        if ($wall['items'][0]['is_pinned']) {
+        if (isset($wall['items'][0]['is_pinned'])) {
             return $wall['items'][1];
         }
         
@@ -91,9 +92,7 @@ class Kernel extends ConsoleKernel
         $text = $post['text'];
         $cleanedId = $this->cleanGroupId($id);
         $reg = "/\[club" . $cleanedId . "\|/";
-        Log::info('reg', [$reg]);
-        Log::info('post', [$text]);
-        Log::info('reg_res', [preg_match($reg, $text)]);
+
         if (preg_match($reg, $text)) {
             return true;
         }
@@ -112,20 +111,82 @@ class Kernel extends ConsoleKernel
         
         return round($sum / count($posts));
     }
+
+    private function sendToStartLikeJob($data) {
+        $url = 'https://vk.com/club' . $this->cleanGroupId($data['group_id']) . '?w=wall' . $data['group_id'] . '_' . $data['post_id'];
+        $likeToken = config('api.like_token');
+        $params = 'type=vk_like&for_one=' . $data['price'] . '&kolvo=' . $data['count'] . '&url=' . $url . '&user_token=' . $likeToken;
+        Log::info('params', [$params]);
+
+        $curl = curl_init('https://api.likeorgasm.com/method/add?' . $params);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($curl);
+        $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+        $jsonBody = substr($response, 0, $header_size);
+        $body = json_decode($jsonBody, true);
+        return $body;
+    }
     
     private function seekLikes($job) {
         $jobData = json_decode($job->data, true);
         $user = \App\User::with('role')->find($jobData['user_id']);
         $vkApi = new VkApi($user->vk_token);
         $isFinish = true;
+        $now = Carbon::now();
 
-        
         foreach ($jobData['groups'] as $key => $group) {
             if ($group['is_finish']) {
                 continue;
             }
-            
+
+            $postTime = Carbon::createFromTimestamp((int)$group['timestamp']);
+
+            if ($postTime->gt($now)) {
+                continue;
+            }
+
+
+            if ($now->diffInMinutes($postTime) >= self::WARNING_TIME_WAIT && $now->diffInMinutes($postTime) < self::WARNING_TIME_WAIT + 5) {
+                $errMessage = 'error: Поста в группе так и не вышел спустя ' .
+                    self::WARNING_TIME_WAIT . ' минут! сливная группа: <a target="_blank" href="https://vk.com/club' .
+                    $this->cleanGroupId($jobData['group_id']) .'">Перейти</a> <br>Группа, где должен был выйти пост: ' .
+                    '<a target="_blank" href="https://vk.com/club' . $this->cleanGroupId($group['id']) . '">Перейти</a>';
+
+                Mail::send('email.seekNotify', [
+                    'title' => 'Лайки: ошибка посты в группе не вышли - group_id: ' . $group['id'],
+                    'postText' => $errMessage
+                ], function($message) use ($user, $group)
+                {
+                    $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
+                    $message->to($user->email, 'Support')->subject('Лайки: ошибка посты в группе не вышли');
+                });
+
+                continue;
+            }
+
+            if ($now->diffInHours($postTime) >= self::LIMIT_SEEK) {
+                $errMessage = 'error: Поста в группе так и не вышел спустя ' .
+                    self::LIMIT_SEEK . ' час! сливная группа: <a target="_blank" href="https://vk.com/club' .
+                    $this->cleanGroupId($jobData['group_id']) .'">Перейти</a> <br>Группа, где должен был выйти пост: ' .
+                    '<a target="_blank" href=https://vk.com/club"' . $group['id'] . '">Перейти</a><br>
+                    <b>Группа больше не отслеживается</b>';
+
+                Mail::send('email.seekNotify', [
+                    'title' => 'Лайки: ошибка посты в группе не вышли - group_id: ' . $group['id'],
+                    'postText' => $errMessage
+                ], function($message) use ($user, $group)
+                {
+                    $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
+                    $message->to($user->email, 'Support')->subject('Лайки: ошибка посты в группе не вышли');
+                });
+
+                $jobData['groups'][$key]['is_finish'] = true;
+                continue;
+            }
+
+
             $isFinish = false;
+            Log::info('group_id', [$group['id']]);
             $wallRequest = $vkApi->callApi('wall.get', [
                 'owner_id' => $group['id'],
                 'count'    => self::POSTS_COUNT_FOR_LIKES,
@@ -154,22 +215,59 @@ class Kernel extends ConsoleKernel
                 continue;
             }
             
-            Log::info("Есть ссылка");
+            //Log::info("Есть ссылка", $post);
             
             //Поставить через api лайки
             //Пока без среднего
             //$avgLikesCount = $this->getAvgLikes($wallRequest);
-            $needLikesCount = $group['likes_count'];
 
+            $resultApi = $this->sendToStartLikeJob([
+                'post_id' => $post['id'],
+                'group_id' => $post['to_id'],
+                'count'    => $group['likes_count'],
+                'price'    => $group['price']
+            ]);
+
+            if (! isset($resultApi['response']['status'])) {
+                $status = $resultApi['response']['error_code'];
+                if ($status == 10) {
+                    $errMessage = "Данный пост/пользователь/сообщество уже добавлен";
+                } else {
+                    $errMessage = 'Лайки: ошибка, Свяжитесь с админом!';
+                }
+
+                Mail::send('email.seekNotify', [
+                    'title' => $errMessage,
+                    'postText' => 'Ошибка!  job_id: ' . $job->id
+                ], function($message) use ($user, $errMessage)
+                {
+                    $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
+                    $message->to($user->email, 'Support')->subject($errMessage);
+                });
+
+                if ($status != 10) {
+                    Log::error('likeorgazm error', [$resultApi]);
+                    $errMessage = 'error: ' . json_encode($resultApi, JSON_UNESCAPED_UNICODE);
+                    Log::error($errMessage);
+                    Mail::send('email.seekNotify', [
+                        'title' => 'Лайки: ошибка LikeOrgazm - job_id: ' . $job->id,
+                        'postText' => $errMessage
+                    ], function ($message) use ($job) {
+                        $message->from(config('api.support_mail'), 'Постер для vk.com');
+                        $message->to(config('api.support_mail'), 'Support')->subject('Лайки: ошибка LikeOrgazm - job_id: ' . $job->id);
+                    });
+                }
+            }
 
             $jobData['groups'][$key]['is_finish'] = true;
-            
         }
-        
+
         if ($isFinish) {
-            $this->stopSeek();
+            $this->stopSeek($job);
         }
-        
+
+        $job->data = json_encode($jobData);
+        $job->save();
     }
 
     private function stopSeek($id) {

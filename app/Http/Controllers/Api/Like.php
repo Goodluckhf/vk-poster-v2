@@ -36,10 +36,10 @@ class Like extends Api {
         foreach (Request::get('groups') as $group) {
             $time = new Carbon;
             $time->timestamp = $group['time'];
-            $time->toDateTimeString();
 
             $newGroup = [
                 'time'           => $time->toDateTimeString(),
+                'timestamp'      => $time->timestamp,
                 'id'             => $group['id'],
                 'likes_count'    => (int) $group['likes_count'],
                 'is_finish'      => false

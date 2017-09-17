@@ -41,29 +41,29 @@ var VKAuthService = (new function () {
             }).done(function(gr) {
                 groups = gr.response.items;
                 events.trigger('ready');
-            })
+            });
             return true;
         }
         else {            
             window.open("https://oauth.vk.com/authorize?client_id=5180832&display=popup&scope=offline,wall,photos&response_type=code&v=5.40&redirect_uri=https://oauth.vk.com/blank.html");
             return false;
         }
-    }
+    };
     //262144 + 4 + 8192
     this.id = function() {
         return id;
-    }
+    };
     
     this.token = function() {
         return token;
-    }
+    };
     
     this.isAuth = function() {
         return isAuth;
-    }
+    };
     
     this.getGroups = function() {
         return groups;
-    }
+    };
 
 });
