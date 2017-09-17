@@ -3,6 +3,7 @@
 		tplFormGroupItem =
 			'<div class="group_item row">' +
         		'<div class="col-xs-3">' +
+        			//'<input type="text" class="form-control add-groupId" value="-107952301">' +
         			'<input type="text" class="form-control add-groupId" value="-107952301">' +
         		'</div>' +
                 '<div class="col-xs-3">' +
@@ -49,6 +50,7 @@
                 '<div class="row jobs"></div>' +
                 '<div class="jobAddForm">' +
                     '<div class="row">' +
+                        //'<div class="col-xs-12"><input type="text" class="form-control groupId" placeholder="ID сливной Группы" value="-70305484"></div>' +
                         '<div class="col-xs-12"><input type="text" class="form-control groupId" placeholder="ID сливной Группы" value="-70305484"></div>' +
                     '</div>' +
                     '<h4>Группы с рекламой</h4>' +
