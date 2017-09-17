@@ -3,6 +3,7 @@
 namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Log;
 
 class Job extends Model {
     protected $table = 'jobs';
@@ -53,5 +54,38 @@ class Job extends Model {
         }
 
         return $foundJobs;
+    }
+
+    private static function getLikesForJob($job) {
+        $sum = 0;
+
+        foreach ($job as $group) {
+            if ($group['is_finish']) {
+                continue;
+            }
+
+            $count = $group['likes_count'] * $group['price'];
+            $sum += $count;
+        }
+
+        return $sum;
+    }
+
+    public static function getLikesCount($user_id, $type, $newJob = null) {
+        $jobs = self::findByUserId($user_id, $type);
+        $sum = 0;
+
+        if ($jobs) {
+            foreach ($jobs as $job) {
+                $data = json_decode($job->data, true);
+                $sum += self::getLikesForJob($data['groups']);
+            }
+        }
+
+        if ($newJob) {
+            $sum += self::getLikesForJob($newJob);
+        }
+
+        return $sum;
     }
 }

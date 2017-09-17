@@ -53,4 +53,7 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function isAdmin() {
+        return $this->role_id === self::ADMIN;
+    }
 }

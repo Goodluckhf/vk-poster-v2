@@ -2,11 +2,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\Api\JobAlreadyExist;
+use App\Exceptions\Api\LikesNotEnough;
 use App\Exceptions\Api\NotFound;
 use Request;
 use Auth;
 use Carbon\Carbon;
-// use Log;
+use Log;
 
 class Like extends Api {
     protected $_controllerName = 'Like';
@@ -29,7 +30,7 @@ class Like extends Api {
         if ($jobs) {
             throw new JobAlreadyExist($this->_controllerName, $this->_methodName);
         }
-        
+
         $groups = [];
         
         foreach (Request::get('groups') as $group) {
@@ -54,7 +55,14 @@ class Like extends Api {
 
             $groups[] = $newGroup;
         }
-        
+
+        if (! Auth::user()->isAdmin()) {
+            $jobsLikesCount = \App\Job::getLikesCount(Auth::id(), self::JOB_TYPE, $groups);
+            if ($jobsLikesCount > Auth::user()['likes_count']) {
+                throw new LikesNotEnough($this->_controllerName, $this->_methodName);
+            }
+        }
+
         $jsonData = json_encode([
             'groups'   => $groups,
             'group_id' => Request::get('group_id'),

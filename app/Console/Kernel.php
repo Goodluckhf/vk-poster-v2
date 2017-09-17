@@ -161,18 +161,6 @@ class Kernel extends ConsoleKernel
             //$avgLikesCount = $this->getAvgLikes($wallRequest);
             $needLikesCount = $group['likes_count'];
 
-            if ($needLikesCount > $user->likes_count) {
-                Mail::send('email.seekNotify', [
-                    'title' => 'Лайки: ошибка VK - group_id: ' . $group['id'],
-                    'postText' => 'Недостаточно баллов на аккаунте. Свяжитесь с Администратором'
-                ], function($message) use ($user, $group)
-                {
-                    $message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
-                    $message->to($user->email, 'Support')->subject('Лайки: ошибка VK - group_id: ' . $group['id']);
-                });
-                $this->stopSeek($job->id);
-                return;
-            }
 
             $jobData['groups'][$key]['is_finish'] = true;
             

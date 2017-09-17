@@ -188,6 +188,10 @@
 	var countLikesForJob = function (job) {
 	    var sum = 0;
         job.groups.forEach(function (group) {
+            if (group['is_finish']) {
+                return;
+            }
+
             var price = group['price'] * group['likes_count'];
             sum += price;
         });
@@ -232,7 +236,7 @@
 	var saveJob = function () {
 		var data = getFromData();
 
-        if (! data || ! hasEnoughLikes(data)) {
+        if (! data /*|| ! hasEnoughLikes(data)*/) {
             var def = new $.Deferred();
 		    def.resolve(true);
 		    return def.promise();
