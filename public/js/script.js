@@ -20,7 +20,7 @@ $(function () {
             locale           : 'ru',
             stepping         : 5,
             toolbarPlacement : 'bottom',
-            minDate          : new Date()
+            defaultDate: moment()
             //sideBySide: true
         });
         $('.saveConfig').click(function() {

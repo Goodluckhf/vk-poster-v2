@@ -7,14 +7,17 @@
         			'<input type="text" class="form-control add-groupId" value="-107952301">' +
         		'</div>' +
                 '<div class="col-xs-3">' +
+                    '<input disabled type="text" class="form-control groupName">' +
+                '</div>' +
+                '<div class="col-xs-3">' +
         			'<input type="text" class="form-control add-time">' +
         		'</div>' +
-        		'<div class="col-xs-3">' +
+        		'<div class="col-xs-2">' +
         			'<input type="text" class="form-control add-likes_count" placeholder="кол-во лайков">' +
         		'</div>' +
-                '<div class="col-xs-2">' +
+                /*'<div class="col-xs-2">' +
         			'<input type="text" class="form-control add-likes_price" value="1">' +
-        		'</div>' +
+        		'</div>' +*/
         		'<div class="col-xs-1 closeBtn-container">' +
         			'<button title="Удалить" type="text" class="remove-item close">×</button>' +
         		'</div>' +
@@ -59,14 +62,17 @@
                             '<span class="tip">ID группы с рекламой</span>' +
                         '</div>' +
                         '<div class="col-xs-3">' +
-                            '<span class="tip">Время выхода поста</span>' +
+                            '<span class="tip">Название группы</span>' +
                         '</div>' +
                         '<div class="col-xs-3">' +
-                            '<span class="tip">Кол-во лайков</span>' +
+                            '<span class="tip">Время выхода поста</span>' +
                         '</div>' +
                         '<div class="col-xs-2">' +
-                            '<span class="tip">Цена лайка</span>' +
+                            '<span class="tip">Кол-во лайков</span>' +
                         '</div>' +
+                        /*'<div class="col-xs-2">' +
+                            '<span class="tip">Цена лайка</span>' +
+                        '</div>' +*/
                         '<div class="col-xs-1">' +
                             '<span class="tip">Удалить</span>' +
                         '</div>' +
@@ -93,6 +99,7 @@
             locale           : 'ru',
             stepping         : 5, //ограничение хостинга интервал 5 минут
             toolbarPlacement : 'bottom',
+            defaultDate: moment()
             //minDate          : new Date()
         });
 		$block.find('.groups').append($item);
@@ -179,7 +186,8 @@
             var group = {
                 id             : id,
                 likes_count    : likes_count,
-                price          : parseInt($group.find('.add-likes_price').val().trim() || 1),
+                //price          : parseInt($group.find('.add-likes_price').val().trim() || 1),
+                price          : 2,
                 time           : time.unix()
             };
 
@@ -272,7 +280,7 @@
                     item['id'].substring(1) + '">Группа</a> | ' +
                     'Время поста: ' + item['time'] + '<br>' +
                     ' | Статус: ' + (item['is_finish'] ? 'Запущен' : 'Ожидание') +
-                    ' | Цена: ' + item['price'] + '<br>' +
+                    //' | Цена: ' + item['price'] + '<br>' +
                     ' | Кол-во лайков: ' + item['likes_count'] +
                 '</li>' ;
         });
@@ -316,6 +324,7 @@
             locale           : 'ru',
             stepping         : 5, //ограничение хостинга интервал 5 минут
             toolbarPlacement : 'bottom',
+            defaultDate: moment()
             //minDate          : new Date()
         });
 

@@ -13,6 +13,7 @@ class Like extends Api {
     protected $_controllerName = 'Like';
     
     const JOB_TYPE = 'like_seek';
+    const PRICE = 2;
     
     /**
      * Создания joba для отслеживания лайков
@@ -48,7 +49,7 @@ class Like extends Api {
             $price = (int) $group['price'];
 
             if ($price <= 0) {
-                $newGroup['price'] = 1;
+                $newGroup['price'] = self::PRICE;
             } else {
                 $newGroup['price'] = $price;
             }
