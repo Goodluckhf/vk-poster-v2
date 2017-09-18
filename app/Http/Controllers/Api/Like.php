@@ -26,11 +26,7 @@ class Like extends Api {
             'groups'        => 'required|array',
         ]);
         
-        $jobs = \App\Job::findByGroupId(Request::get('group_id'), self::JOB_TYPE);
         
-        if ($jobs) {
-            throw new JobAlreadyExist($this->_controllerName, $this->_methodName);
-        }
 
         $groups = [];
         
@@ -63,7 +59,12 @@ class Like extends Api {
                 throw new LikesNotEnough($this->_controllerName, $this->_methodName);
             }
         }
-
+        
+        $jobs = \App\Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
+        
+        if ($jobs) {
+            throw new JobAlreadyExist($this->_controllerName, $this->_methodName);
+        }
         $jsonData = json_encode([
             'groups'   => $groups,
             'group_id' => (int) Request::get('group_id'),

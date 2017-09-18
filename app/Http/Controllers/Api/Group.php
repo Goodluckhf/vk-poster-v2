@@ -20,7 +20,7 @@ class Group extends Api {
     protected $_controllerName = 'Group';
 
     const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
-
+    const JOB_TYPE = 'seek';
     public function seek() {
         $this->_methodName = 'seek';
         $this->checkAuth(\App\User::ACTIVATED);
@@ -29,7 +29,7 @@ class Group extends Api {
             'count'    => 'required'
         ]);
 
-        $job = \App\Job::findByGroupId(Request::get('group_id'));
+        $job = \App\Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
 
         if($job) {
             throw new JobAlreadyExist($this->_controllerName, $this->_methodName);

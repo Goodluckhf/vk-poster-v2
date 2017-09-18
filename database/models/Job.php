@@ -12,19 +12,18 @@ class Job extends Model {
         return $this->belongsTo('\App\Post');
     }
 
-    public static function findByGroupId($group_id, $type = 'seek') {
+    public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {
         $jobs = self::whereType($type)
             ->whereIsFinish(0)
             ->get();
 
-
         if(! $jobs->count()) {
             return null;
         }
-
+        
         foreach ($jobs as $job) {
             $data = json_decode($job->data, true);
-            if($data['group_id'] == $group_id) {
+            if($data['group_id'] === $group_id && $data['user_id'] === $user_id) {
                 $currentJob = $job;
             }
         }
