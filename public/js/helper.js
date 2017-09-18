@@ -57,7 +57,7 @@ var helper = {
 	 * Возвращает полную ссылку
 	 */
 	hrefByGroupObjVk: function (group) {
-		href = 'https://vk.com/';
+		var href = 'https://vk.com/';
 		if (typeof group['owner_id'] !== 'undefined') {
 			return href + 'club' + this.groupIdForLink(group['owner_id']);
 		}
@@ -66,7 +66,7 @@ var helper = {
 	},
 	
 	hrefByGroupId: function (id) {
-		href = 'https://vk.com/club';
+		var href = 'https://vk.com/club';
 		id = this.groupIdForLink(id);
 		
 		return href + id;

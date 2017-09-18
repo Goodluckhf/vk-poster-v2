@@ -3,17 +3,27 @@
         template =
             '<div class="seekBlock">' +
                 '<div class="row jobs"></div>' +
-                '<div class="row jobAddForm">' +
-                    '<div class="col-xs-7"><input type="text" class="form-control groupId" placeholder="ID Группы"></div>' +
-                    '<div class="col-xs-3"><input type="text" class="form-control postCount" placeholder="Кол-во постов"></div>' +
-                    '<div class="col-xs-2"><button class="btn btn-sm btn-primary addJob">Добавить</button></div>' +
+                '<div class="row jobAddForm js-group_item">' +
+                    //'<div class="col-xs-7"><input type="text" class="form-control groupId" placeholder="ID Группы"></div>' +
+                    '<div class="col-xs-3 col-xs-offset-1">' +
+                        '<input type="text" class="form-control group-href" placeholder="Ссылка на группу" data-old-val="" data-id="">' +
+                    '</div>' +
+                    '<div class="col-xs-3">' +
+                        '<input disabled type="text" placeholder="Название группы" class="form-control groupName">' +
+                    '</div>' +
+                    '<div class="col-xs-2">' +
+                        '<input type="text" class="form-control postCount" placeholder="Кол-во постов"></div>' +
+                    '<div class="col-xs-2"><button class="btn btn-md btn-primary addJob">Добавить</button></div>' +
                 '</div>' +
                 '<hr>' +
-            '</div>';
-    
+            '</div>',
+        deferGroupLoad = new $.Deferred();
+
+    deferGroupLoad.resolve(true);
+
     var htmlForJob = function (job) {
         return '<div class="job">Начало: ' + job['created_at'] +
-            ' || Группа: ' + job['data']['group_id'] +
+            ' || <a href="' + helper.hrefByGroupId(job['data']['group_id']) + '">Перейти в группу</a>' +
             ' || кол-во постов: ' + job['data']['count'] +
             '<button class="stopJob btn btn-sm btn-warning" data-id="' + job['id'] + '">Остановить</button></div><hr><br>';
     };
@@ -30,26 +40,75 @@
         $(this).parents('.job').remove();
     };
 
+    var loadVkGroup = function () {
+        var $this = $(this);
+
+        var newVal = $this.val().trim();
+        var oldVkGroupVal = $this.data('old-val');
+        if (oldVkGroupVal === newVal) {
+            return;
+        }
+
+        var vkGroupObj = helper.groupForVkApiByHref(newVal);
+        var groupId;
+
+        if (vkGroupObj['domain']) {
+            groupId = vkGroupObj['domain'];
+        } else {
+            groupId = helper.groupIdForLink(vkGroupObj['owner_id']);
+        }
+
+        deferGroupLoad = deferGroupLoad.then(function () {
+            console.log(1);
+            return Request.vkApi('groups.getById', {
+                group_id: groupId,
+                v: 5.68
+            });
+        }).then(function (data) {
+            var $groupName = $this.parents('.js-group_item')
+                .find('.groupName');
+
+            if (data['error']) {
+                $this.addClass('error');
+                $this.data('id', "");
+                $groupName.val("");
+            } else {
+                $this.removeClass('error');
+                var vkGroup = data['response'][0];
+                $this.data('id', vkGroup['id']);
+                $groupName.val(vkGroup['name']);
+            }
+
+            $this.data('old-val', newVal);
+
+            return true;
+        });
+    };
+
     var addJob = function () {
         var $this = $(this);
         var $form = $this.parents('.jobAddForm');
-        var groupId = $form.find('.groupId').val().trim();
-        var count = $form.find('.postCount').val().trim();
 
-        if (! groupId || ! count) {
-            alert('Не правильный ввод');
-            return;
-        }
-        $form.find('.groupId').val('');
-        $form.find('.postCount').val('');
-        Request.api('Group.seek', {
-            group_id: groupId,
-            count: count
-        }).fail(function (err) {
-            alert(err['responseJSON']['message']);
+        deferGroupLoad = deferGroupLoad.then(function () {
+            var groupId = $form.find('.group-href').data('id');
+            var count = $form.find('.postCount').val().trim();
+
+            if (! groupId || ! count) {
+                alert('Не правильный ввод');
+                return;
+            }
+
+            return Request.api('Group.seek', {
+                group_id:  helper.groupIdForApi(groupId),
+                count: count
+            });
         }).then(function (data) {
             $('.seekBlock .error').remove();
             $('.jobs').append(htmlForJob(data.data));
+            $form.find('.groupId').val('');
+            $form.find('.postCount').val('');
+        }).fail(function (err) {
+            alert(err['responseJSON']['message']);
         });
     };
 
@@ -64,6 +123,10 @@
             });
         }).on('click.seek', '.addJob', function () {
             addJob.call(this);
+        }).on('focusout.seek', '.group-href', function () {
+            loadVkGroup.call(this, false);
+        }).on('keypress.seek', '.group-href', function () {
+            $(this).removeClass('error');
         });
     };
 
@@ -72,12 +135,12 @@
 
         $(containerSelector).html(template);
 
-
         Request.api('Group.getSeekInfo').fail(function (err) {
             console.log(err);
             $('.jobs').html('<span class="error" style="color:tomato; display:flex; justify-content:center;">' + err['responseJSON']['message'] + '</span>');
         }).then(function (data) {
             populateJobs(data.data);
+            return true;
         });
     };
 

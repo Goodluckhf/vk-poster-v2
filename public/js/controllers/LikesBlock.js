@@ -189,11 +189,6 @@
             
             $this.data('old-val', newVal);
             
-            /*var resDeferred = new $.Deferred();
-            resDeferred.resolve(true);
-            
-            return resDeferred.promise();*/
-            
             return true;
         });
     };
