@@ -64,8 +64,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seekLikes($job);
             }
-        })->everyMinute();
-        //})->everyFiveMinutes();
+        //})->everyMinute();
+        })->everyFiveMinutes();
     }
 
     private function getFirstPost($vkResponse) {
@@ -143,6 +143,10 @@ class Kernel extends ConsoleKernel
             $postTime = Carbon::createFromTimestamp((int)$group['timestamp']);
 
             if ($postTime->gt($now)) {
+                Log::info('Пост еще не должен выйти! ', [
+                    'id'       => $job->id,
+                    'group_id' => $group['id']
+                ]);
                 continue;
             }
 
@@ -187,7 +191,10 @@ class Kernel extends ConsoleKernel
 
 
             $isFinish = false;
-            Log::info('group_id', [$group['id']]);
+            Log::info('Отправляем запрос к вк! ', [
+                'id'       => $job->id,
+                'group_id' => $group['id']
+            ]);
             $wallRequest = $vkApi->callApi('wall.get', [
                 'owner_id' => $group['id'],
                 'count'    => self::POSTS_COUNT_FOR_LIKES,
@@ -211,7 +218,12 @@ class Kernel extends ConsoleKernel
             }
             
             $post = $this->getFirstPost($wallRequest);
-            
+
+            Log::info('Перед проверкой поста на ссылку! ', [
+                'id'       => $job->id,
+                'group_id' => $group['id']
+            ]);
+
             if (! $this->hasLinkWithId($post, $jobData['group_id'])) {
                 continue;
             }
@@ -259,6 +271,10 @@ class Kernel extends ConsoleKernel
                     });
                 }
             } else {
+                Log::info('Лайки должны ставиться! ', [
+                    'id'       => $job->id,
+                    'group_id' => $group['id']
+                ]);
                 $user->decreaseLikes($group['likes_count'], $group['price']);
             }
 
@@ -346,7 +362,7 @@ class Kernel extends ConsoleKernel
     private function checkPost($post) {
         preg_match(self::URL_PATTERN, $post['text'], $link);
         if (! isset($link[0])) {
-            Log::error('Нет ссылки');
+            Log::error('Слежка: Нет ссылки');
             return true;
         }
 

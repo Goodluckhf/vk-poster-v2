@@ -1,7 +1,7 @@
 ;var LikesBlock = function (containerSelector) {
 	var self    = this,
 		tplFormGroupItem =
-			'<div class="group_item row">' +
+			'<div class="js-group_item group_item row">' +
         		'<div class="col-xs-3">' +
         			'<input type="text" class="form-control add-href" value="https://vk.com/club107952301" data-old-val="" data-id="">' +
         		'</div>' +
@@ -54,9 +54,12 @@
                 '<hr>' +
                 '<div class="row jobs"></div>' +
                 '<div class="jobAddForm">' +
-                    '<div class="row">' +
-                        '<div class="col-xs-12">' +
+                    '<div class="row js-group_item">' +
+                        '<div class="col-xs-6">' +
                             '<input data-id="" type="text" class="form-control groupHref" placeholder="Ссылка сливной группы" value="https://vk.com/diet.plan">' +
+                        '</div>' +
+                        '<div class="col-xs-6">' +
+                            '<input disabled type="text" class="form-control groupName" placeholder="Название группы">' +
                         '</div>' +
                     '</div>' +
                     '<h4>Группы с рекламой</h4>' +
@@ -146,9 +149,9 @@
     };
     
     
-    var loadVkGroup = function (putName) {
+    var loadVkGroup = function () {
         var $this = $(this);
-        putName = typeof putName === 'undefined' ? true : false;
+
         var newVal = $this.val().trim();
         var oldVkGroupVal = $this.data('old-val');
         if (oldVkGroupVal === newVal) {
@@ -170,7 +173,7 @@
                 v: 5.68
             });
         }).then(function (data) {
-            var $groupName = $this.parents('.group_item')
+            var $groupName = $this.parents('.js-group_item')
                 .find('.groupName');
                 
             if (data['error']) {
