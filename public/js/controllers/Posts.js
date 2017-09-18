@@ -123,7 +123,6 @@ var Posts = function() {
         block.find('.post-message').text(textArea.val().trim());
         textArea.remove();
         block.find('.updating-date-area').remove();
-        
     });
 
 
@@ -219,17 +218,16 @@ var Posts = function() {
         var attachments = post.attachments;
 
         for(var j in attachments) {
-             $item.find('.attachment-block').append('<img src="' + attachments[j].photo.photo_130 + '">');
-
+            $item.find('.attachment-block').append('<img src="' + attachments[j].photo.photo_130 + '">');
         }
-        $item.find('span.username a').attr('href', 'http://vk.com/' + group);
+        var groupObj = helper.groupForVkApiByHref(group);
+        $item.find('span.username a').attr('href', helper.hrefByGroupObjVk(groupObj));
         $(containerSelector).append($item);
     };
 
     this.render = function(data) {
         $('.ajax-loader').remove();
         var posts = data['items'];
-
 
         var def = new $.Deferred();
         def.resolve();

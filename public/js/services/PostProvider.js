@@ -133,12 +133,8 @@ var PostProvider = (new function () {
             v: 5.40
         };
 
-        if (/^public|club[0-9]+/.test(group)) {
-            data['owner_id'] = '-' + group.replace(/^public|club/, "");
-        } else {
-            data['domain'] = group;
-        }
-
+        data = Object.assign(data, helper.groupForVkApiByHref(group));
+        console.log(data);
         data['count'] = 100;
 
         Request.vkApi('wall.get', data).done(function (data) {

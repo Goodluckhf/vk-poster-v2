@@ -47,6 +47,8 @@ and open the template in the editor.
 
         </script>
 
+        <script src="/js/polyfill.js"></script>
+        <script src="/js/helper.js"></script>
         <script src="/js/vendor/app.js"></script>
 
         <script src="/js/EventsContainer.js" type="text/javascript"></script>
