@@ -134,7 +134,6 @@ var PostProvider = (new function () {
         };
 
         data = Object.assign(data, helper.groupForVkApiByHref(group));
-        console.log(data);
         data['count'] = 100;
 
         Request.vkApi('wall.get', data).done(function (data) {

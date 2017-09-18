@@ -3,8 +3,7 @@
 		tplFormGroupItem =
 			'<div class="group_item row">' +
         		'<div class="col-xs-3">' +
-        			//'<input type="text" class="form-control add-groupId" value="-107952301">' +
-        			'<input type="text" class="form-control add-groupId" value="-107952301">' +
+        			'<input type="text" class="form-control add-href" value="https://vk.com/club107952301" data-old-val="" data-id="">' +
         		'</div>' +
                 '<div class="col-xs-3">' +
                     '<input disabled type="text" class="form-control groupName">' +
@@ -23,7 +22,10 @@
         		'</div>' +
     		'</div>',
         $block,
-        jobs = null;
+        jobs = null,
+        deferGroupLoad = new $.Deferred();
+
+    deferGroupLoad.resolve(true);
 
     var getLikesInfo = function () {
         var html = '';
@@ -53,13 +55,14 @@
                 '<div class="row jobs"></div>' +
                 '<div class="jobAddForm">' +
                     '<div class="row">' +
-                        //'<div class="col-xs-12"><input type="text" class="form-control groupId" placeholder="ID сливной Группы" value="-70305484"></div>' +
-                        '<div class="col-xs-12"><input type="text" class="form-control groupId" placeholder="ID сливной Группы" value="-70305484"></div>' +
+                        '<div class="col-xs-12">' +
+                            '<input data-id="" type="text" class="form-control groupHref" placeholder="Ссылка сливной группы" value="https://vk.com/diet.plan">' +
+                        '</div>' +
                     '</div>' +
                     '<h4>Группы с рекламой</h4>' +
-                    '<div class="group-tips">' +
+                    '<div class="group-tips row">' +
                         '<div class="col-xs-3">' +
-                            '<span class="tip">ID группы с рекламой</span>' +
+                            '<span class="tip">Ссылка группы с рекламой</span>' +
                         '</div>' +
                         '<div class="col-xs-3">' +
                             '<span class="tip">Название группы</span>' +
@@ -141,6 +144,56 @@
             setLikesInJob();
         });
     };
+    
+    
+    var loadVkGroup = function (putName) {
+        var $this = $(this);
+        putName = typeof putName === 'undefined' ? true : false;
+        var newVal = $this.val().trim();
+        var oldVkGroupVal = $this.data('old-val');
+        if (oldVkGroupVal === newVal) {
+            return;
+        }
+        
+        var vkGroupObj = helper.groupForVkApiByHref(newVal);
+        var groupId;
+        
+        if (vkGroupObj['domain']) {
+            groupId = vkGroupObj['domain'];
+        } else {
+            groupId = helper.groupIdForLink(vkGroupObj['owner_id']);
+        }
+        
+        deferGroupLoad = deferGroupLoad.then(function () {
+            return Request.vkApi('groups.getById', {
+                group_id: groupId,
+                v: 5.68
+            });
+        }).then(function (data) {
+            var $groupName = $this.parents('.group_item')
+                .find('.groupName');
+                
+            if (data['error']) {
+                $this.addClass('error');
+                $this.data('id', "");
+                $groupName.val("");
+            } else {
+                $this.removeClass('error');
+                var vkGroup = data['response'][0];
+                $this.data('id', vkGroup['id']);
+                $groupName.val(vkGroup['name']);
+            }
+            
+            $this.data('old-val', newVal);
+            
+            /*var resDeferred = new $.Deferred();
+            resDeferred.resolve(true);
+            
+            return resDeferred.promise();*/
+            
+            return true;
+        });
+    };
 
 	var initListener = function () {
 		$block.on('click.likes', '.addGroup', function () {
@@ -153,26 +206,35 @@
             removeJob.call(this);
         }).on('click.likes', '.show-groups', function () {
             $(this).siblings('ul').slideToggle();
+        }).on('focusout.likes', '.add-href', function () {
+            loadVkGroup.call(this);
+        }).on('focusout.likes', '.groupHref', function () {
+            loadVkGroup.call(this, false);
+        }).on('keypress.likes', '.add-href', function () {
+            $(this).removeClass('error');
         });
 		
 	};
 
 	var getFromData = function () {
+        var groupHref = $block.find('.groupHref').val().trim();
+        var groupId = $block.find('.groupHref').data('id');
         var data = {
-            group_id: $block.find('.groupId').val().trim(),
+            group_id: helper.groupIdForApi(groupId),
             groups: []
         };
+        
         var isValid = true;
         var $groups = $block.find('.groups .group_item');
 
         $groups.each(function (i, groupNode) {
             var $group = $(groupNode);
             var time = $group.find('.add-time').data('DateTimePicker').date();
-            var id = $group.find('.add-groupId').val().trim();
+            var groupId = $group.find('.add-href').data('id');
             var likes_count = parseInt($group.find('.add-likes_count').val().trim());
 
-            if (id.length === 0 || time.length === 0 || data['group_id'].length === 0 || ! likes_count) {
-                alert('Заполните обязательные поля: Время, id групп, кол-во лайков');
+            if (! groupId || time.length === 0 || ! data['group_id'] || ! likes_count) {
+                alert('Проверьте правильность заполненных данных: Время, ссылки групп, кол-во лайков');
                 isValid = false;
                 return;
             }
@@ -184,20 +246,20 @@
             }
 
             var group = {
-                id             : id,
                 likes_count    : likes_count,
+                id             : helper.groupIdForApi(groupId),
                 //price          : parseInt($group.find('.add-likes_price').val().trim() || 1),
                 price          : 2,
                 time           : time.unix()
             };
-
+            
             data.groups.push(group);
         });
 
         if (! isValid) {
             return false;
         }
-
+        
         return data;
     };
 
@@ -250,15 +312,21 @@
     };
 
 	var saveJob = function () {
-		var data = getFromData();
+        deferGroupLoad = deferGroupLoad.then(function () {
+    		var data = getFromData();
 
-        if (! data || ! hasEnoughLikes(data)) {
-            var def = new $.Deferred();
-		    def.resolve(true);
-		    return def.promise();
-        }
-
-        return Request.api('Like.seek', data).then(function (data) {
+            if (! data || ! hasEnoughLikes(data)) {
+                var def = new $.Deferred();
+    		    def.resolve(null);
+    		    return def.promise();
+            }
+            
+            return Request.api('Like.seek', data);
+        }).then(function (data) {
+            if (! data) {
+                return;
+            }
+            
 		    $block.find('span.error').remove();
 
 		    if (! jobs) {
@@ -269,20 +337,22 @@
             $block.find('.jobs').append(populateList([data.data]));
             setLikesInJob();
         });
+        
+        return deferGroupLoad;
 	};
 
 	var populateGroupItems = function (items) {
 	    var html = '';
         items.forEach(function (item) {
+            var groupHref = helper.hrefByGroupId(item.id);
             html +=
                 '<li>' +
-                    '<a target="_blank" href="https://vk.com/club' +
-                    item['id'].substring(1) + '">Группа</a> | ' +
+                    '<a target="_blank" href="' + groupHref + '">Перейти в группу</a> | ' +
                     'Время поста: ' + item['time'] + '<br>' +
                     ' | Статус: ' + (item['is_finish'] ? 'Запущен' : 'Ожидание') +
                     //' | Цена: ' + item['price'] + '<br>' +
                     ' | Кол-во лайков: ' + item['likes_count'] +
-                '</li>' ;
+                '</li>';
         });
 
         return html;
@@ -292,11 +362,12 @@
 	    var html = '';
 
         data.forEach(function (item) {
+            var groupHref = helper.hrefByGroupId(item['data']['group_id']);
             html +=
                 '<div class="like-job-item col-xs-12">' +
                     '<div class="row">' +
                         '<div class="col-xs-3">' +
-                            '<a target="_blank" href="https://vk.com/club' + item['data']['group_id'].substring(1) + '">Сливная группа</a>' +
+                            '<a target="_blank" href="' + groupHref + '">Сливная группа</a>' +
                         '</div>' +
                         '<div class="col-xs-8"><button class="show-groups"><i class="fa fa-level-down"></i> Показать группы</button>' +
                             '<ul style="display: none;">' +

@@ -74,6 +74,10 @@
     margin-top: 10px;
 }*/
 
+input.error {
+    border-color: red;
+}
+
 .post-message {
     white-space: pre-line;
 }

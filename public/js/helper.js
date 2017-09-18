@@ -5,7 +5,6 @@ var helper = {
 	/**
 	 * Для API VK.com
 	 * по ссылке на группу выдает обьект с ключем "owner_id" || "domain"
-	 * Если isObject === false возвращает int
 	 */
 	groupForVkApiByHref: function (href) {
 		var data        = {};
@@ -31,8 +30,22 @@ var helper = {
         return data;
 	},
 	
+	//return 123123
 	groupIdForLink: function (id) {
+		id = parseInt(id);
+		
 		if (id > 0) {
+			return id;
+		}
+		
+		return id * (-1);
+	},
+	
+	// return -1232131
+	groupIdForApi: function (id) {
+		id = parseInt(id);
+		
+		if (id < 0) {
 			return id;
 		}
 		
@@ -44,11 +57,19 @@ var helper = {
 	 * Возвращает полную ссылку
 	 */
 	hrefByGroupObjVk: function (group) {
-		$href = 'https://vk.com/';
+		href = 'https://vk.com/';
 		if (typeof group['owner_id'] !== 'undefined') {
-			return $href + 'club' + this.groupIdForLink(group['owner_id']);
+			return href + 'club' + this.groupIdForLink(group['owner_id']);
 		}
 		
-		return $href + group['domain'];
+		return href + group['domain'];
+	},
+	
+	hrefByGroupId: function (id) {
+		href = 'https://vk.com/club';
+		id = this.groupIdForLink(id);
+		
+		return href + id;
 	}
+	
 };

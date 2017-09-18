@@ -22,7 +22,7 @@ class Like extends Api {
         $this->_methodName = 'seek';
         $this->checkAuth(\App\User::ACTIVATED);
         $this->checkAttr([
-            'group_id'      => 'required',
+            'group_id'      => 'required|integer',
             'groups'        => 'required|array',
         ]);
         
@@ -41,7 +41,7 @@ class Like extends Api {
             $newGroup = [
                 'time'           => $time->toDateTimeString(),
                 'timestamp'      => $time->timestamp,
-                'id'             => $group['id'],
+                'id'             => (int) $group['id'],
                 'likes_count'    => (int) $group['likes_count'],
                 'is_finish'      => false
             ];
@@ -66,7 +66,7 @@ class Like extends Api {
 
         $jsonData = json_encode([
             'groups'   => $groups,
-            'group_id' => Request::get('group_id'),
+            'group_id' => (int) Request::get('group_id'),
             'user_id'  => Auth::id()    
         ]);
         
