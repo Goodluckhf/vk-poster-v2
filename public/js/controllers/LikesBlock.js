@@ -148,6 +148,15 @@
         });
     };
     
+    var groupIdByHref = function (href) {
+        var vkGroupObj = helper.groupForVkApiByHref(href);
+        
+        if (vkGroupObj['domain']) {
+            return vkGroupObj['domain'];
+        } else {
+            return helper.groupIdForLink(vkGroupObj['owner_id']);
+        }
+    };
     
     var loadVkGroup = function () {
         var $this = $(this);
@@ -158,14 +167,7 @@
             return;
         }
         
-        var vkGroupObj = helper.groupForVkApiByHref(newVal);
-        var groupId;
-        
-        if (vkGroupObj['domain']) {
-            groupId = vkGroupObj['domain'];
-        } else {
-            groupId = helper.groupIdForLink(vkGroupObj['owner_id']);
-        }
+        var groupId = groupIdByHref(newVal);
         
         deferGroupLoad = deferGroupLoad.then(function () {
             return Request.vkApi('groups.getById', {
@@ -213,9 +215,73 @@
         });
 		
 	};
+    
+    var findInVkResponseById = function (response, id) {
+        var finded = null;
+        
+        response['response'].forEach(function (item) {
+            if (item['id'] === id || item['screen_name'] === id) {
+                finded = item;
+                return;
+            }
+        });
+        
+        return finded;
+    };
+
+    var loadGroupsForm = function () {
+        var $groupHref = $block.find('.groupHref');
+        var groupHref = $groupHref.val().trim();
+        var groupId = groupIdByHref(groupHref);
+        var groups = [groupId];
+
+        var $groups = $block.find('.groups .group_item');
+        $groups.each(function (i, groupNode) {
+            $href = $(groupNode).find('.add-href');
+            var id = groupIdByHref($href.val().trim());
+            groups.push(id);
+        });
+        
+        deferGroupLoad = deferGroupLoad.then(function () {
+            return Request.vkApi('groups.getById', {
+                group_ids: groups.join(','),
+                v: 5.68
+            });
+        }).then(function (response) {
+            var vkItemForGroup = findInVkResponseById(response, groupId);
+            
+            if (vkItemForGroup) {
+                $groupHref.data('id', vkItemForGroup['id']);
+                var $groupName = $groupHref.parents('.js-group_item')
+                    .find('.groupName');
+                $groupName.val(vkItemForGroup['name']);
+            }
+            
+            $groups.each(function (i, node) {
+                var $this = $(node).find('.add-href');
+                var $groupName = $this.parents('.js-group_item')
+                    .find('.groupName');
+                    
+                var groupId = groupIdByHref($this.val().trim());
+                var vkItemForGroup = findInVkResponseById(response, groupId);
+                
+                if (! vkItemForGroup) {
+                    $this.addClass('error');
+                    $this.data('id', "");
+                    $groupName.val("");
+                } else {
+                    $this.removeClass('error');
+                    $this.data('id', vkItemForGroup['id']);
+                    $groupName.val(vkItemForGroup['name']);
+                }
+            });
+        });
+        
+        return deferGroupLoad;
+    };
 
 	var getFromData = function () {
-        var groupHref = $block.find('.groupHref').val().trim();
+       
         var groupId = $block.find('.groupHref').data('id');
         var data = {
             group_id: helper.groupIdForApi(groupId),
@@ -439,9 +505,12 @@
             jobs = data.data;
             $block.find('.jobs').html(populateList(jobs));
             setLikesInJob();
+            return true;
         }, function (err) {
             $block.find('.jobs').html('<span class="error">' + err.responseJSON.message + '</span>');
         });
+        
+        loadGroupsForm();
 	};
 
     this.unmount = function () {
