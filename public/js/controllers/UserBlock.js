@@ -13,7 +13,7 @@
                                     '<a class="getDelayaed" href="#">Отложенные</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
-                                    '<a class="groupSeek" href="#">Слежка</a>' +
+                                    '<a class="groupSeek" href="#/seek">Слежка</a>' +
                                 '</div>' +
                                 '<div class="col-xs-4 text-center">' +
                                     '<a class="likesSeek" href="#/likes">Лайки</a>' +

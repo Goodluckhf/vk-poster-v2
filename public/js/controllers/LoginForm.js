@@ -113,7 +113,8 @@
         
         
         state = 'first';
-    }
+    };
+
     this.showUsualLoginForm = function(e) {
         e.preventDefault();
         loginForm.find('form').html(formForUsualLogin);
@@ -173,6 +174,7 @@
             password: password
         }).always(function () {
             loginForm.find('.ajax-loader').remove();
+            loginForm.find('.login-btn').attr('disabled', false);
         }).fail(function (data) {
             var alert = '<div class="alert alert-danger alert-dismissable">' +
                     '<button class="close" aria-hidden="true" data-dismiss="alert" type="button">×</button>' +
@@ -271,6 +273,7 @@
 //    });
     $('body').on('click', '.login-box button.login-btn', function (e) {
         //e.preventDefault();
+        $(this).attr('disabled', '');
         if (state === 'usual') {
             me.login(e);
         }
@@ -279,4 +282,4 @@
         }
         //return false;
     });
-}
+};

@@ -19,14 +19,14 @@ var VKAuthService = (new function () {
         else {
             events.listen('ready', callback);
         }
-    }
+    };
 
     this.getCookie = function(name) {
         var matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
         ));
         return matches ? decodeURIComponent(matches[1]) : undefined;
-    }
+    };
     
     this.auth = function () {
         if(typeof this.getCookie(tokenName) !== 'undefined'){

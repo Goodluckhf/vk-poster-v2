@@ -37,7 +37,10 @@ var VKLoginForm = function() {
     };
 
     this.onClickLogin = function(cb) {
-        $('body').on('click', '.login', cb);
+        $('body').on('click', '.login', function () {
+            $(this).attr('disabled', "");
+            cb.call(this);
+        });
     };
 
     this.removeError = function() {        
