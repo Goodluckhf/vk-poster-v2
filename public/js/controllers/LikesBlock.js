@@ -175,22 +175,12 @@
                 v: 5.68
             });
         }).then(function (data) {
-            var $groupName = $this.parents('.js-group_item')
-                .find('.groupName');
-                
-            if (data['error']) {
-                $this.addClass('error');
-                $this.data('id', "");
-                $groupName.val("");
-            } else {
-                $this.removeClass('error');
-                var vkGroup = data['response'][0];
-                $this.data('id', vkGroup['id']);
-                $groupName.val(vkGroup['name']);
+            var vkGroup = null;
+            if (! data['error']) {
+                vkGroup = data['response'][0];
             }
-            
-            $this.data('old-val', newVal);
-            
+
+            processLoadGroup.call($this, vkGroup);
             return true;
         });
     };
@@ -229,6 +219,24 @@
         return finded;
     };
 
+    var processLoadGroup = function (data) {
+        var $this = $(this);
+        var $groupName = $this.parents('.js-group_item')
+            .find('.groupName');
+
+        if (! data) {
+            $this.addClass('error');
+            $this.data('id', "");
+            $groupName.val("");
+        } else {
+            $this.removeClass('error');
+            $this.data('id', data['id']);
+            $groupName.val(data['name']);
+        }
+
+        $this.data('old-val', $this.val().trim());
+    };
+
     var loadGroupsForm = function () {
         var $groupHref = $block.find('.groupHref');
         var groupHref = $groupHref.val().trim();
@@ -237,7 +245,7 @@
 
         var $groups = $block.find('.groups .group_item');
         $groups.each(function (i, groupNode) {
-            $href = $(groupNode).find('.add-href');
+            var $href = $(groupNode).find('.add-href');
             var id = groupIdByHref($href.val().trim());
             groups.push(id);
         });
@@ -249,31 +257,15 @@
             });
         }).then(function (response) {
             var vkItemForGroup = findInVkResponseById(response, groupId);
-            
-            if (vkItemForGroup) {
-                $groupHref.data('id', vkItemForGroup['id']);
-                var $groupName = $groupHref.parents('.js-group_item')
-                    .find('.groupName');
-                $groupName.val(vkItemForGroup['name']);
-            }
-            
+            processLoadGroup.call($groupHref, vkItemForGroup);
+
             $groups.each(function (i, node) {
                 var $this = $(node).find('.add-href');
-                var $groupName = $this.parents('.js-group_item')
-                    .find('.groupName');
-                    
-                var groupId = groupIdByHref($this.val().trim());
+                var href = $this.val().trim();
+                var groupId = groupIdByHref(href);
                 var vkItemForGroup = findInVkResponseById(response, groupId);
-                
-                if (! vkItemForGroup) {
-                    $this.addClass('error');
-                    $this.data('id', "");
-                    $groupName.val("");
-                } else {
-                    $this.removeClass('error');
-                    $this.data('id', vkItemForGroup['id']);
-                    $groupName.val(vkItemForGroup['name']);
-                }
+
+                processLoadGroup.call($this, vkItemForGroup);
             });
         });
         
