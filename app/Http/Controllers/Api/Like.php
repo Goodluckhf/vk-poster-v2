@@ -60,23 +60,26 @@ class Like extends Api {
             }
         }
         
-        $jobs = \App\Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
+        $job = \App\Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
         
-        if ($jobs) {
-            throw new JobAlreadyExist($this->_controllerName, $this->_methodName);
+        if ($job) {
+            $findedJobData = json_decode($job->data, true);
+            $groups = array_merge($findedJobData['groups'], $groups);
+            $newJob = $job;
+        } else {
+            $newJob = new \App\Job;
+            $newJob->is_finish = 0;
+            $newJob->type = self::JOB_TYPE;
         }
+        
         $jsonData = json_encode([
             'groups'   => $groups,
             'group_id' => (int) Request::get('group_id'),
             'user_id'  => Auth::id()    
         ]);
         
-        $newJob = new \App\Job;
         $newJob->data = $jsonData;
-        $newJob->is_finish = 0;
-        $newJob->type = self::JOB_TYPE;
         $newJob->save();
-
         $this->_data = $newJob->toArray();
         $this->_data['data'] = json_decode($jsonData);
         return $this;

@@ -308,7 +308,18 @@
 
         return true;
     };
-
+    
+    var findJobKeyById = function (jobs, id) {
+        var finded = null;
+        jobs.forEach(function (job, i) {
+            if (job['id'] === id) {
+                finded = i;
+            }
+        });
+        
+        return finded;
+    };
+    
 	var saveJob = function () {
         deferGroupLoad = deferGroupLoad.then(function () {
     		var data = getFromData();
@@ -330,15 +341,35 @@
 		    if (! jobs) {
 		        jobs = [];
             }
-
-		    jobs.push(data.data);
-            $block.find('.jobs').append(populateList([data.data]));
+		    
+            var $container = getContainerIfHas(data.data['id']);
+            if ($container) {
+                $container.siblings('.show-groups').click();
+                var jobKey = findJobKeyById(jobs, data.data['id']);
+                jobs[jobKey] = data.data;
+                $container.html(populateList([data.data], true));
+            } else {
+                jobs.push(data.data);
+                $block.find('.jobs').append(populateList([data.data]));
+            }
+            
             setLikesInJob();
         });
         
         return deferGroupLoad;
 	};
+    
+    var getContainerIfHas = function (id) {
+        var $btn = $block.find('.jobs .js-remove-job[data-id="' + id + '"]');
 
+        if ($btn.length === 0) {
+            return null;
+        }
+        
+        return $btn.parents('.like-job-item')
+            .find('.js-likes-groups');
+    };
+    
 	var populateGroupItems = function (items) {
 	    var html = '';
         items.forEach(function (item) {
@@ -356,10 +387,14 @@
         return html;
     };
 
-	var populateList = function(data) {
+	var populateList = function(data, addToExist) {
+        if (addToExist) {
+            return populateGroupItems(data[0]['data']['groups']);
+        }
+        
 	    var html = '';
-
         data.forEach(function (item) {
+            
             var groupHref = helper.hrefByGroupId(item['data']['group_id']);
             html +=
                 '<div class="like-job-item col-xs-12">' +
@@ -368,7 +403,7 @@
                             '<a target="_blank" href="' + groupHref + '">Сливная группа</a>' +
                         '</div>' +
                         '<div class="col-xs-8"><button class="show-groups"><i class="fa fa-level-down"></i> Показать группы</button>' +
-                            '<ul style="display: none;">' +
+                            '<ul class="js-likes-groups" style="display: none;">' +
                                 populateGroupItems(item['data']['groups']) +
                             '</ul>' +
                         '</div>' +

@@ -23,7 +23,7 @@ class Job extends Model {
         
         foreach ($jobs as $job) {
             $data = json_decode($job->data, true);
-            if($data['group_id'] === $group_id && $data['user_id'] === $user_id) {
+            if($data['group_id'] == $group_id && $data['user_id'] == $user_id) {
                 $currentJob = $job;
             }
         }
