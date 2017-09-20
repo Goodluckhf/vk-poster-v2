@@ -100,7 +100,8 @@ class Account extends Api {
     public function getSettings() {
         $this->_methodName = 'getSettings';
         $this->checkAuth(\App\User::ADMIN);
-        $this->_data = DB::table('settings')->first();
+        $this->_data['settings'] = DB::table('settings')->first();
+        $this->_data['disabled_likes'] = \App\Job::countDisabledLikes();
         return $this;
     }
 
@@ -110,6 +111,7 @@ class Account extends Api {
         $this->checkAttr([
             'likes_count' => 'required|integer'
         ]);
+        
         DB::table('settings')->whereId(1)->update([
             'likes_count' => Request::get('likes_count')
         ]);

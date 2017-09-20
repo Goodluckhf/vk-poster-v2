@@ -154,13 +154,25 @@
             $userList.append('<span class="error">' + err.responseJSON.message + '</span>');
         }).then(function (data) {
             console.log(data);
+            var disabledLikes = data.data['disabled_likes'];
+            var settingsLikes = data.data['settings']['likes_count'];
             $adminPage.find('.settings').html(
-                '<div class="header">Общее кол-во лайков</div>' +
                 '<div class="row">' +
-                    '<div class="col-xs-6">' +
-                        '<input class="form-control js-update-likesCount-val" type="text" value="' + data.data['likes_count'] + '">' +
+                    '<div class="col-xs-2">' +
+                        '<span class="header">Лайки в работе</span>' +
                     '</div>' +
                     '<div class="col-xs-6">' +
+                        '<span class="header">Доступное кол-во лайков</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="row">' +
+                    '<div class="col-xs-2">' +
+                        '<input disabled class="form-control js-disabledLikes" type="text" value="' + disabledLikes + '">' +
+                    '</div>' +
+                    '<div class="col-xs-6">' +
+                        '<input class="form-control js-update-likesCount-val" type="text" value="' + settingsLikes + '">' +
+                    '</div>' +
+                    '<div class="col-xs-4">' +
                         '<button class="btn btn-sm btn-success js-update-likesCount">Обновить</button>' +
                     '</div>' +
                 '</div>'

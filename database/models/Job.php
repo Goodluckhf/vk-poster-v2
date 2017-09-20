@@ -68,7 +68,7 @@ class Job extends Model {
      * Считает кол-во лайков в работе
      * @return int
      */
-    private static function getLikes() {
+    private function getLikes() {
         $data = json_decode($this->data, true);
         $sum = 0;
 
@@ -102,6 +102,27 @@ class Job extends Model {
             $sum += $newJob->getLikes();
         }
 
+        return $sum;
+    }
+    
+    /**
+     * Считает кол-во лайков по всем активным работам
+     * @return int
+     */
+    public static function countDisabledLikes($type='like_seek') {
+        $jobs = self::whereType($type)
+            ->whereIsFinish(0)
+            ->get();
+            
+        if ($jobs->count() == 0) {
+            return 0;
+        }
+        
+        $sum = 0;
+        foreach ($jobs as $job) {
+            $sum += $job->getLikes();
+        }
+        
         return $sum;
     }
     
