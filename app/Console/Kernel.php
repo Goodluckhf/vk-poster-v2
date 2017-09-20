@@ -53,8 +53,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seek($job);
             }
-        //})->everyTenMinutes();
-        })->everyMinute();
+        })->everyTenMinutes();
+        //})->everyMinute();
         
         // Лайки
         $schedule->call(function() {
@@ -65,8 +65,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seekLikes($job);
             }
-        })->everyMinute();
-        //})->everyFiveMinutes();
+        //})->everyMinute();
+        })->everyFiveMinutes();
     }
 
     private function getFirstPost($vkResponse) {
@@ -363,10 +363,10 @@ class Kernel extends ConsoleKernel
 
     private function checkPost($post, $api) {
         preg_match(self::URL_PATTERN, $post['text'], $link);
-        Log::error('Слежка: парс ссылки', [
+        /*Log::error('Слежка: парс ссылки', [
             'text' => $post['text'],
             'link' => $link,
-        ]);
+        ]);*/
         if (! isset($link[0])) {
             Log::error('Слежка: Нет ссылки');
             return true;
