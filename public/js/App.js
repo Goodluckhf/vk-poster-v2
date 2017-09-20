@@ -34,6 +34,11 @@
     });
 
     AuthService.on('afterAuth', function(user) {
+      
+        //Добавление ссылки для админа
+        if (user.isAdmin()) {
+            $('.sidebar-menu').append('<li class="router-link"><a href="#/admin"><i class="fa fa-user-secret"></i><span>Админка</span></a></li>');
+        }
 
         //Делаем ссылки активными
         Router.onFollow(function (routeData) {
@@ -45,11 +50,6 @@
         });
 
         Router.init();
-
-        //Добавление ссылки для админа
-        if (user.isAdmin()) {
-            $('.sidebar-menu').append('<li><a href="#/admin"><i class="fa fa-user-secret"></i><span>Админка</span></a></li>');
-        }
 
         var old = $('.user.user-menu');
         var container = old.parent('ul');
