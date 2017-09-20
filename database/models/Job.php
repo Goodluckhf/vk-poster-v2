@@ -104,4 +104,14 @@ class Job extends Model {
 
         return $sum;
     }
+    
+    /**
+     * Последний актуальный Job
+     */
+    public static function findLastActualJob($user_id, $type='like_seek') {
+        return self::whereUserId($user_id)
+            ->whereType($type)
+            ->orderBy('created_at', 'desc')
+            ->first();
+    }
 }

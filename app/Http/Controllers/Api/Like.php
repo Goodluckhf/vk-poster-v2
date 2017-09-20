@@ -103,8 +103,24 @@ class Like extends Api {
             $arrJob['data'] = $data;
             $arrJobs[] = $arrJob;
         }
-
+        
         $this->_data = $arrJobs;
+        return $this;
+    }
+    
+    public function getLast() {
+        $this->_methodName = 'getLast';
+        $this->checkAuth(\App\User::ACTIVATED);
+        
+        $lastActualJob = \App\Job::findLastActualJob(Auth::id());
+        
+        if (! $lastActualJob) {
+            throw new NotFound($this->_controllerName, $this->_methodName);
+        }
+        
+        $lastActualJobArr = $lastActualJob->toArray();
+        $lastActualJobArr['data'] = json_decode($lastActualJobArr['data']);
+        $this->_data = $lastActualJobArr;
         return $this;
     }
     

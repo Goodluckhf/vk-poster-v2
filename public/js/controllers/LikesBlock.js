@@ -3,7 +3,8 @@
 		tplFormGroupItem =
 			'<div class="js-group_item group_item row">' +
         		'<div class="col-xs-3">' +
-        			'<input type="text" class="form-control add-href" value="https://vk.com/club107952301" data-old-val="" data-id="">' +
+                    //'<input type="text" class="form-control add-href" value="https://vk.com/club107952301" data-old-val="" data-id="">' +
+        			'<input type="text" class="form-control add-href" value="" data-old-val="" data-id="">' +
         		'</div>' +
                 '<div class="col-xs-3">' +
                     '<input disabled type="text" class="form-control groupName">' +
@@ -56,7 +57,8 @@
                 '<div class="jobAddForm">' +
                     '<div class="row js-group_item">' +
                         '<div class="col-xs-6">' +
-                            '<input data-id="" type="text" class="form-control groupHref" placeholder="Ссылка сливной группы" value="https://vk.com/diet.plan">' +
+                            //'<input data-id="" type="text" class="form-control groupHref" placeholder="Ссылка сливной группы" value="https://vk.com/diet.plan">' +
+                            '<input data-id="" type="text" class="form-control groupHref" placeholder="Ссылка сливной группы" value="">' +
                         '</div>' +
                         '<div class="col-xs-6">' +
                             '<input disabled type="text" class="form-control groupName" placeholder="Название группы">' +
@@ -84,7 +86,7 @@
                         '</div>' +
                     '</div>' +
                     '<div class="groups">' +
-                        tplFormGroupItem +
+                        
                     '</div>' +
                     '<div class="row">' +
                         '<div class="col-xs-2"><button class="btn btn-sm btn-success addGroup">Добавить</button></div>' +
@@ -99,7 +101,7 @@
         return template;
     };
 
-	var addGroupItem = function () {
+	var addGroupItem = function (data) {
 		var $item = $(tplFormGroupItem);
 		$item.find('.add-time').datetimepicker({
             locale           : 'ru',
@@ -108,7 +110,32 @@
             defaultDate: moment()
             //minDate          : new Date()
         });
-		$block.find('.groups').append($item);
+		
+        //Если нет даты => значит создаем пустой item
+        if (! data) {
+            return $block.find('.groups').append($item);
+        } 
+        
+        var href = helper.hrefByGroupId(data['id']);
+        var postTime = moment.unix(data['timestamp']);
+        var now = moment(new Date());
+        var diff = now.diff(postTime, 'days', true);
+        if (now.isSame(postTime, 'days')) {
+            diff = Math.round(diff);
+        } else if (diff < 1 && diff > 0){
+            diff = Math.ceil(diff);
+        } else {
+            diff = Math.round(diff);
+        }
+        
+        if (diff > 0) {
+            postTime.add(diff, 'days');
+        }
+        
+        $item.find('.add-href').val(href);
+        $item.find('.add-likes_count').val(data['likes_count']);
+        $item.find('.add-time').data('DateTimePicker').date(postTime);
+        return $block.find('.groups').append($item);
 	};
 	
 	var removeGroupItem = function () {
@@ -163,7 +190,7 @@
         var newVal        = $this.val().trim();
         var oldVkGroupVal = $this.data('old-val');
         
-        if (oldVkGroupVal === newVal) {
+        if (newVal.length === 0 || oldVkGroupVal === newVal) {
             return;
         }
         
@@ -249,11 +276,9 @@
             groups.push(id);
         });
         
-        deferGroupLoad = deferGroupLoad.then(function () {
-            return Request.vkApi('groups.getById', {
-                group_ids: groups.join(','),
-                v: 5.68
-            });
+        return Request.vkApi('groups.getById', {
+            group_ids: groups.join(','),
+            v: 5.68
         }).then(function (response) {
             var vkItemForGroup = findInVkResponseById(response, groupId);
             processLoadGroup.call($groupHref, vkItemForGroup);
@@ -267,8 +292,6 @@
                 processLoadGroup.call($this, vkItemForGroup);
             });
         });
-        
-        return deferGroupLoad;
     };
 
 	var getFromData = function () {
@@ -401,7 +424,7 @@
 		    
             var $container = getContainerIfHas(data.data['id']);
             if ($container) {
-                $container.siblings('.show-groups').click();
+                $container.slideDown();
                 var jobKey   = findJobKeyById(jobs, data.data['id']);
                 jobs[jobKey] = data.data;
                 $container.html(populateList([data.data], true));
@@ -474,6 +497,15 @@
 
         return html;
     };
+    
+    var populateForm = function (data) {
+        var jobData = data['data'];
+        var groupHref = helper.hrefByGroupId(jobData['group_id']);
+        $block.find('.groupHref').val(groupHref);
+        jobData['groups'].forEach(function (group) {
+            addGroupItem(group);
+        });
+    };
 	
 	/**
 	 * TODO: Сделать возможность подставлять прошлые данные в форму
@@ -501,7 +533,23 @@
             $block.find('.jobs').html('<span class="error">' + err.responseJSON.message + '</span>');
         });
         
-        loadGroupsForm();
+        deferGroupLoad = deferGroupLoad.then(function () {
+            return Request.api('Like.getLast');
+        }).then(function (data) {
+            console.log(data);
+            populateForm(data.data);
+            return loadGroupsForm();
+        }, function (err) {
+            var def = new $.Deferred();
+            def.resolve();
+            if (err.status !== 404) {
+                alert("Ошибка на сервевер: " + err.responseText);
+            } else {
+                addGroupItem();
+            }
+            
+            return def.promise();
+        });
 	};
 
     this.unmount = function () {
