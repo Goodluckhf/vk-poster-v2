@@ -53,7 +53,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seek($job);
             }
-        })->everyTenMinutes();
+        //})->everyTenMinutes();
+        })->everyMinute();
         
         // Лайки
         $schedule->call(function() {
@@ -64,8 +65,8 @@ class Kernel extends ConsoleKernel
             foreach ($jobs as $job) {
                 $this->seekLikes($job);
             }
-        //})->everyMinute();
-        })->everyFiveMinutes();
+        })->everyMinute();
+        //})->everyFiveMinutes();
     }
 
     private function getFirstPost($vkResponse) {
@@ -93,6 +94,7 @@ class Kernel extends ConsoleKernel
         $cleanedId = $this->cleanGroupId($id);
         $reg = "/\[club" . $cleanedId . "\|/";
         Log::info('reg', [$reg]);
+        Log::info('text', [$text]);
         Log::info('match', [preg_match($reg, $text)]);
         if (preg_match($reg, $text)) {
             return true;
@@ -130,7 +132,7 @@ class Kernel extends ConsoleKernel
     
     private function seekLikes($job) {
         $jobData = json_decode($job->data, true);
-        $user = \App\User::with('role')->find($jobData['user_id']);
+        $user = \App\User::with('role')->find($job->user_id);
         $vkApi = new VkApi($user->vk_token);
         $isFinish = true;
         $now = Carbon::now();
@@ -305,7 +307,7 @@ class Kernel extends ConsoleKernel
     private function seek($job) {
         $jobData = json_decode($job->data, true);
 //        $posts = \App\Post::whereGroupId($jobData['group_id'])->get();
-        $user = \App\User::find($jobData['user_id']);
+        $user = \App\User::find($job->user_id);
         $vkApi = new VkApi($user->vk_token);
         $wallRequest = $vkApi->callApi('wall.get', [
             'owner_id' => $jobData['group_id'],
@@ -313,7 +315,7 @@ class Kernel extends ConsoleKernel
             'offset'   => 1,
             'v'        => 5.40
         ]);
-
+        
         if (isset($wallRequest['error'])) {
             $errMessage = 'error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
             Log::error($errMessage);
@@ -345,7 +347,7 @@ class Kernel extends ConsoleKernel
 
         for ($i = 0; $i < $jobData['count']; $i++) {
             $vkPost = $wallRequest['response']['items'][$i];
-            if(! $this->checkPost($vkPost)) {
+            if(! $this->checkPost($vkPost, $vkApi)) {
                 Mail::send('email.seekNotify', [
                     'title'    => 'Слежка: Ссылку забанили!',
                     'postText' => $vkPost['text']
@@ -359,19 +361,33 @@ class Kernel extends ConsoleKernel
         }
     }
 
-    private function checkPost($post) {
+    private function checkPost($post, $api) {
         preg_match(self::URL_PATTERN, $post['text'], $link);
+        Log::error('Слежка: парс ссылки', [
+            'text' => $post['text'],
+            'link' => $link,
+        ]);
         if (! isset($link[0])) {
             Log::error('Слежка: Нет ссылки');
             return true;
         }
-
+        
         $link = $link[0];
-        $curl = curl_init('https://vk.com/away.php?to=' . $link . '&post=' . $post['to_id'] . '_' . $post['id']);
+        $response = $api->callApi('utils.checkLink', [
+            'url' => $link   
+        ]);
+        
+        if (isset($response['error'])) {
+            Log::error('VK error: ', $response['error']);
+            return true;
+        }
+        
+        /*$curl = curl_init('https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl,CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0');
         curl_exec($curl);
-        $requestResult = curl_getinfo($curl);
-        if ($requestResult['http_code'] == 200) {
+        $requestResult = curl_getinfo($curl);*/
+        if ($response['response']['status'] == 'banned') {
             Log::error('ссылку забанили: ' . $post['id']);
             return false;
         }
@@ -383,7 +399,7 @@ class Kernel extends ConsoleKernel
         
         //$data = json_decode($job->data, true);
         $imgDir = public_path() . '/vk-images/';
-        $vk = new VkApi($job->post->user->vk_token, $job->post->group_id, $job->post->user->vk_user_id, $imgDir);
+        $vk = new VkApi($job->post->user->vk_token, $job->post->group_id, $job->user->vk_user_id, $imgDir);
         $vk->setPost($job->post->toArray());
         $result = $vk->curlPost();
         if(!$result) {

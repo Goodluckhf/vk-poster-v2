@@ -13,7 +13,7 @@ class Like extends Api {
     protected $_controllerName = 'Like';
     
     const JOB_TYPE = 'like_seek';
-    const PRICE = 2;
+    const PRICE    = 2;
     
     /**
      * Создания joba для отслеживания лайков
@@ -25,8 +25,6 @@ class Like extends Api {
             'group_id'      => 'required|integer',
             'groups'        => 'required|array',
         ]);
-        
-        
 
         $groups = [];
         
@@ -49,10 +47,10 @@ class Like extends Api {
             } else {
                 $newGroup['price'] = $price;
             }
-
+            
             $groups[] = $newGroup;
         }
-
+        
         if (! Auth::user()->isAdmin()) {
             $jobsLikesCount = \App\Job::getLikesCount(Auth::id(), self::JOB_TYPE, $groups);
             if ($jobsLikesCount > Auth::user()['likes_count']) {
@@ -69,13 +67,13 @@ class Like extends Api {
         } else {
             $newJob = new \App\Job;
             $newJob->is_finish = 0;
+            $newJob->user_id = Auth::id();
             $newJob->type = self::JOB_TYPE;
         }
         
         $jsonData = json_encode([
             'groups'   => $groups,
             'group_id' => (int) Request::get('group_id'),
-            'user_id'  => Auth::id()    
         ]);
         
         $newJob->data = $jsonData;

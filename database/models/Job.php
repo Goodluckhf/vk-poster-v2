@@ -7,14 +7,24 @@ use Log;
 
 class Job extends Model {
     protected $table = 'jobs';
-
+    
+    protected $casts = [
+        'id'      => 'integer',
+        'user_id' => 'integer'
+    ];
+    
     public function post() {
         return $this->belongsTo('\App\Post');
+    }
+    
+    public function user() {
+        return $this->belongsTo('\App\User');
     }
 
     public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {
         $jobs = self::whereType($type)
             ->whereIsFinish(0)
+            ->whereUserId($user_id)
             ->get();
 
         if(! $jobs->count()) {
@@ -23,7 +33,7 @@ class Job extends Model {
         
         foreach ($jobs as $job) {
             $data = json_decode($job->data, true);
-            if($data['group_id'] == $group_id && $data['user_id'] == $user_id) {
+            if($data['group_id'] == $group_id) {
                 $currentJob = $job;
             }
         }
@@ -38,6 +48,7 @@ class Job extends Model {
     public static function findByUserId($user_id, $type = 'seek') {
         $jobs = self::whereType($type)
             ->whereIsFinish(0)
+            ->whereUserId($user_id)
             ->get();
 
         if(! $jobs->count()) {
@@ -47,18 +58,21 @@ class Job extends Model {
         $foundJobs = new \Illuminate\Database\Eloquent\Collection;
         foreach ($jobs as $job) {
             $data = json_decode($job->data, true);
-            if($data['user_id'] == $user_id) {
-                $foundJobs->push($job);
-            }
+            $foundJobs->push($job);
         }
 
         return $foundJobs;
     }
-
-    private static function getLikesForJob($job) {
+    
+    /**
+     * Считает кол-во лайков в работе
+     * @return int
+     */
+    private static function getLikes() {
+        $data = json_decode($this->data, true);
         $sum = 0;
 
-        foreach ($job as $group) {
+        foreach ($data['groups'] as $group) {
             if ($group['is_finish']) {
                 continue;
             }
@@ -70,19 +84,22 @@ class Job extends Model {
         return $sum;
     }
 
+    /**
+     * Считает кол-во лайков в работе у пользователя
+     * @return int
+     */
     public static function getLikesCount($user_id, $type, $newJob = null) {
         $jobs = self::findByUserId($user_id, $type);
         $sum = 0;
 
         if ($jobs) {
             foreach ($jobs as $job) {
-                $data = json_decode($job->data, true);
-                $sum += self::getLikesForJob($data['groups']);
+                $sum += $job->getLikes();
             }
         }
 
         if ($newJob) {
-            $sum += self::getLikesForJob($newJob);
+            $sum += $newJob->getLikes();
         }
 
         return $sum;

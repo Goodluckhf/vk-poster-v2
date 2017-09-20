@@ -57,15 +57,15 @@ class Group extends Api {
         }*/
 
         $dataForJob = [
-            'count'    => Request::get('count'),
-            'group_id' => Request::get('group_id'),
-            'user_id' => Auth::id()
+            'count'    => (int) Request::get('count'),
+            'group_id' => (int) Request::get('group_id'),
         ];
 
-        $newJob = new \App\Job;
+        $newJob            = new \App\Job;
         $newJob->is_finish = 0;
-        $newJob->type = 'seek';
-        $newJob->data = json_encode($dataForJob);
+        $newJob->user_id   = Auth::id();
+        $newJob->type      = 'seek';
+        $newJob->data      = json_encode($dataForJob);
         $newJob->save();
 
         $this->_data = $newJob->toArray();
@@ -85,10 +85,10 @@ class Group extends Api {
 
         $arrJobs = [];
         foreach ($jobs as $job) {
-            $data = json_decode($job->data, true);
-            $arrJob = $job->toArray();
+            $data           = json_decode($job->data, true);
+            $arrJob         = $job->toArray();
             $arrJob['data'] = $data;
-            $arrJobs[] = $arrJob;
+            $arrJobs[]      = $arrJob;
         }
 
         $this->_data = $arrJobs;

@@ -138,7 +138,7 @@
 
 	var removeJob = function () {
         var $this = $(this);
-        var id = $this.data('id');
+        var id    = $this.data('id');
         Request.api('Like.stopSeek', {
             id: id
         }).then(function () {
@@ -159,10 +159,10 @@
     };
     
     var loadVkGroup = function () {
-        var $this = $(this);
-
-        var newVal = $this.val().trim();
+        var $this         = $(this);
+        var newVal        = $this.val().trim();
         var oldVkGroupVal = $this.data('old-val');
+        
         if (oldVkGroupVal === newVal) {
             return;
         }
@@ -203,7 +203,6 @@
         }).on('keypress.likes', '.add-href', function () {
             $(this).removeClass('error');
         });
-		
 	};
     
     var findInVkResponseById = function (response, id) {
@@ -239,14 +238,14 @@
 
     var loadGroupsForm = function () {
         var $groupHref = $block.find('.groupHref');
-        var groupHref = $groupHref.val().trim();
-        var groupId = groupIdByHref(groupHref);
-        var groups = [groupId];
-
-        var $groups = $block.find('.groups .group_item');
+        var groupHref  = $groupHref.val().trim();
+        var groupId    = groupIdByHref(groupHref);
+        var groups     = [groupId];
+        var $groups    = $block.find('.groups .group_item');
+        
         $groups.each(function (i, groupNode) {
             var $href = $(groupNode).find('.add-href');
-            var id = groupIdByHref($href.val().trim());
+            var id    = groupIdByHref($href.val().trim());
             groups.push(id);
         });
         
@@ -260,9 +259,9 @@
             processLoadGroup.call($groupHref, vkItemForGroup);
 
             $groups.each(function (i, node) {
-                var $this = $(node).find('.add-href');
-                var href = $this.val().trim();
-                var groupId = groupIdByHref(href);
+                var $this          = $(node).find('.add-href');
+                var href           = $this.val().trim();
+                var groupId        = groupIdByHref(href);
                 var vkItemForGroup = findInVkResponseById(response, groupId);
 
                 processLoadGroup.call($this, vkItemForGroup);
@@ -284,9 +283,9 @@
         var $groups = $block.find('.groups .group_item');
 
         $groups.each(function (i, groupNode) {
-            var $group = $(groupNode);
-            var time = $group.find('.add-time').data('DateTimePicker').date();
-            var groupId = $group.find('.add-href').data('id');
+            var $group      = $(groupNode);
+            var time        = $group.find('.add-time').data('DateTimePicker').date();
+            var groupId     = $group.find('.add-href').data('id');
             var likes_count = parseInt($group.find('.add-likes_count').val().trim());
 
             if (! groupId || time.length === 0 || ! data['group_id'] || ! likes_count) {
@@ -403,7 +402,7 @@
             var $container = getContainerIfHas(data.data['id']);
             if ($container) {
                 $container.siblings('.show-groups').click();
-                var jobKey = findJobKeyById(jobs, data.data['id']);
+                var jobKey   = findJobKeyById(jobs, data.data['id']);
                 jobs[jobKey] = data.data;
                 $container.html(populateList([data.data], true));
             } else {
@@ -486,7 +485,7 @@
             locale           : 'ru',
             stepping         : 5, //ограничение хостинга интервал 5 минут
             toolbarPlacement : 'bottom',
-            defaultDate: moment()
+            defaultDate      : moment()
             //minDate          : new Date()
         });
 
