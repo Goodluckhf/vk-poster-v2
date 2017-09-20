@@ -25,7 +25,7 @@
         return '<div class="job">Начало: ' + job['created_at'] +
             ' || <a href="' + helper.hrefByGroupId(job['data']['group_id']) + '">Перейти в группу</a>' +
             ' || кол-во постов: ' + job['data']['count'] +
-            '<button class="stopJob btn btn-sm btn-warning" data-id="' + job['id'] + '">Остановить</button></div><hr><br>';
+            '<button class="stopJob btn btn-sm btn-warning" data-id="' + job['id'] + '">Остановить</button><hr></div>';
     };
     
     var populateJobs = function (jobs) {
@@ -103,12 +103,18 @@
                 count: count
             });
         }).then(function (data) {
+            if (! data) {
+                return;
+            }
             $('.seekBlock .error').remove();
             $('.jobs').append(htmlForJob(data.data));
             $form.find('.groupId').val('');
             $form.find('.postCount').val('');
+            return true;
         }).fail(function (err) {
-            alert(err['responseJSON']['message']);
+            var def = new $.Deferred();
+            def.resolve();
+            deferGroupLoad = def.promise();
         });
     };
 
