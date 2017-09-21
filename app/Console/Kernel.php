@@ -373,21 +373,27 @@ class Kernel extends ConsoleKernel
         }
         
         $link = $link[0];
-        $response = $api->callApi('utils.checkLink', [
+       /* $response = $api->callApi('utils.checkLink', [
             'url' => $link   
         ]);
         
         if (isset($response['error'])) {
             Log::error('VK error: ', $response['error']);
             return true;
-        }
+        }*/
         
-        /*$curl = curl_init('https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id']);
+        $link = \App\Helpers\Helper::addProtocol($link);
+        
+        $curl = curl_init('https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl,CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0');
         curl_exec($curl);
-        $requestResult = curl_getinfo($curl);*/
-        if ($response['response']['status'] == 'banned') {
+        $requestResult = curl_getinfo($curl);
+        /*if ($response['response']['status'] == 'banned') {
+            Log::error('ссылку забанили: ' . $post['id']);
+            return false;
+        }*/
+        if ($requestResult['http_code'] == 200) {
             Log::error('ссылку забанили: ' . $post['id']);
             return false;
         }
