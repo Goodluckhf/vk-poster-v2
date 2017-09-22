@@ -141,7 +141,9 @@ class Kernel extends ConsoleKernel
             if ($group['is_finish']) {
                 continue;
             }
-
+            
+            $isFinish = false;
+            
             $postTime = Carbon::createFromTimestamp((int)$group['timestamp']);
 
             if ($postTime->gt($now)) {
@@ -151,7 +153,6 @@ class Kernel extends ConsoleKernel
                 ]);
                 continue;
             }
-
 
             if ($now->diffInMinutes($postTime) >= self::WARNING_TIME_WAIT && $now->diffInMinutes($postTime) < self::WARNING_TIME_WAIT + 5) {
                 $errMessage = 'error: Поста в группе так и не вышел спустя ' .
@@ -191,8 +192,6 @@ class Kernel extends ConsoleKernel
                 continue;
             }
 
-
-            $isFinish = false;
             Log::info('Отправляем запрос к вк! ', [
                 'id'       => $job->id,
                 'group_id' => $group['id']
