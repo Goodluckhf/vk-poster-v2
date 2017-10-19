@@ -9,6 +9,7 @@ use App\Vk\VkApi;
 use Log;
 use Mail;
 
+//@TODO: сделать дебаг мод
 class Kernel extends ConsoleKernel
 {
     /**
@@ -20,7 +21,7 @@ class Kernel extends ConsoleKernel
         // Commands\Inspire::class,
     ];
 
-    const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
+    const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+\/?)*/i";
     const POSTS_COUNT_FOR_LIKES = 20;
     const LIMIT_SEEK = 1;  //в часах
     const WARNING_TIME_WAIT = 10; //в минутах
@@ -51,6 +52,7 @@ class Kernel extends ConsoleKernel
                 ->get();
 
             foreach ($jobs as $job) {
+                Log::inf('start check post job_id: ', [$job->id]);
                 $this->seek($job);
             }
         })->everyTenMinutes();
@@ -362,10 +364,10 @@ class Kernel extends ConsoleKernel
 
     private function checkPost($post, $api) {
         preg_match(self::URL_PATTERN, $post['text'], $link);
-        /*Log::error('Слежка: парс ссылки', [
+        Log::error('Слежка: парс ссылки', [
             'text' => $post['text'],
             'link' => $link,
-        ]);*/
+        ]);
         if (! isset($link[0])) {
             Log::error('Слежка: Нет ссылки');
             return true;
@@ -382,12 +384,16 @@ class Kernel extends ConsoleKernel
         }*/
         
         $link = \App\Helpers\Helper::addProtocol($link);
-        
-        $curl = curl_init('https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id']);
+        $vkChekLink = 'https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id'] . 'cc_key=';
+        $curl = curl_init($vkChekLink);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl,CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0');
         curl_exec($curl);
         $requestResult = curl_getinfo($curl);
+        /*Log::info('result', [
+            'link'   => $vkChekLink,
+            'result' => $requestResult
+        ]);*/
         /*if ($response['response']['status'] == 'banned') {
             Log::error('ссылку забанили: ' . $post['id']);
             return false;
