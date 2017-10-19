@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
                 ->get();
 
             foreach ($jobs as $job) {
-                Log::inf('start check post job_id: ', [$job->id]);
+                Log::info('start check post job_id: ', [$job->id]);
                 $this->seek($job);
             }
         })->everyTenMinutes();
