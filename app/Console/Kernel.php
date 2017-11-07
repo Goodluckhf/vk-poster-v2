@@ -318,7 +318,7 @@ class Kernel extends ConsoleKernel
         ]);
         
         if (isset($wallRequest['error'])) {
-            $errMessage = 'error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
+            $errMessage = 'error (group_id: ' . $jobData['group_id'] . '): ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
             Log::error($errMessage);
             Mail::send('email.seekNotify', ['title' => 'Слежка: ошибка VK', 'postText' => $errMessage], function($message) use ($user)
             {
