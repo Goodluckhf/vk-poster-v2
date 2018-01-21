@@ -9,6 +9,7 @@ use App\Vk\VkApi;
 use Log;
 use Mail;
 
+//@TODO: сделать дебаг мод
 class Kernel extends ConsoleKernel
 {
     /**
@@ -20,7 +21,7 @@ class Kernel extends ConsoleKernel
         // Commands\Inspire::class,
     ];
 
-    const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
+    const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+\/?)*/i";
     const POSTS_COUNT_FOR_LIKES = 20;
     const LIMIT_SEEK = 1;  //в часах
     const WARNING_TIME_WAIT = 10; //в минутах
@@ -51,6 +52,7 @@ class Kernel extends ConsoleKernel
                 ->get();
 
             foreach ($jobs as $job) {
+                Log::info('start check post job_id: ', [$job->id]);
                 $this->seek($job);
             }
         })->everyTenMinutes();
@@ -141,7 +143,9 @@ class Kernel extends ConsoleKernel
             if ($group['is_finish']) {
                 continue;
             }
-
+            
+            $isFinish = false;
+            
             $postTime = Carbon::createFromTimestamp((int)$group['timestamp']);
 
             if ($postTime->gt($now)) {
@@ -151,7 +155,6 @@ class Kernel extends ConsoleKernel
                 ]);
                 continue;
             }
-
 
             if ($now->diffInMinutes($postTime) >= self::WARNING_TIME_WAIT && $now->diffInMinutes($postTime) < self::WARNING_TIME_WAIT + 5) {
                 $errMessage = 'error: Поста в группе так и не вышел спустя ' .
@@ -191,8 +194,6 @@ class Kernel extends ConsoleKernel
                 continue;
             }
 
-
-            $isFinish = false;
             Log::info('Отправляем запрос к вк! ', [
                 'id'       => $job->id,
                 'group_id' => $group['id']
@@ -317,7 +318,7 @@ class Kernel extends ConsoleKernel
         ]);
         
         if (isset($wallRequest['error'])) {
-            $errMessage = 'error: ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
+            $errMessage = 'error (group_id: ' . $jobData['group_id'] . '): ' . $wallRequest['error']['error_code'] . '. msg: ' . $wallRequest['error']['error_msg'];
             Log::error($errMessage);
             Mail::send('email.seekNotify', ['title' => 'Слежка: ошибка VK', 'postText' => $errMessage], function($message) use ($user)
             {
@@ -363,31 +364,41 @@ class Kernel extends ConsoleKernel
 
     private function checkPost($post, $api) {
         preg_match(self::URL_PATTERN, $post['text'], $link);
-        /*Log::error('Слежка: парс ссылки', [
+        Log::error('Слежка: парс ссылки', [
             'text' => $post['text'],
             'link' => $link,
-        ]);*/
+        ]);
         if (! isset($link[0])) {
             Log::error('Слежка: Нет ссылки');
             return true;
         }
         
         $link = $link[0];
-        $response = $api->callApi('utils.checkLink', [
+       /* $response = $api->callApi('utils.checkLink', [
             'url' => $link   
         ]);
         
         if (isset($response['error'])) {
             Log::error('VK error: ', $response['error']);
             return true;
-        }
+        }*/
         
-        /*$curl = curl_init('https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id']);
+        $link = \App\Helpers\Helper::addProtocol($link);
+        $vkChekLink = 'https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id'] . 'cc_key=';
+        $curl = curl_init($vkChekLink);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl,CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0');
         curl_exec($curl);
-        $requestResult = curl_getinfo($curl);*/
-        if ($response['response']['status'] == 'banned') {
+        $requestResult = curl_getinfo($curl);
+        /*Log::info('result', [
+            'link'   => $vkChekLink,
+            'result' => $requestResult
+        ]);*/
+        /*if ($response['response']['status'] == 'banned') {
+            Log::error('ссылку забанили: ' . $post['id']);
+            return false;
+        }*/
+        if ($requestResult['http_code'] == 200) {
             Log::error('ссылку забанили: ' . $post['id']);
             return false;
         }

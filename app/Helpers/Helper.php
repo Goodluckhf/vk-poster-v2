@@ -52,5 +52,13 @@ class Helper {
 		
 		return $href . $group['domain'];
 	}
+	
+	public static function addProtocol($href) {
+		if (preg_match("/(http|https):\/\//", $href)) {
+			return $href;
+		}
+		
+		return 'http://' . $href;
+	}
 }
 
