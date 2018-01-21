@@ -136,9 +136,7 @@
         });
     };
 
-    this.render = function() {
-        initListeners();
-
+    var _render = function () {
         $(containerSelector).html(template);
 
         Request.api('Group.getSeekInfo').fail(function (err) {
@@ -148,6 +146,19 @@
             populateJobs(data.data);
             return true;
         });
+    };
+
+    var init = function () {
+        initListeners();
+        _render();
+    };
+
+    this.render = function() {
+        init();
+    };
+
+    this.refresh = function () {
+        _render();
     };
 
     this.unmount = function () {

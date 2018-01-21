@@ -215,6 +215,12 @@ button.edit:hover {
     font-weight: bold;
 }
 
+.refresher {
+    margin-right: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
 .error {
     color:tomato;
     display:flex;

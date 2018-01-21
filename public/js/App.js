@@ -8,6 +8,35 @@
         csrfToken = token;
     };
 
+    var _controller = null;
+
+    var setRefresher = function (cb) {
+        $('body').on('click.app', '.js-refresh-route', function () {
+            cb();
+        });
+    };
+
+    this.unmountController = function () {
+        if (this._controller) {
+            $('body').off('.app');
+            this._controller.unmount();
+        }
+    };
+
+    this.setController = function (controller, title) {
+        this.prepareToFollow(title);
+        this._controller = new controller(this.contentSelector);
+        if (this._controller.refresh) {
+            setRefresher(this._controller.refresh.bind(this._controller));
+        }
+
+        this._controller.render();
+    };
+
+    this.getController = function () {
+        return _controller;
+    };
+
     this.getLocalMoment = function(date) {
         //console.log(date);
         var utc = moment.utc(date, 'YYYY-MM-DD HH:mm:ss');
@@ -19,8 +48,6 @@
         $(this.contentSelector).html(" ");
         $(this.header).html(title);
     };
-
-    this.controller = null;
 
     Request.on('beforeSend', function(data) {
         data.data._token = csrfToken;
@@ -130,7 +157,5 @@
             btnLoginConfirm.hide();
             pDescription.hide();
         }
-
     };
-
 });

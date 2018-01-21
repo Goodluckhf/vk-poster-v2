@@ -271,6 +271,9 @@ and open the template in the editor.
                                 <!-- Tabs within a box -->
                                 <ul class="nav nav-tabs pull-right">
                                     <li class="pull-left header app-header"></li>
+                                    <li class="pull-right">
+                                        <i class="fa fa-refresh refresher js-refresh-route" aria-hidden="true"></i>
+                                    </li>
                                 </ul>
                                 <div class="tab-content">
                                     <!-- Morris chart - Sales -->
