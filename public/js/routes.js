@@ -22,5 +22,16 @@
 
         App.setController(AdminPage, '<i class="fa fa-user-secret"></i>Админка');
     });
+
+    Router.add('#/gif', function () {
+
+    });
+
+    Router.add('#/gif/add', function () {
+        App.unmountController();
+        App.setController(GifUpload, '<i class="fa fa-user-secret"></i>Загрузка GIF');
+    });
+
+
 })();
 

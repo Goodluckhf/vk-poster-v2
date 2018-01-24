@@ -38,7 +38,7 @@ class VkApi {
         return $img;
     }
 
-    public function callApi($method, $data, $httpMethod = 'get') {
+    public function callApi($method, $data = [], $httpMethod = 'get') {
         if(!isset($data['access_token'])) {
             $data['access_token'] = $this->token;
         }
@@ -85,18 +85,47 @@ class VkApi {
         $curl=curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERAGENT => $this->user_agent,
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_HTTPHEADER     => ['Content-Type: multipart/form-data'],
+            CURLOPT_USERAGENT      => $this->user_agent,
+            CURLOPT_TIMEOUT        => 10,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_URL => $uploadUrl,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $imgs
+            CURLOPT_URL            => $uploadUrl,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $imgs
         ));
         $postResult = curl_exec($curl);
         curl_close($curl);
         return json_decode($postResult, true);
     }
 
+    public function uploadDoc($file) {
+        $uploadServer = $this->callApi('docs.getUploadServer');
+        Log::info([
+            '$uploadServer' => $uploadServer
+        ]);
+        
+        $doc = [
+            'file' => curl_file_create($file, 'image/gif', 'test_name.gif')
+        ];
+
+        $result = $this->sendImgs($uploadServer['response']['upload_url'], $doc);
+        Log::info([
+            'file' => $doc,
+            'uploaded' => $result
+        ]);
+
+        $saveResult = $this->callApi('docs.save', [
+            'file' => $result['file'],
+            'title' => 'test', 
+            'version' => 5.71
+        ], 'post');
+
+        Log::info([
+            'saveResult' => $saveResult
+        ]);
+
+        return $saveResult;
+    }
 
     public function curlPost() {
         //$photos = $this->post['attachments'];
@@ -157,7 +186,9 @@ class VkApi {
             $resultPhotoResponse['response'] = $resultPhotoResponseList;
         }
         else {
-            
+            log::info([
+                'ing><><><><><>' => $imgs
+            ]);
             $result = $this->sendImgs($uploadResult['response']['upload_url'], $imgs);
 
             $resultPhotoResponse = $this->saveWallPhoto($result['photo'], $result['server'], $result['hash']);

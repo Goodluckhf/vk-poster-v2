@@ -1,3 +1,5 @@
+'use strict';
+
 var Request = (new function() {
     var self = this;
 
@@ -12,7 +14,7 @@ var Request = (new function() {
     };
     
     this.vkApi = function(method, data) {
-        data = typeof data === undefined ? {} : data;
+        data = data || {};
         events.trigger('beforeVKSend', data);
         return $.ajax({
             url: 'https://api.vk.com/method/' + method,
@@ -22,8 +24,9 @@ var Request = (new function() {
         });
     };
 
-    this.api = function(method, data) {
+    this.api = function(method, data, isFormData) {
         var ob = {};
+        ob.isFormData = isFormData || false;;
         ob.data =  data ? data : {};
         ob.url = '/api/' + method;
         return self.send(ob);
@@ -31,13 +34,21 @@ var Request = (new function() {
 
     this.send = function(data) {
         events.trigger('beforeSend', data);
-       
-        return $.ajax({
+        var requestObj = {
             url: data.url,
             dataType: 'json',
             data: data.data,
-            method: 'post'
-        }).fail(function (e) {
+            method: 'post',
+        };
+
+        if (data.isFormData) {            
+            requestObj['processData'] = false;
+            requestObj['contentType'] = false;
+        }
+
+        console.log(requestObj);
+
+        return $.ajax(requestObj).fail(function (e) {
             toastr["error"](e.responseJSON.message, 'Ошибка!');
         });
     };

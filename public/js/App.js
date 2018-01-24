@@ -50,7 +50,11 @@
     };
 
     Request.on('beforeSend', function(data) {
-        data.data._token = csrfToken;
+        if (data.isFormData) {
+            data.data.append('_token', csrfToken);
+        } else {
+            data.data._token = csrfToken;
+        }
     });
 
     Request.on('beforeVKSend', function(data) {

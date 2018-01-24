@@ -79,11 +79,11 @@ var PostProvider = (new function () {
     
     this.onSorted = function (callback) {
         events.listen('sorted', callback);
-    }
+    };
 
     this.getPosts = function () {
         return posts;
-    }
+    };
 
     var postByResponse = function (res) {
         for (var i in res) {
@@ -245,8 +245,6 @@ var PostProvider = (new function () {
 
         return time;
     };
-
-
     
     this.getDelayed = function() {
         posts = [];
@@ -260,8 +258,6 @@ var PostProvider = (new function () {
             events.trigger('postLoadFail', err.responseJSON);
         });
     };
-
-    
 
     this.remove = function(id) {
         return Request.api('Post.remove', {id: id});
