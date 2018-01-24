@@ -51,8 +51,10 @@ const sendFile = async (url) => {
 			file: fs.createReadStream(path),
 		},
 		onProgress: function (sent) {
+			process.stdout.clearLine();
+			process.stdout.cursorTo(0);
 			const percent = Math.ceil(sent / stat.size * 10000) / 100;
-			console.log("Uploaded: " + percent + "% | all: " + stat.size);
+			process.stdout.write(`Uploaded: ${percent}% | all: ${stat.size}`);
 		}
 	});
 
