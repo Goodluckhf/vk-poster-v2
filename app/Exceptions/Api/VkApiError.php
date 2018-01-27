@@ -8,13 +8,10 @@
 
 namespace App\Exceptions\Api;
 
-
-class VkApiError extends Api
-{
-    public function __construct($controllerName, $methodName, $vkError)
-    {
-        $message = 'error: ' . $vkError['error_code'] . '. msg: ' . $vkError['error_msg'];
-        $this->code = 500;
-        parent::__construct($controllerName, $methodName, $message);
-    }
+class VkApiError extends Api {
+	public function __construct($controllerName, $methodName, $vkError) {
+		$message    = 'error: ' . $vkError['error_code'] . '. msg: ' . $vkError['error_msg'];
+		$this->code = 500;
+		parent::__construct($controllerName, $methodName, $message);
+	}
 }

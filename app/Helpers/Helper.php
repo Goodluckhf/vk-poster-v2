@@ -19,17 +19,17 @@ class Helper {
 		} else {
 			$group = $matchResult[count($matchResult) - 1];
 		}
-
+		
 		$res = preg_match('/^(public|club)([0-9]+)/', $group, $groupMatched);
 		
 		if (count($groupMatched) !== 0) {
 			$owner_id = '-' . $groupMatched[count($groupMatched) - 1];
-            $data['owner_id'] = (int) $owner_id;
-        } else {
-            $data['domain'] = $group;
-        }
-        
-        return $data;
+			$data['owner_id'] = (int) $owner_id;
+		} else {
+			$data['domain'] = $group;
+		}
+		
+		return $data;
 	}
 	
 	public static function groupIdForLink($id) {
@@ -61,4 +61,3 @@ class Helper {
 		return 'http://' . $href;
 	}
 }
-

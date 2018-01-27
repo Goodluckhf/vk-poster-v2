@@ -15,16 +15,16 @@ const rp = (opts) => {
 			if (opts.onProgress) {
 				clearInterval(timer);
 			}
-
+			
 			if (err) {
 				return reject(err);
 			}
-
+			
 			resolve(body);
 		});
-
+		
 		if (opts.onProgress) {
-			const interval = opts.progressInterval || 500;			
+			const interval = opts.progressInterval || 500;
 			let lastSent = 0;
 			let speed = 0;
 			timer = setInterval(() => {
