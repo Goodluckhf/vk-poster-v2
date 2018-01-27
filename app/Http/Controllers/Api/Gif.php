@@ -5,22 +5,29 @@ use App\Vk\VkApi;
 use Log;
 
 class Gif extends Api {
-    protected $_controllerName = 'Gif';
-
-    public function add() {
-    	$this->_methodName = 'add';
-    	//$this->checkAuth(\App\User::ACTIVATED);
-
-    	$this->_data = [
-    		'isValid' => Request::file('gif')->isValid()
-    	];
-
-    	$file = Request::file('gif');
-    	Log::info([
-    		'tmp' => $file->getPathName()
-    	]);
-    	//$vkApi = new VkApi($_COOKIE['vk-token']);
-    	//$this->_data = $vkApi->uploadDoc($file->getPathName());
-        return $this;
-    }
+	protected $_controllerName = 'Gif';
+	
+	public function add() {
+		$this->_methodName = 'add';
+		
+		// Решил сделать без авторизации
+		// Т.к. gif загружаются в вк публичными
+		//$this->checkAuth(\App\User::ACTIVATED);
+		
+		// TODO: добавить проверку, что прислали настоящую gif
+		
+		$this->checkAttr([
+			'doc_id'   => 'required|integer',
+			'owner_id' => 'required|integer',
+			'title'    => 'required',
+			'url'      => 'required',
+			'thumb'    => 'required'
+		]);
+		
+		$newGif = new \App\Gif;
+		$newGif->populateByRequest(Request::all());
+		$newGif->save();
+		
+		return $this;
+	}
 }
