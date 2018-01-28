@@ -22,12 +22,12 @@ var helper = {
 		
 		if (groupMatched) {
 			var owner_id = '-' + groupMatched[groupMatched.length - 1];
-            data['owner_id'] = parseInt(owner_id);
-        } else {
-            data['domain'] = group;
-        }
-        
-        return data;
+			data['owner_id'] = parseInt(owner_id);
+		} else {
+			data['domain'] = group;
+		}
+		
+		return data;
 	},
 	
 	//return 123123
@@ -71,5 +71,4 @@ var helper = {
 		
 		return href + id;
 	}
-	
 };

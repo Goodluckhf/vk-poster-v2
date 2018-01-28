@@ -2,37 +2,36 @@ var PostProvider = (new function () {
 	var me = this,
 			events = new EventsContainer(),
 			posts = [];
-
+	
 	events.register('postLoadSuccess')
 			.register('onPostUpdate')
 			.register('postLoadFail')
 			.register('sorted')
 			.register('postGetDelayed');
-
+	
 	this.datePicker;
-
+	
 //    $(function() {
 //        me.datePicker = $('.date-picker').data('DateTimePicker');
 //    });
 	this.startDate;
-
+	
 	this.currentDate;
-
+	
 	this.dateInterval;
-
+	
 	this.publicId;
-
+	
 	this.publicName;
-
+	
 	this.postAsGroup = 1;
-
+	
 	this.lastKey = 0;
-
-
+	
 	var renderTime = function () {
 		$('a.next-post-date span').text($('.date-picker').val().trim());
 	};
-
+	
 	this.getById = function(id) {
 		for(var i in posts) {
 			if(posts[i].id === id) {
@@ -45,14 +44,14 @@ var PostProvider = (new function () {
 	this.getByKey = function(key) {
 		return posts[key];
 	};
-
+	
 	this.update = function(id, newPost) {
 		return Request.api('Post.update',{
 			post:newPost,
 			post_id: id
 		});
 	};
-
+	
 	this.updateById = function(id, text) {
 		posts[id].text = text;
 		events.trigger('onPostUpdate', {
@@ -60,19 +59,19 @@ var PostProvider = (new function () {
 			text: text
 		});
 	};
-
+	
 	this.onPostUpdate = function(callback) {
 		events.listen('onPostUpdate', callback);
 	};
-
+	
 	this.onPostLoad = function (callback) {
 		events.listen('postLoadSuccess', callback);
 	};
-
+	
 	this.onPostLoadFail = function (callback) {
 		events.listen('postLoadFail', callback);
 	};
-
+	
 	this.onPostGetDelayed = function(callback) {
 		events.listen('postGetDelayed', callback);
 	};
@@ -80,11 +79,11 @@ var PostProvider = (new function () {
 	this.onSorted = function (callback) {
 		events.listen('sorted', callback);
 	};
-
+	
 	this.getPosts = function () {
 		return posts;
 	};
-
+	
 	var postByResponse = function (res) {
 		for (var i in res) {
 			var isNotPhoto = false;
@@ -132,18 +131,17 @@ var PostProvider = (new function () {
 		var data = {
 			v: 5.40
 		};
-
+		
 		data = Object.assign(data, helper.groupForVkApiByHref(group));
 		data['count'] = 100;
-
+		
 		Request.vkApi('wall.get', data).done(function (data) {
-
+			
 			if (data.response) {
 				var items = data.response.items;
 				//var count = data.response.count;
 				me.lastKey = posts.length;
 				postByResponse(items);
-				
 			}
 			else {
 				events.trigger('postLoadFail', {group: group});
@@ -155,7 +153,6 @@ var PostProvider = (new function () {
 				var items = data.response.items;
 				postByResponse(items);
 			});
-
 		}).then(function () {
 			//throw new Error();
 //            return Request.vkApi('wall.get', {domain: group, count: 100, offset: 200, v: 5.40}).done(function (data) {
@@ -171,7 +168,7 @@ var PostProvider = (new function () {
 			});
 		});
 	};
-
+	
 	this.start = function (data) {
 		console.log(data);
 		this.startDate = data.startDate;
@@ -180,14 +177,13 @@ var PostProvider = (new function () {
 		//this.publicId = data.publicId || -107952301;
 		//this.publicId = data.publicId || -77686561;
 		renderTime();
-
 	};
-
+	
 	this.setPublic = function (publicId, name) {
 		this.publicId = publicId;
 		this.publicName = name;
 	};
-
+	
 	this.post = function (key) {
 		var data = {};
 		data.post = posts[key];
@@ -198,7 +194,7 @@ var PostProvider = (new function () {
 			me.inc();
 		});
 	};
-
+	
 	this.inc = function () {
 		var newTime = $('.date-picker').data('DateTimePicker').date().add(this.dateInterval, 'm').toDate();
 		$('.date-picker').data('DateTimePicker').date(newTime);
@@ -208,7 +204,7 @@ var PostProvider = (new function () {
 		this.currentDate = unixTime;
 		renderTime();
 	};
-
+	
 //    this.loadAllPosts = function(group) {
 //        var firstReq = {};
 //        var offset = 0;
@@ -228,8 +224,8 @@ var PostProvider = (new function () {
 //        });
 //        return $.when.apply(undefined, promises).promise();
 //    }
-
-
+	
+	
 	this.convertTime = function (timestamp) {
 		var d = new Date(timestamp * 1000), // Convert the passed timestamp to milliseconds
 				yyyy = d.getFullYear(),
@@ -240,9 +236,9 @@ var PostProvider = (new function () {
 				min = ('0' + d.getMinutes()).slice(-2), // Add leading 0.
 				ampm = 'AM',
 				time;
-
+		
 		time = yyyy + '-' + mm + '-' + dd + ', ' + h + ':' + min;
-
+		
 		return time;
 	};
 	
@@ -265,9 +261,9 @@ var PostProvider = (new function () {
 			events.trigger('postLoadFail', err.responseJSON);
 		});
 	};
-
+	
 	this.remove = function(id) {
 		return Request.api('Post.remove', {id: id});
 	};
-
+	
 });

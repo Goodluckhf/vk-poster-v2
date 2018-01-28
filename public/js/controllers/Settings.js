@@ -1,15 +1,13 @@
 ;var Settings = function() {
-    var self = this,
-        template = '<div class="settings">' +
-                        '<div class="row">' +
-                            '<div class="form-group post-interval col-xs-12">' +
-                                '<label class="col-sm-4 control-label" >Интервал постинга</label>' +
-
-
-                            '</div>' +
-                        '</div>' +
-                        '<button class="btn btn-sm btn-primary save-interval" >Сохранить</button>' +
-                        '<hr>' +
+	var self = this,
+		template = '<div class="settings">' +
+						'<div class="row">' +
+							'<div class="form-group post-interval col-xs-12">' +
+								'<label class="col-sm-4 control-label" >Интервал постинга</label>' +
+							'</div>' +
+						'</div>' +
+						'<button class="btn btn-sm btn-primary save-interval" >Сохранить</button>' +
+						'<hr>' +
 //                        '<div class="row">' +
 //                            //'<div class="form-group col-xs-12">' +
 //                                '<label class="col-sm-6 control-label" >Постинг по расписанию</label>' +
@@ -23,34 +21,30 @@
 //
 //                            //'</div>' +
 //                        '</div>' +
-                    '</div>',
-        switcher;
-
-
-    this.show = function() {
-        bootbox.dialog({
-            title: 'Настройки',
-            message: template,
-            closeButton: true,
-        });
-        
-        switcher = new Switcher({
-            default: PostProvider.dateInterval
-        });
-        switcher.render($('.settings .post-interval'));
-        $('.save-interval').click(function() {
-            PostProvider.dateInterval = switcher.val();
-        });
-
-
+					'</div>',
+		switcher;
+		
+	this.show = function() {
+		bootbox.dialog({
+			title: 'Настройки',
+			message: template,
+			closeButton: true,
+		});
+		
+		switcher = new Switcher({
+			default: PostProvider.dateInterval
+		});
+		switcher.render($('.settings .post-interval'));
+		$('.save-interval').click(function() {
+			PostProvider.dateInterval = switcher.val();
+		});
+		
 //        $('.timetable-picker').datetimepicker({
 //            locale: 'ru',
 //            stepping: 5,
 //            toolbarPlacement: 'bottom'
 //            //sideBySide: true
 //        });
-        //console.log(switcher.val());
-    };
-
-
+		//console.log(switcher.val());
+	};
 };
