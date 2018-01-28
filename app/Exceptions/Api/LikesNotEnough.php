@@ -8,11 +8,10 @@
 
 namespace App\Exceptions\Api;
 
-
 class LikesNotEnough extends Api {
-    public function __construct($controllerName, $methodName) {
-        $message = "Недостаточно лайков на аккаунте";
-        $this->code = 400;
-        parent::__construct($controllerName, $methodName, $message);
-    }
+	public function __construct($controllerName, $methodName) {
+		$message = "Недостаточно лайков на аккаунте";
+		$this->code = 400;
+		parent::__construct($controllerName, $methodName, $message);
+	}
 }

@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Mail;
+
 class Helper {
 	const urlRegExp = '/^((http|https):\/\/)?vk.com\/([0-9a-z_.]+)/';
 	
@@ -60,4 +62,19 @@ class Helper {
 		
 		return 'http://' . $href;
 	}
+	
+	public static function sendSeekMail($arrOpts) {
+		Mail::send(
+			'email.seekNotify',
+			[
+				'title' => $arrOpts['title'],
+				'postText' => $arrOpts['postText']
+			], 
+			function($message) use ($arrOpts) {
+				$message->from(config('api.support_mail'), 'Постер для vk.com');
+				$message->to($arrOpts['userEmail'], 'Support')->subject($arrOpts['title']);
+			}
+		);
+	}
+	
 }

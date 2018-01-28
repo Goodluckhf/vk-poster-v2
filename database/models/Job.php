@@ -13,6 +13,9 @@ class Job extends Model {
 		'user_id' => 'integer'
 	];
 	
+	const GROUP_SEEK = 'seek';
+	const LIKES_SEEK = 'like_seek';
+	
 	public function post() {
 		return $this->belongsTo('\App\Post');
 	}
@@ -124,6 +127,11 @@ class Job extends Model {
 		}
 		
 		return $sum;
+	}
+	
+	public function finish() {
+		$this->is_finish = 1;
+		$this->save();
 	}
 	
 	/**
