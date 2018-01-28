@@ -69,7 +69,7 @@ and open the template in the editor.
         <script src="/js/controllers/VKLoginForm.js" type="text/javascript"></script>
         <script src="/js/controllers/LoginForm.js" type="text/javascript"></script>
         <script src="/js/controllers/AdminPage.js" type="text/javascript"></script>
-        <script src="/js/controllers/GifUpload.js" type="text/javascript"></script>
+        <script src="/js/controllers/GifPost.js" type="text/javascript"></script>
 
         <script src="/js/App.js" type="text/javascript"></script>
         <script src="/js/routes.js" type="text/javascript"></script>
@@ -236,6 +236,7 @@ and open the template in the editor.
                         <li class="header" style="margin-top: 10px;">НАВИГАЦИЯ</li>
 
                         <li class="router-link"><a href="#/"><i class="fa fa-hand-grab-o"></i><span>Граббер постов</span></a></li>
+                        <li class="router-link"><a href="#/gif"><i class="fa fa-hand-grab-o"></i><span>Gif Постер</span></a></li>
                         <li class="router-link"><a href="#/likes"><i class="fa fa-heart"></i><span>Авто лайки</span></a></li>
                         <li class="router-link"><a href="#/seek"><i class="fa fa-eye"></i><span>Отслеживание группы</span></a></li>
                     </ul>

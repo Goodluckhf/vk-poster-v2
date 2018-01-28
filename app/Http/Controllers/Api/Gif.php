@@ -30,4 +30,54 @@ class Gif extends Api {
 		
 		return $this;
 	}
+	
+	public function postRandom() {
+		$this->_methodName = 'postRandom';
+		
+		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAttr([
+			'group_id' => 'required|integer',
+			'dates' => 'required|array'
+		]);
+		$dates = Request::get('dates');
+		$datesCount = count($dates);
+		if ($datesCount >= 24) {
+			throw new ParamsBad(
+				$this->_controllerName,
+				$this->_methodName,
+				['разом запостить можно не больше 24 записей']
+			);
+		}
+		
+		$gifs = \App\Gif::inRandomOrder()
+			->take($datesCount)
+			->get();
+		
+		$vkPostsStr = '';
+		foreach ($gifs as $key => $gif) {
+			$vkPostsStr .= 'doc' . $gif['owner_id'] . '_' .
+				$gif['doc_id'] .'|' .
+				$gif['title'] . '|' .
+				$dates[$key];
+				
+			if ($key === count($gifs) - 1) {
+				continue;
+			}
+			
+			$vkPostsStr .= ',';
+		}
+		
+		//doc173428463_459048611|message|unixDate,...
+		//но не больше 25
+		$vkApi = new VkApi($_COOKIE['vk-token']);
+		$res = $vkApi->callApi('execute.postGif', [
+			'owner_id' => Request::get('group_id'),
+			'posts'    => $vkPostsStr
+		], 'post');
+		// 
+		
+		$this->_data['vkRes'] = $res['response'];
+		
+		return $this;
+	}
 }
