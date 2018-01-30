@@ -16,7 +16,7 @@ class VkApi {
 		
 		const requestData = {
 			uri    : `${vkApiUrl}/${method}`,
-			method : 'POST',
+			method : 'post',
 		};
 		
 		const form           = opts.data || {};
@@ -39,7 +39,7 @@ class VkApi {
 		const stat = await fs.statAsync(opts.file);
 		const reqData = {
 			uri    : opts.url,
-			method : 'POST',
+			method : 'post',
 			formData : {
 				file : fs.createReadStream(opts.file),
 			},
@@ -61,7 +61,13 @@ class VkApi {
 		}
 		
 		const uploadResult = await lib.rp(reqData);
-		return JSON.parse(uploadResult).file;
+		
+		try {
+			const jsonRes = JSON.parse(uploadResult);
+			return jsonRes.file;
+		} catch (error) {
+			console.log(error, uploadResult);
+		}
 	};
 	
 	saveFile(opts) {
@@ -69,11 +75,18 @@ class VkApi {
 			throw new Error("error while uploading gif");
 		}
 		
+		const data = {
+			file  : opts.uploadFile,
+			title : opts.title,
+		};
+		
+		if (opts.captcha) {
+			data.captcha_sid = opts.captcha.sid;
+			data.captcha_key = opts.captcha.answer;
+		}
+		
 		return this.apiRequest('docs.save', {
-			data : {
-				file  : opts.uploadFile,
-				title : opts.title,
-			}
+			data : data
 		});
 	};
 }

@@ -2,10 +2,19 @@
 
 ;var GifPost = function (containerSelector) {
 	var self = this;
-	var template = '<form class="js-gif-post-form">' +
-		'<textarea style="min-height: 300px;"></textarea>' +
-		'<input value="Запостить" type="submit">' +
-	'</form>';
+	var template = '<div class="js-gif-post-form">' +
+		'<textarea style="min-height: 300px;"></textarea> <br>' +
+		'<div class="row">' +
+			'<div class="col-sm-2">' +
+				'<button class="btn btn-sm btn-primary js-gif-post-now">Запостить сегодня</button>' +
+			'</div>' +
+		'</div><hr>' +
+		'<div class="row">' +
+			'<div class="col-sm-2">' +
+				'<button class="btn btn-sm btn-success js-gif-post-tomorrow">Запостить завтра</button>' +
+			'</div>' +
+		'</div>' +
+	'</div>';
 	var eventName = 'gifPost';
 	
 	var defaultDates = [
@@ -22,31 +31,42 @@
 		'23-10'
 	];
 	
-	var initListeners = function () {
-		$('body').on('submit.' + eventName, '.js-gif-post-form', function (e) {
-			e.preventDefault();
+	var post = function (day) {
+		var dates = $('.js-gif-post-form textarea').val().split('\n');
 			
-			var dates = $('.js-gif-post-form textarea').val().split('\n');
-			
-			if (dates.length === 0) {
-				return alert('введите время с новой строки');
+		if (dates.length === 0) {
+			return alert('введите время с новой строки');
+		}
+		
+		if (! PostProvider.publicId) {
+			return alert('группа не выбрана!');
+		}
+		
+		dates = dates.map(function (time) {
+			var hourSecond = time.split('-');
+			if (day == 'now') {
+				return moment().minute(hourSecond[1]).hour(hourSecond[0]).seconds(0).unix();
 			}
 			
-			if (! PostProvider.publicId) {
-				return alert('группа не выбрана!');
-			}
-			
-			dates = dates.map(function (time) {
-				var hourSecond = time.split('-');
-				return moment().add(1, 'day').minute(hourSecond[1]).hour(hourSecond[0]).seconds(0).unix();
+			return moment().add(1, 'day').minute(hourSecond[1]).hour(hourSecond[0]).seconds(0).unix();
+		});
+		
+		PostProvider
+			.postGif(dates)
+			.then(function () {
+				toastr["success"]('GIF запосчены!', 'Успешно !');
+			}).fail(function (err) {
+				toastr["error"](err, 'Ошибка!');
 			});
-			
-			PostProvider
-				.postGif(dates)
-				.then(console.log)
-				.fail(function (err) {
-					toastr["error"](err, 'Ошибка!');
-				});
+	};
+	
+	var initListeners = function () {
+		$('body').on('click.' + eventName, '.js-gif-post-now', function (e) {
+			e.preventDefault();
+			post('now');
+		}).on('click.' + eventName, '.js-gif-post-tomorrow', function (e) {
+			e.preventDefault();
+			post('tomorrow');
 		});
 	};
 	

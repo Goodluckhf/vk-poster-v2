@@ -11,16 +11,28 @@ const roundToPlace = (number, place) => {
 const rp = (opts) => {
 	return new Promise((resolve, reject) => {
 		let timer;
-		const r = request.post(opts, (err, response, body) => {
+		const method = ''.toLowerCase.call(opts.method || 'post');
+		const r = request[method](opts, (error, response, body) => {
 			if (opts.onProgress) {
 				clearInterval(timer);
 			}
 			
-			if (err) {
-				return reject(err);
+			if (error) {
+				return reject({
+					error,
+					body,
+					reponse
+				});
 			}
 			
-			resolve(body);
+			if (response.statusCode !== 200) {
+				return reject({
+					body,
+					response
+				});
+			}
+			
+			resolve(response.body);
 		});
 		
 		if (opts.onProgress) {
