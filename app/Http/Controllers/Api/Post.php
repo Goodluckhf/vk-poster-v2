@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Vk\VkApi;
 use Request;
 use Carbon\Carbon;
+use Log;
 use Auth;
 use App\Exceptions\Api\NotFound;
 
@@ -14,7 +15,7 @@ class Post extends Api {
 		$this->_methodName = 'postDelay';
 		$this->checkAuth(\App\User::ACTIVATED);
 		$arNeed = [
-			'post'         => 'array'
+			'post'         => 'array',
 			'group_id'     => 'required|integer',
 			'publish_date' => 'required',
 		];		
@@ -108,6 +109,57 @@ class Post extends Api {
 		}
 		
 		$this->_data = $posts->toArray();
+		return $this;
+	}
+	
+	public function postByViews() {
+		$this->_methodName = 'postByViews';
+		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAttr([
+			'group_id' => 'required|integer',
+			'views'    => 'required|integer'
+		]);
+		
+		$vk = new VkApi($_COOKIE['vk-token']);
+		
+		$vkMonthResult = $vk->callApi('execute.getMonthPosts', [
+			'group_id' => Request::get('group_id'),
+			'views'    => Request::get('views'),
+		]);
+		
+		if (! isset($vkMonthResult['response'])) {
+			Log::error('Ошибка при получении списка', [
+				'group_id' => Request::get('group_id'),
+				'result'   => $vkMonthResult
+			]);
+			throw new NotFound($this->_controllerName, $this->_methodName);
+		}
+		
+		$this->_data = $vkMonthResult['response'];
+		return $this;
+	}
+	
+	public function removePostsByIds() {
+		$this->_methodName = 'removePostsByViews';
+		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAttr([
+			'group_id' => 'required|integer',
+			'ids'      => 'required|array'
+		]);
+		
+		$vk = new VkApi($_COOKIE['vk-token']);
+		$chunks = array_chunk(Request::get('ids'), 25);
+		$results = [];
+		foreach ($chunks as $chunk) {		
+			$result = $vk->callApi('execute.removePostsByIds', [
+				'group_id' => Request::get('group_id'),
+				'postIds'      => join(',', $chunk),
+			]);
+			
+			$results = array_merge($results, $result);
+		}
+		
+		$this->_data = $results;
 		return $this;
 	}
 	

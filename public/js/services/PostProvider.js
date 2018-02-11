@@ -45,6 +45,20 @@ var PostProvider = (new function () {
 		return posts[key];
 	};
 	
+	this.getMonthPostsByView = function (views) {
+		return Request.api('Post.postByViews', {
+			group_id : me.publicId,
+			views    : views
+		});
+	};
+	
+	this.removePostsByIds = function (ids) {
+		return Request.api('Post.removePostsByIds', {
+			group_id : me.publicId,
+			ids      : ids
+		});
+	};
+	
 	this.update = function(id, newPost) {
 		return Request.api('Post.update',{
 			post:newPost,

@@ -9,6 +9,11 @@
 		App.setController(LikesBlock, '<i class="fa fa-heart"></i>Авто лайки');
 	});
 	
+	Router.add('#/cleaner', function () {
+		App.unmountController();
+		App.setController(PostCleaner, '<i class="fa fa-heart"></i>Чистка постов');
+	});
+	
 	Router.add('#/seek', function () {
 		App.unmountController();
 		App.setController(SeekBlock, '<i class="fa fa-eye"></i>Отслеживание группы');
