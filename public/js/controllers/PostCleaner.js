@@ -80,9 +80,13 @@ var PostCleaner = function (containerSelector) {
 		});
 	};
 		
-	this.render = function () {
+	self.render = function () {
 		initListeners();
 		var $template = $(template);
 		$(containerSelector).html($template);
+	};
+	
+	self.unmount = function () {
+		$('body').off('.' + eventName);
 	};
 };

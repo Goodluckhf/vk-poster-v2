@@ -47,7 +47,8 @@ $(function () {
 			$item.find('a').data('id', (groups[i].id * (-1))).data('name', groups[i].name);
 			$('.messages-menu .slimScrollDiv ul.menu').append($item);
 		}
-		$('.messages-menu .dropdown-menu').on('click', 'a.group-selector', function() {
+		$('.messages-menu .dropdown-menu').on('click', 'a.group-selector', function(e) {
+			e.preventDefault();
 			$('.group-list-select').text($(this).data('name'));
 			$('.group-list-select').data('id', $(this).data('id'));
 			//console.log($('.group-list-select').data());
