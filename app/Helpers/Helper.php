@@ -77,4 +77,18 @@ class Helper {
 		);
 	}
 	
+	public static function paramFromUrlStr($url, $paramName) {
+		$parts = parse_url($url);
+		if(! isset($parts['query'])) {
+			return null;
+		}
+		
+		parse_str($parts['query'], $query);
+		if(! isset($query[$paramName])) {
+			return null;
+		}
+		
+		return $query[$paramName];
+	}
+	
 }

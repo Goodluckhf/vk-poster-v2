@@ -9,6 +9,7 @@ use Log;
 use Mail;
 use \App\Job;
 use \App\Helpers\Helper;
+use Sunra\PhpSimple\HtmlDomParser;
 
 class GroupSeek extends Command {
 	/**
@@ -57,7 +58,6 @@ class GroupSeek extends Command {
 		$wallRequest = $vkApi->callApi('wall.get', [
 			'owner_id' => $jobData['group_id'],
 			'count'    => $jobData['count'],
-			'offset'   => 1,
 			'v'        => 5.40
 		]);
 		
@@ -91,19 +91,65 @@ class GroupSeek extends Command {
 		}
 	}
 	
-	private function checkPost($post, $api) {
-		preg_match(self::URL_PATTERN, $post['text'], $link);
-		Log::error('Слежка: парс ссылки', [
-			'text' => $post['text'],
-			'link' => $link,
-		]);
-		if (! isset($link[0])) {
-			Log::error('Слежка: Нет ссылки');
-			return true;
+	private function getLinkFromWikiUrl($url) {
+		$html = HtmlDomParser::file_get_html($url);
+		$wikiBody = $html->find('div.wiki_body', 0);
+		if (! $wikiBody) {
+			return null;
 		}
 		
-		$link = $link[0];
+		$firstLink = $wikiBody->find('a.wk_ext_link', 0);
 		
+		if (! $firstLink) {
+			return null;
+		}
+		
+		$href = $firstLink->getAttribute('href');
+		return Helper::paramFromUrlStr($href, 'to');
+	}
+	
+	private function getUrlByAttachments($attachments) {
+		foreach ($attachments as $attach) {
+			if ($attach['type'] === 'page') {
+				return $this->getLinkFromWikiUrl($attach['page']['view_url']);
+			}
+			
+			if ($attach['type'] === 'link') {
+				return $attach['link']['url'];
+			}
+		}
+		
+		return null;
+	}
+	
+	private function checkPost($post) {
+		// Достаем ссылку из поста
+		// 1) в прикреплениях: ссылка(снипет) | wiki
+		// 2) в тексте поста
+		$link = null;
+		if (isset($post['attachments'])) {
+			$link = $this->getUrlByAttachments($post['attachments']);
+			Log::info('Ссылка из прикрепления', [
+				'link' => $link
+			]);
+		}
+		
+		if (! $link) {
+			preg_match(self::URL_PATTERN, $post['text'], $link);
+			Log::info('Слежка: парс ссылки', [
+				'text' => $post['text'],
+				'link' => $link,
+			]);
+			
+			if (! isset($link[0])) {
+				Log::info('Слежка: Нет ссылки');
+				return true;
+			}
+			
+			$link = $link[0];
+		}
+		
+		//Сам процесс проверки
 		$link = Helper::addProtocol($link);
 		$vkChekLink = 'https://vk.com/away.php?to=' . urlencode($link) . '&post=' . $post['to_id'] . '_' . $post['id'] . 'cc_key=';
 		$curl = curl_init($vkChekLink);
@@ -117,7 +163,10 @@ class GroupSeek extends Command {
 		]);*/
 		
 		if ($requestResult['http_code'] == 200) {
-			Log::error('ссылку забанили: ' . $post['id']);
+			Log::error('ссылку забанили: ', [
+				'post_id' => $post['id'],
+				'group_id' => $post['to_id']
+			]);
 			return false;
 		}
 		

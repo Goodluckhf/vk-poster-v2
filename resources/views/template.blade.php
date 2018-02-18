@@ -325,7 +325,7 @@ and open the template in the editor.
                 <div class="pull-right hidden-xs">
                     <b>Version</b> 2.3.0
                 </div>
-                <strong>Copyright &copy; 2015-2016 <a href="#">Четкая студия</a>.</strong> Все права защищены.
+                <strong>Copyright &copy; 2015-2018 <a href="#">Хлопчики Девелопчики</a>.</strong> Все права защищены.
             </footer>
         </div><!-- ./wrapper -->
         <!-- ./wrapper -->
