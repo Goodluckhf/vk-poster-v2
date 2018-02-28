@@ -168,7 +168,7 @@ class Auth extends Api {
 		];
 		$this->checkAttr($arNeed);
 		
-		// TODO: вынести в конфиг secret и id
+		// @TODO: вынести в конфиг secret и id
 		$res = @file_get_contents('https://oauth.vk.com/access_token?code=' . Request::get('code') . '&client_id=5180832&client_secret=G8PLjiQIwCSfD5jaNclV&redirect_uri=https://oauth.vk.com/blank.html');
 		
 		$result = (array)json_decode($res);
