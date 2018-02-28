@@ -41,7 +41,11 @@ class VkPost extends Job implements ShouldQueue
 		 //Log::info('начало создание поста');
 		$imgDir = public_path() . '/vk-images/';
 		
-		$vk = new VkApi($this->token, $this->groupId, $this->vkUserId, $imgDir);
+		$vk = new VkApi($this->token, [
+			'groupId' => $this->groupId,
+			'userId'  => $this->vkUserId,
+			'imgDir'  => $imgDir
+		]);
 		$vk->setPost($this->post);
 		$result = $vk->curlPost();
 		

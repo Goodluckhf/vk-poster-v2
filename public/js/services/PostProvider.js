@@ -24,6 +24,12 @@ var PostProvider = (new function () {
 	
 	this.publicName;
 	
+	//Использовать прокси или нет
+	this.useProxy = false;
+	if (localStorage && localStorage['useProxy']) {
+		this.useProxy = (localStorage['useProxy'] === 'true');
+	}
+	
 	this.postAsGroup = 1;
 	
 	this.lastKey = 0;
@@ -203,6 +209,8 @@ var PostProvider = (new function () {
 		data.post = posts[key];
 		data.publish_date = this.currentDate;
 		data.group_id = this.publicId;
+		//Такая вот валидация в ларавел
+		data.useProxy = this.useProxy ? 1 : 0;
 		return Request.api('Post.post', data).done(function (r) {
 			console.log(r);
 			me.inc();

@@ -288,7 +288,12 @@ class Kernel extends ConsoleKernel
 	
 	private function post($job) {
 		$imgDir = public_path() . '/vk-images/';
-		$vk = new VkApi($job->post->user->vk_token, $job->post->group_id, $job->user->vk_user_id, $imgDir);
+		$vk = new VkApi($job->post->user->vk_token, [
+			'groupId' => $job->post->group_id,
+			'userId'  => $job->user->vk_user_id,
+			'imgDir'  => $imgDir
+		]);
+		
 		$vk->setPost($job->post->toArray());
 		$result = $vk->curlPost();
 		if(!$result) {

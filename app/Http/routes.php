@@ -47,10 +47,14 @@ Route::any('/api/{model?}.{method?}', function($type = null, $method = null) {
 		}
 		
 		$result = $controller->$method()->toJson();
-		
-		return response($result, 200)
+		$response = response($result, 200)
 			->header('Content-Type', 'application/json');
+			
+		if (Request::get('callback')) {
+			$response->withCallback(Request::get('callback'));
+		}
 		
+		return $response;
 	} catch(Exception $e) {
 		if(!$e instanceof \App\Exceptions\Api\Api) {
 			dd($e->getMessage());

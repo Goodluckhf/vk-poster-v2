@@ -68,6 +68,8 @@ class Post extends Api {
 		$time->timestamp = Request::get('post')['publish_date'];
 		
 		$job = \App\Job::wherePostId(Request::get('post_id'))->first();
+		//@TODO: возможно будет 500 здесь
+		// надо проверить 
 		$job->started_at = $time->toDateTimeString();
 		$job->save();
 		
@@ -173,12 +175,15 @@ class Post extends Api {
 		$arNeed = [
 			'group_id'     => 'required|integer',
 			'publish_date' => 'required',
-			'post'         => 'array'
+			'post'         => 'array',
+			'useProxy'     => 'boolean'
 		];
 		$this->checkAttr($arNeed);
-		
+		$useProxy = Auth::user()->isAdmin() && Request::get('useProxy') ? true : false;
 		$imgDir = public_path() . '/vk-images/';
-		
+		Log::info('useProxy', [
+			$useProxy
+		]);
 		$data = [
 			'post'         => Request::get('post'),
 			'group_id'     => Request::get('group_id'),
@@ -200,7 +205,12 @@ class Post extends Api {
 		$newPost = new \App\Post;
 		$newPost->populateByRequestData($data);
 		
-		$vk = new VkApi($_COOKIE['vk-token'], Request::get('group_id'), $_COOKIE['vk-user-id'], $imgDir);
+		$vk = new VkApi($_COOKIE['vk-token'], [
+			'groupId'  => Request::get('group_id'),
+			'userId'   => $_COOKIE['vk-user-id'],
+			'imgDir'   => $imgDir,
+			'useProxy' => $useProxy
+		]);
 		$vk->setPost($newPost);
 		$result = $vk->curlPost();
 		
