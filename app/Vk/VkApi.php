@@ -87,6 +87,11 @@ class VkApi {
 		
 		curl_setopt_array($curl, $curlOpts);
 		$res = curl_exec($curl);
+		if ($res === false) {
+			$error =  "curl_error: " . curl_error($curl) . "| curl_errno: " . curl_errno($curl);
+			Log::error('errr_api% ', [$error]);
+			throw new \Exception($error);
+		}
 		
 		return json_decode($res, true);
 	}
@@ -96,6 +101,7 @@ class VkApi {
 			$this->uploadServer = $this->callApi('photos.getWallUploadServer', [
 				'group_id'     => $this->groupId * (-1),
 				'access_token' => $this->token,
+				'v'            => "5.73"
 			]);
 		}
 		
@@ -125,9 +131,9 @@ class VkApi {
 		curl_setopt_array($curl, $curlOpts);
 		$postResult = curl_exec($curl);
 		if ($postResult === false) {
-			Log::error('errr% ', [
-				curl_error($curl), curl_errno($curl)
-			]);
+			$error =  "curl_error: " . curl_error($curl) . "| curl_errno: " . curl_errno($curl);
+			Log::error('errr_send% ', [$error]);
+			throw new \Exception($error);
 		}
 
 		curl_close($curl);
@@ -153,7 +159,7 @@ class VkApi {
 		$saveResult = $this->callApi('docs.save', [
 			'file' => $result['file'],
 			'title' => 'test', 
-			'version' => 5.71
+			'version' => "5.71"
 		], 'post');
 		
 		Log::info([
@@ -226,7 +232,8 @@ class VkApi {
 			'photo'    => $photo,
 			'server'   => $server,
 			'hash'     => $hash,
-			'group_id' => ($this->groupId * (-1))
+			'group_id' => ($this->groupId * (-1)),
+			'v'        => "3.0"
 		];
 		$result = $this->callApi('photos.saveWallPhoto', $data, 'post');
 		return $result;
@@ -237,7 +244,8 @@ class VkApi {
 			'owner_id'     => $this->groupId,
 			'message'      => $this->post['text'],
 			'attachments'  => implode(',', $photos),
-			'from_group'   => 1
+			'from_group'   => 1,
+			'v'            => "5.73"
 		];
 		
 		if(! is_null($publishDate)) {

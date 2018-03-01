@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Log;
 use Auth;
 use App\Exceptions\Api\NotFound;
+use App\Exceptions\Api\ParamsBad;
 
 class Post extends Api {
 	protected $_controllerName = 'Post';
@@ -212,10 +213,15 @@ class Post extends Api {
 			'useProxy' => $useProxy
 		]);
 		$vk->setPost($newPost);
-		$result = $vk->curlPost();
-		
-		$resPost = $vk->post(Request::get('publish_date'), $vk->getPhotosByResponse($result));
-		$this->_data = $resPost['response']['post_id'];
-		return $this;
+		try {
+			$result = $vk->curlPost();
+			
+			$resPost = $vk->post(Request::get('publish_date'), $vk->getPhotosByResponse($result));
+			Log::info(['resPost' => $resPost]);
+			$this->_data = $resPost['response']['post_id'];
+			return $this;
+		} catch (\Exception $err) {
+			throw new ParamsBad($this->_controllerName, $this->_methodName, [$err->getMessage()]);
+		}
 	}
 }
