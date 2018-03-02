@@ -128,6 +128,7 @@ class Post extends Api {
 		$vkMonthResult = $vk->callApi('execute.getMonthPosts', [
 			'group_id' => Request::get('group_id'),
 			'views'    => Request::get('views'),
+			'v'        => '5.73'
 		]);
 		
 		if (! isset($vkMonthResult['response'])) {
@@ -156,7 +157,8 @@ class Post extends Api {
 		foreach ($chunks as $chunk) {		
 			$result = $vk->callApi('execute.removePostsByIds', [
 				'group_id' => Request::get('group_id'),
-				'postIds'      => join(',', $chunk),
+				'postIds'  => join(',', $chunk),
+				'v'        => '5.73'
 			]);
 			
 			$results = array_merge($results, $result);

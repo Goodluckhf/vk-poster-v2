@@ -157,8 +157,8 @@ class VkApi {
 		]);
 		
 		$saveResult = $this->callApi('docs.save', [
-			'file' => $result['file'],
-			'title' => 'test', 
+			'file'    => $result['file'],
+			'title'   => 'test', 
 			'version' => "5.71"
 		], 'post');
 		
@@ -168,7 +168,8 @@ class VkApi {
 		
 		return $saveResult;
 	}
-
+	
+	// @TODO: переписать этот метод
 	public function curlPost() {
 		$photos = $this->post['images'];
 		$imgs = [];
@@ -194,7 +195,7 @@ class VkApi {
 		$uploadUrl = $uploadResult['response']['upload_url'];
 		if(count($imgs) > 6) {
 			$firstImgs = [];
-			$lastImgs = [];
+			$lastImgs  = [];
 			
 			$i = 1;
 			foreach($imgs as $key => $val) {
