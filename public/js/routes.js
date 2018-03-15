@@ -32,4 +32,9 @@
 		App.unmountController();
 		App.setController(GifPost, '<i class="fa fa-user-secret"></i>GIF Постер');
 	});
+	
+	Router.add('#/wiki', function () {
+		App.unmountController();
+		App.setController(Wiki, '<i class="fa fa-user-secret"></i>Vk вики');
+	});
 })();

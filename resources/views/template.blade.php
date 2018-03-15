@@ -71,6 +71,7 @@ and open the template in the editor.
         <script src="/js/controllers/AdminPage.js" type="text/javascript"></script>
         <script src="/js/controllers/GifPost.js" type="text/javascript"></script>
         <script src="/js/controllers/PostCleaner.js" type="text/javascript"></script>
+        <script src="/js/controllers/Wiki.js" type="text/javascript"></script>
 
         <script src="/js/App.js" type="text/javascript"></script>
         <script src="/js/routes.js" type="text/javascript"></script>
@@ -259,6 +260,10 @@ and open the template in the editor.
                         <li class="router-link">
                             <a href="#/cleaner">
                                 <i class="fa fa-eye"></i><span>Чистка постов</span>
+                            </a>
+                        </li><li class="router-link">
+                            <a href="#/wiki">
+                                <i class="fa fa-eye"></i><span>Vk wiki</span>
                             </a>
                         </li>
                     </ul>
