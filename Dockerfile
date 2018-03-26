@@ -11,11 +11,18 @@ ENV VHOST_DOMAIN=${vhost_domain}
 ENV WEB_SERVER_PATH=${web_server_path}
 ENV APACHE_PORT=80
 
-RUN rm /etc/apache2/sites-available/000-default.conf
-RUN rm /etc/apache2/sites-enabled/000-default.conf
-RUN chown -R www-data:www-data ${web_server_path}
+RUN mkdir -p ${web_server_path}/logs
+
+RUN rm /etc/apache2/sites-available/000-default.conf && \
+	rm /etc/apache2/sites-enabled/000-default.conf
+	
 RUN a2ensite ${vhost_domain}.conf
 RUN a2enmod rewrite
+
+RUN useradd just1ce && \
+	chown -R just1ce:just1ce ${web_server_path}
+
+USER just1ce
 
 WORKDIR ${web_server_path}
 
