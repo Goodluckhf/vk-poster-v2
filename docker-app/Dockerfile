@@ -42,9 +42,10 @@ RUN rm /etc/apache2/sites-available/000-default.conf && \
 	
 RUN a2ensite ${vhost_domain}.conf
 RUN a2enmod rewrite
+RUN mkdir /home/www
 
 RUN useradd www && \
-	chown -R www:www /etc/apache2 /var/lock/apache2 /var/run/apache2
+	chown -R www:www /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/www
 
 USER www
 
