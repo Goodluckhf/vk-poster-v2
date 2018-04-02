@@ -1,7 +1,9 @@
 FROM php:5.6-apache
 
-ARG vhost_domain="site.vdev"
-ARG web_server_path="/var/www"
+ENV VHOST_DOMAIN="site.vdev"
+ENV WEB_SERVER_PATH="/var/www"
+ENV APACHE_PORT=8080
+
 RUN apt-get update
 
 RUN apt-get install -y curl libcurl4-openssl-dev libmcrypt-dev git unzip zip zlib1g-dev
@@ -32,19 +34,15 @@ RUN docker-php-ext-configure curl && \
 	
 #Копируем конфиги
 COPY php.ini /usr/local/etc/php/
-COPY httpd-vhosts.conf /etc/apache2/sites-available/${vhost_domain}.conf
+COPY httpd-vhosts.conf /etc/apache2/sites-available/${VHOST_DOMAIN}.conf
 
-ENV VHOST_DOMAIN=${vhost_domain}
-ENV WEB_SERVER_PATH=${web_server_path}
-ENV APACHE_PORT=8080
-
-RUN mkdir -p ${web_server_path}/logs
+RUN mkdir -p ${WEB_SERVER_PATH}/logs
 
 RUN rm /etc/apache2/sites-available/000-default.conf && \
 	rm /etc/apache2/sites-enabled/000-default.conf && \
 	echo "" > /etc/apache2/ports.conf
 	
-RUN a2ensite ${vhost_domain}.conf
+RUN a2ensite ${VHOST_DOMAIN}.conf
 RUN a2enmod rewrite
 RUN mkdir /home/www
 
@@ -53,4 +51,4 @@ RUN useradd www && \
 
 USER www
 
-WORKDIR ${web_server_path}
+WORKDIR ${WEB_SERVER_PATH}
