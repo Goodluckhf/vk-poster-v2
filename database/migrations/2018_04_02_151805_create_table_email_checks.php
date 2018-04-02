@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableEmailsCheck extends Migration
+class CreateTableEmailChecks extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateTableEmailsCheck extends Migration
      */
     public function up()
     {
-        Schema::create('emails_check', function (Blueprint $table) {
+        Schema::create('email_checks', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->string('email');
 			$table->string('token');
@@ -28,6 +28,6 @@ class CreateTableEmailsCheck extends Migration
      */
     public function down()
     {
-        Schema::drop('emails_check');
+        Schema::drop('email_checks');
     }
 }
