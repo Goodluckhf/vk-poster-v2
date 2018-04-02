@@ -6,11 +6,11 @@ services:
       context: ./docker-app
       dockerfile: ./Dockerfile
     volumes: ["./:/var/www"]
-    ports: ["80:8080"]
+    ports: ["81:8080"]
     command: 
       - ./deploy.sh
     links: 
-      - mysql:db
+      - mysql:${DB_HOST}
     depends_on:
       - mysql
   mysql:
@@ -25,9 +25,9 @@ services:
     image: phpmyadmin/phpmyadmin
     restart: always
     environment:
-      - PMA_USER=root
+      - PMA_USER=${DB_USERNAME}
       - PMA_HOST=mysql
-      - PMA_PASSWORD=root
+      - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - 8081:80
     links: 

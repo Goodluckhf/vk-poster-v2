@@ -4,7 +4,11 @@ ARG vhost_domain="site.vdev"
 ARG web_server_path="/var/www"
 RUN apt-get update
 
-RUN apt-get install -y curl libcurl4-openssl-dev libmcrypt-dev
+RUN apt-get install -y curl libcurl4-openssl-dev libmcrypt-dev git unzip zip zlib1g-dev
+	
+RUN docker-php-ext-configure zip && \
+	docker-php-ext-install zip && \
+	docker-php-ext-enable zip
 	
 RUN docker-php-ext-configure pdo && \
 	docker-php-ext-install pdo && \
