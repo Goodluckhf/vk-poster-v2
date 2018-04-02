@@ -1,5 +1,6 @@
 FROM php:5.6-apache
 
+
 ENV VHOST_DOMAIN="site.vdev"
 ENV WEB_SERVER_PATH="/var/www"
 ENV APACHE_PORT=8080
@@ -44,14 +45,15 @@ RUN mkdir -p ${WEB_SERVER_PATH}/logs
 RUN rm /etc/apache2/sites-available/000-default.conf && \
 	rm /etc/apache2/sites-enabled/000-default.conf && \
 	echo "" > /etc/apache2/ports.conf
-	
+
+ARG user='www'	
 RUN a2ensite ${VHOST_DOMAIN}.conf
 RUN a2enmod rewrite
-RUN mkdir /home/www
+RUN mkdir /home/${user}
 
-RUN useradd www && \
-	chown -R www:www /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/www /etc/ssmtp
+RUN useradd ${user} && \
+	chown -R ${user}:${user} /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/${user} /etc/ssmtp
 
-USER www
+USER ${user}
 
 WORKDIR ${WEB_SERVER_PATH}

@@ -2,7 +2,10 @@ version: "2"
 services:
   app:
     container_name: poster
+    user: $USER
     build:
+      args:
+        user: $USER
       context: ./docker-app
       dockerfile: ./Dockerfile
     volumes: ["./:/var/www:cached"]
@@ -10,9 +13,7 @@ services:
     environment:
       - VHOST_DOMAIN="poster.vdev"
     command: 
-      - ./deploy.sh
-    links: 
-      - mysql:${DB_HOST}
+      - ./deploy.sh    
     depends_on:
       - mysql
   mysql:
@@ -22,7 +23,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
       - MYSQL_USER=${DB_USERNAME}
       - MYSQL_DATABASE=${DB_DATABASE}
-    volumes: ["./database/data:/var/lib/mysql"]
+    volumes: ["./database/data:/var/lib/mysql:cached"]
   phpmyadmin: 
     image: phpmyadmin/phpmyadmin
     restart: always
@@ -32,7 +33,5 @@ services:
       - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - 8081:80
-    links: 
-      - mysql:mysql
     depends_on:
       - mysql
