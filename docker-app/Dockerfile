@@ -7,10 +7,8 @@ ENV APACHE_PORT=8080
 
 RUN apt-get update
 
-RUN apt-get install -y curl libcurl4-openssl-dev libmcrypt-dev git unzip zip zlib1g-dev ssmtp && \
-	apt-get clean && \
-	echo "FromLineOverride=YES" >> /etc/ssmtp/ssmtp.conf
-	#echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
+RUN apt-get install -y curl libcurl4-openssl-dev libmcrypt-dev git unzip zip zlib1g-dev -y sendmail && \
+	apt-get clean
 	
 RUN docker-php-ext-configure zip && \
 	docker-php-ext-install zip && \
@@ -52,8 +50,8 @@ RUN a2enmod rewrite
 RUN mkdir /home/${user}
 
 RUN useradd ${user} && \
-	chown -R ${user}:${user} /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/${user} /etc/ssmtp
+	chown -R ${user}:${user} /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/${user} /var/run/sendmail /etc/mail
 
-USER ${user}
+#USER ${user}
 
 WORKDIR ${WEB_SERVER_PATH}

@@ -13,7 +13,9 @@ services:
     environment:
       - VHOST_DOMAIN="poster.vdev"
     command: 
-      - ./deploy.sh    
+      - ./deploy.sh
+    links:
+      - mysql
     depends_on:
       - mysql
   mysql:
