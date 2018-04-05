@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateJobsTable extends Migration
+class CreateSettings extends Migration
 {
     /**
      * Run the migrations.
@@ -12,13 +12,10 @@ class CreateJobsTable extends Migration
      */
     public function up()
     {
-        Schema::create('jobs', function (Blueprint $table) {
+        Schema::create('settings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->timestamp('created_at');
-            $table->timestamp('updated_at');
-            $table->timestamp('started_at');
-            $table->tinyInteger('is_finish');
-        });
+            $table->integer('likes_count');
+        });//
     }
 
     /**
@@ -28,6 +25,6 @@ class CreateJobsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('jobs');
+        Schema::drop('settings');
     }
 }

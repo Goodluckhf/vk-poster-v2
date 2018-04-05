@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class JobAddType extends Migration
+class JobsRefactor extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,10 @@ class JobAddType extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->enum('type', ['post', 'seek', 'like_seek']);
+            $table->text('data');
+            $table->integer('user_id');
+            
+            $table->index(['type', 'user_id', 'is_finish']);
         });
     }
 
@@ -25,7 +28,10 @@ class JobAddType extends Migration
     public function down()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('type');
+            $table->dropColumn('data');
+            $table->dropColumn('user_id');
+            
+            $table->dropIndex('jobs_type_user_id_is_finish_index');
         });
     }
 }

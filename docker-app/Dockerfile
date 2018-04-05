@@ -7,7 +7,7 @@ ENV APACHE_PORT=8080
 
 RUN apt-get update
 
-RUN apt-get install -y curl libcurl4-openssl-dev libmcrypt-dev git unzip zip zlib1g-dev -y sendmail && \
+RUN apt-get install -y cron curl libcurl4-openssl-dev libmcrypt-dev git unzip zip zlib1g-dev && \
 	apt-get clean
 	
 RUN docker-php-ext-configure zip && \
@@ -50,8 +50,9 @@ RUN a2enmod rewrite
 RUN mkdir /home/${user}
 
 RUN useradd ${user} && \
-	chown -R ${user}:${user} /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/${user} /var/run/sendmail /etc/mail
+	chown -R ${user}:${user} /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/${user}
 
-#USER ${user}
+USER ${user}
+RUN (crontab -l ; echo "* * * * * /usr/local/bin/php /var/www/artisan schedule:run >> /var/log/cron.log 2>&1") | crontab
 
 WORKDIR ${WEB_SERVER_PATH}

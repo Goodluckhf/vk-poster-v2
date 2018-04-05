@@ -37,7 +37,7 @@ class GroupSeek extends Command {
 		$jobs = Job::whereType(Job::GROUP_SEEK)
 			->whereIsFinish(0)
 			->get();
-		
+		Log::info('herer', [$jobs->toArray()]);
 		foreach ($jobs as $job) {
 			Log::info('start check post job_id: ', [$job->id]);
 			$this->seek($job);

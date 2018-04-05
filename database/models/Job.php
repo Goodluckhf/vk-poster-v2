@@ -26,8 +26,8 @@ class Job extends Model {
 	
 	public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {
 		$jobs = self::whereType($type)
-			->whereIsFinish(0)
 			->whereUserId($user_id)
+			->whereIsFinish(0)
 			->get();
 		
 		if(! $jobs->count()) {
@@ -50,8 +50,8 @@ class Job extends Model {
 	
 	public static function findByUserId($user_id, $type = 'seek') {
 		$jobs = self::whereType($type)
-			->whereIsFinish(0)
 			->whereUserId($user_id)
+			->whereIsFinish(0)
 			->get();
 		
 		if(! $jobs->count()) {
@@ -138,8 +138,8 @@ class Job extends Model {
 	 * Последний актуальный Job
 	 */
 	public static function findLastActualJob($user_id, $type='like_seek') {
-		return self::whereUserId($user_id)
-			->whereType($type)
+		return self::whereType($user_id)
+			->whereUserId($type)
 			->orderBy('created_at', 'desc')
 			->first();
 	}
