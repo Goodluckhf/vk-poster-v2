@@ -45,6 +45,8 @@ RUN rm /etc/apache2/sites-available/000-default.conf && \
 	echo "" > /etc/apache2/ports.conf
 
 ARG user='www'	
+ENV _USER=${user}
+
 RUN a2ensite ${VHOST_DOMAIN}.conf
 RUN a2enmod rewrite
 RUN mkdir /home/${user}
@@ -52,7 +54,6 @@ RUN mkdir /home/${user}
 RUN useradd ${user} && \
 	chown -R ${user}:${user} /etc/apache2 /var/lock/apache2 /var/run/apache2 /home/${user}
 
-USER ${user}
 RUN (crontab -l ; echo "* * * * * /usr/local/bin/php /var/www/artisan schedule:run >> /var/log/cron.log 2>&1") | crontab
 
 WORKDIR ${WEB_SERVER_PATH}
