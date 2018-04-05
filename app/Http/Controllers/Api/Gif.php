@@ -72,7 +72,8 @@ class Gif extends Api {
 		$vkApi = new VkApi($_COOKIE['vk-token']);
 		$res = $vkApi->callApi('execute.postGif', [
 			'owner_id' => Request::get('group_id'),
-			'posts'    => $vkPostsStr
+			'posts'    => $vkPostsStr,
+			'v'        => '5.73'
 		], 'post');
 		// 
 		
