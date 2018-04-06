@@ -60,6 +60,6 @@ RUN usermod --password `openssl passwd root` ${user}
 
 USER ${user}
 
-RUN (crontab -l ; echo "* * * * * /usr/local/bin/php /var/www/artisan schedule:run >> /var/log/cron.log 2>&1") | crontab
+RUN (crontab -l ; echo "* * * * * /usr/local/bin/php /var/www/artisan schedule:run >> /dev/null 2>&1\n#empty line") | crontab
 
 WORKDIR ${WEB_SERVER_PATH}
