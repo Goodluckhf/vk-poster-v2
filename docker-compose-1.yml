@@ -1,0 +1,46 @@
+version: "3"
+services:
+  app:
+    container_name: poster
+    user: $USER
+    restart: on-failure
+    build:
+      args:
+        user: $USER
+      context: ./docker-services/app1
+      dockerfile: ./Dockerfile
+    volumes: ["./:/var/www:cached"]
+    command: 
+      - ./deploy.sh
+    depends_on:
+      - mysql
+  web:
+    container_name: nginx
+    build:
+      context: ./docker-services/nginx
+      dockerfile: ./Dockerfile
+    ports:
+      - 80:80
+    volumes: 
+      - ./:/var/www:cached
+      - ./logs:/var/log/nginx:cached
+    depends_on:
+      - app
+  mysql:
+    image: mysql:5.6
+    restart: on-failure
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_DATABASE=${DB_DATABASE}
+    volumes: ["./database/data:/var/lib/mysql:cached"]
+  phpmyadmin: 
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_USER=${DB_USERNAME}
+      - PMA_HOST=mysql
+      - PMA_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 8081:80
+    depends_on:
+      - mysql
