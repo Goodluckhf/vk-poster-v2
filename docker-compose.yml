@@ -36,6 +36,7 @@ services:
     depends_on:
       - app
   mysql:
+    container_name: mysql
     image: mysql:5.6
     restart: on-failure
     environment:
@@ -44,6 +45,7 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE}
     volumes: ["./database/data:/var/lib/mysql:cached"]
   phpmyadmin: 
+    container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin
     environment:
       - PMA_USER=${DB_USERNAME}

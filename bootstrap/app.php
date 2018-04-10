@@ -46,21 +46,18 @@ $app->configureMonologUsing(function($monolog) {
     // Always add the stderr output for errors over WARNING level.
     
     if (config('app.debug')) {
-	    $monolog->pushHandler(
-	        new \Monolog\Handler\StreamHandler('php://stderr', \Monolog\Logger::WARNING)
-	    );
-	    $monolog->pushHandler(
-	        new \Monolog\Handler\StreamHandler('php://stdout', \Monolog\Logger::DEBUG)
-	    );
+        $monolog->pushHandler(
+            new \Monolog\Handler\ErrorLogHandler()
+        );
+    } else {
+        $monolog->pushHandler(
+        	new \Monolog\Handler\StreamHandler($logPath, \Monolog\Logger::DEBUG)
+        );
+        $monolog->pushHandler(
+            new \Monolog\Handler\StreamHandler($logPath, \Monolog\Logger::WARNING)
+        );
     }
     
-    $monolog->pushHandler(
-    	new \Monolog\Handler\StreamHandler($logPath, \Monolog\Logger::DEBUG)
-    );
-    
-    $monolog->pushHandler(
-        new \Monolog\Handler\StreamHandler($logPath, \Monolog\Logger::WARNING)
-    );
 });
 
 /*
