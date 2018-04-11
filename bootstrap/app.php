@@ -47,12 +47,9 @@ $app->configureMonologUsing(function($monolog) {
     
     if (config('app.debug')) {
         $monolog->pushHandler(
-            new \Monolog\Handler\ErrorLogHandler()
+        	new \Monolog\Handler\StreamHandler('php://stdout', \Monolog\Logger::DEBUG)
         );
     } else {
-        $monolog->pushHandler(
-        	new \Monolog\Handler\StreamHandler($logPath, \Monolog\Logger::DEBUG)
-        );
         $monolog->pushHandler(
             new \Monolog\Handler\StreamHandler($logPath, \Monolog\Logger::WARNING)
         );
