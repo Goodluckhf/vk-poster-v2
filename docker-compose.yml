@@ -2,13 +2,8 @@ version: "3"
 services:
   app:
     container_name: poster
-    user: $USER
     restart: on-failure
-    build:
-      args:
-        user: $USER
-      context: ./docker-services/app
-      dockerfile: ./Dockerfile
+    image: just1ce/app-php-base:latest
     volumes:
       - ./:/var/www:cached
     depends_on:
@@ -53,7 +48,7 @@ services:
       - PMA_HOST=mysql
       - PMA_PASSWORD=${DB_PASSWORD}
     ports:
-      - 8193:80
+      - 81:80
     depends_on:
       - mysql
 volumes:

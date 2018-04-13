@@ -1,0 +1,4 @@
+FROM just1ce/app-php-base:latest
+
+COPY ./ /var/www
+VOLUME [/var/www]
