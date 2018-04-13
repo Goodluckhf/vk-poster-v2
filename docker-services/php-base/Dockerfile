@@ -7,6 +7,5 @@ RUN apk update && \
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 COPY php.conf /usr/local/etc/php-fpm.d/docker.conf
-COPY ./deploy.sh /var/www
 
 WORKDIR /var/www
