@@ -1,0 +1,4 @@
+FROM just1ce/nginx:dev
+
+RUN mkdir -p /var/www/public
+ADD ./public /var/www/public

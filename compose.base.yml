@@ -3,31 +3,29 @@ services:
   app:
     container_name: poster
     restart: on-failure
-    image: just1ce/app-php-base:latest
-    volumes:
-      - ./:/var/www:cached
+    image: just1ce/php-app:dev
+    build:
+      context: ./
+      dockerfile: ./docker-services/php-base/Dockerfile
     depends_on:
       - mysql
   php-cron:
     container_name: php-cron
     restart: on-failure
+    image: just1ce/php-cron:dev
     build:
-      context: ./docker-services/php-cron
-      dockerfile: ./Dockerfile
-    volumes:
-      - ./:/var/www:cached
+      context: ./
+      dockerfile: ./docker-services/php-cron/Dockerfile
     depends_on:
       - mysql
   web:
     container_name: nginx
+    image: just1ce/nginx:dev
     build:
-      context: ./docker-services/nginx
-      dockerfile: ./Dockerfile
+      context: ./
+      dockerfile: ./docker-services/nginx/Dockerfile
     ports:
       - 80:80
-    volumes: 
-      - ./:/var/www:cached
-      - ./logs:/var/log/nginx:cached
     depends_on:
       - app
   mysql:
@@ -47,8 +45,6 @@ services:
       - PMA_USER=${DB_USERNAME}
       - PMA_HOST=mysql
       - PMA_PASSWORD=${DB_PASSWORD}
-    ports:
-      - 81:80
     depends_on:
       - mysql
 volumes:

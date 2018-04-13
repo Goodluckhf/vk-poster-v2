@@ -1,4 +1,5 @@
 FROM just1ce/app-php-base:latest
 
 COPY ./ /var/www
-VOLUME [/var/www]
+
+RUN chown -R www-data:www-data /var/www

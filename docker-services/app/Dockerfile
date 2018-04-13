@@ -1,1 +1,0 @@
-FROM just1ce/app-php-base:latest

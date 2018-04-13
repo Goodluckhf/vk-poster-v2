@@ -1,5 +1,5 @@
 bootstrap/cache/*
-docker-services/**/*
+
 
 gifs/*.gif
 logs/*
@@ -9,7 +9,7 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
 
-vendor/**/*
+#vendor/**/*
 
 node_modules/**/*
 .gitignore
@@ -17,5 +17,3 @@ node_modules/**/*
 
 docker-compose.yml
 Dockerfile
-public/*
-!public/index.php
