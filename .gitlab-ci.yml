@@ -23,6 +23,11 @@ build:
   cache:
     paths:
       - vendor/
+  artifacts:
+    paths:
+      - vendor/
+  when: on_success
+    expire_in: '5 mins'
 
 deploy:
   stage: deploy
