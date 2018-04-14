@@ -1,4 +1,4 @@
-FROM just1ce/php-app:dev
+FROM registry.gitlab.com/just1ce/poster/php-app:dev
 
 RUN touch crontab.tmp \
     && echo '* * * * * /usr/local/bin/php /var/www/artisan schedule:run >&1' > crontab.tmp \
