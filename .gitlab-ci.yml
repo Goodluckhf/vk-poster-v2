@@ -1,4 +1,5 @@
-image: docker:latest
+image: docker/compose
+entrypoint: [""]
 
 variables:
   DOCKER_DRIVER: overlay2
