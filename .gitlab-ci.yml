@@ -1,0 +1,22 @@
+image: docker:latest
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+cache:
+    paths:
+      - vendor/
+
+services:
+  - docker:dind
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+
+build:
+  stage: build
+  script:
+    - cp -u .env.example .env
+    - docker-compose -f compose.base.yml -f compose.prod.yml build --pull
+#    - docker exec poster bash php artisan migrate --seed
+    - docker-compose push

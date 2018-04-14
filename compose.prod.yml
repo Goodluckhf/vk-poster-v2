@@ -1,17 +1,17 @@
 version: "3"
 services:
   web:
-    image: just1ce/nginx:prod
+    image: registry.gitlab.com/just1ce/poster/nginx:prod
     build:
       dockerfile: ./docker-services/nginx/Dockerfile.prod
     restart: always
   app:
-    image: just1ce/php-app:prod
+    image: registry.gitlab.com/just1ce/poster/php-app:prod
     build:
       dockerfile: ./docker-services/php-base/Dockerfile.prod
     restart: always
   php-cron:
-    image: just1ce/php-cron:prod
+    image: registry.gitlab.com/just1ce/poster/php-cron:prod
     build:
       dockerfile: ./docker-services/php-cron/Dockerfile.prod
   phpmyadmin:

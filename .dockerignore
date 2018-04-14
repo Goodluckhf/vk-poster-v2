@@ -1,6 +1,5 @@
 bootstrap/cache/*
 
-
 gifs/*.gif
 logs/*
 
@@ -9,7 +8,7 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
 
-#vendor/**/*
+vendor/**/*
 
 node_modules/**/*
 .gitignore

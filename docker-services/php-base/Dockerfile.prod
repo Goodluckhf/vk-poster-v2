@@ -1,5 +1,7 @@
-FROM just1ce/app-php-base:latest
+FROM registry.gitlab.com/just1ce/poster/app-php-base:latest
 
 COPY ./ /var/www
 
-RUN chown -R www-data:www-data /var/www
+RUN chown -R www-data:www-data /var/www \
+	&& \
+	/var/www/deploy.sh
