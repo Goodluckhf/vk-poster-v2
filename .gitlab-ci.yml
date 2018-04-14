@@ -1,5 +1,6 @@
-image: docker/compose
-entrypoint: [""]
+image: 
+  name: docker/compose
+  entrypoint: [""]
 
 variables:
   DOCKER_DRIVER: overlay2
