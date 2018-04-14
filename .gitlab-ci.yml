@@ -1,6 +1,8 @@
-image: 
-  name: docker/compose
-  entrypoint: [""]
+image: $CI_REGISTRY/just1ce/poster/docker
+
+stages:
+  - build
+  - deploy
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -19,6 +21,12 @@ build:
   stage: build
   script:
     - cp -u .env.example .env
+    - docker-compose -f compose.base.yml -f compose.dev.yml up --build --pull
+    - docker exec poster ./deploy.sh
+
+deploy:
+  stage: deploy
+  script:
+    - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.prod.yml build --pull
-#    - docker exec poster bash php artisan migrate --seed
-    - docker-compose push
+    - docker-compose -f compose.base.yml -f compose.prod.yml push

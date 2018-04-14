@@ -3,7 +3,7 @@ services:
   app:
     container_name: poster
     restart: on-failure
-    image: just1ce/php-app:dev
+    image: registry.gitlab.com/just1ce/poster/php-app:dev
     build:
       context: ./
       dockerfile: ./docker-services/php-base/Dockerfile
@@ -12,7 +12,7 @@ services:
   php-cron:
     container_name: php-cron
     restart: on-failure
-    image: just1ce/php-cron:dev
+    image: registry.gitlab.com/just1ce/poster/php-cron:dev
     build:
       context: ./
       dockerfile: ./docker-services/php-cron/Dockerfile
@@ -20,7 +20,7 @@ services:
       - mysql
   web:
     container_name: nginx
-    image: just1ce/nginx:dev
+    image: registry.gitlab.com/just1ce/poster/nginx:dev
     build:
       context: ./
       dockerfile: ./docker-services/nginx/Dockerfile
