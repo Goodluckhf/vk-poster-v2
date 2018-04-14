@@ -26,8 +26,8 @@ build:
   artifacts:
     paths:
       - vendor/
-  when: on_success
-    expire_in: '5 mins'
+    when: on_success
+    expire_in: 5 mins
 
 deploy:
   stage: deploy
