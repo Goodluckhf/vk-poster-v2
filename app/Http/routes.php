@@ -57,7 +57,7 @@ Route::any('/api/{model?}.{method?}', function($type = null, $method = null) {
 		return $response;
 	} catch(Exception $e) {
 		if(!$e instanceof \App\Exceptions\Api\Api) {
-			dd($e->getMessage());
+			throw $e;
 		}
 		
 		$result = $e->toJson();
