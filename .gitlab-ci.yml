@@ -43,7 +43,8 @@ build:
 deploy:
   stage: deploy
   script:
-    - docker-compose -f compose.base.yml -f compose.prod.yml build
+    - scp just1ce@185.249.255.224:~/www/.env .env
+    - ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml build
     - docker-compose -f compose.base.yml -f compose.prod.yml push
     - scp compose.base.yml just1ce@185.249.255.224:~/www
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
