@@ -1,5 +1,6 @@
 FROM docker:latest
 
-RUN apk add --update py-pip && \
-    pip install docker-compose
-    
+RUN apk add --update \
+	py-pip \
+	openssh \
+	&& pip install docker-compose
