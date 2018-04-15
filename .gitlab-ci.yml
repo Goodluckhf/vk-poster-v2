@@ -49,7 +49,7 @@ deploy:
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
     - ssh just1ce@185.249.255.224 "cd ~/www/ &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml pull &&
-      ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up &&
+      ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up"
   when: manual
   only:
     - master
