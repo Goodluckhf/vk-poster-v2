@@ -16,7 +16,8 @@ services:
     image: registry.gitlab.com/just1ce/poster/php-cron:prod
     build:
       dockerfile: ./docker-services/php-cron/Dockerfile.prod
-     volumes:
+    restart: always
+    volumes:
       - ${ENV_FILE}:./.env
   phpmyadmin:
     ports:
