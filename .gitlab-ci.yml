@@ -51,7 +51,8 @@ deploy:
     - ssh just1ce@185.249.255.224 "docker login $CI_REGISTRY -u gitlab-ci-token -p $CI_BUILD_TOKEN &&
       cd ~/www/ &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml pull &&
-      ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up -d"
+      ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up -d &&
+      docker exec poster php artisan migrate --seed"
   #when: manual
   only:
     - master
