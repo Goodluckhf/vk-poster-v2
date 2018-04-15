@@ -16,8 +16,7 @@ before_script:
 build:
   stage: build
   script:
-    - cp -u .env.example .env
-    - docker-compose -f compose.base.yml -f compose.dev.yml up -d
+    - docker-compose -f compose.base.yml -f compose.dev.yml -e ENV_FILE="./.env.example" up -d
     - docker exec poster bash ./deploy.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down
   cache:
@@ -32,6 +31,5 @@ build:
 deploy:
   stage: deploy
   script:
-    - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.prod.yml build
     - docker-compose -f compose.base.yml -f compose.prod.yml push

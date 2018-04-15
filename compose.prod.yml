@@ -5,6 +5,8 @@ services:
     build:
       dockerfile: ./docker-services/nginx/Dockerfile.prod
     restart: always
+    volumes:
+      - ${ENV_FILE}:./.env
   app:
     image: registry.gitlab.com/just1ce/poster/php-app:prod
     build:
@@ -14,6 +16,8 @@ services:
     image: registry.gitlab.com/just1ce/poster/php-cron:prod
     build:
       dockerfile: ./docker-services/php-cron/Dockerfile.prod
+     volumes:
+      - ${ENV_FILE}:./.env
   phpmyadmin:
     ports:
       - 8996:80
