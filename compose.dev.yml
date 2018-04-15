@@ -9,9 +9,6 @@ services:
   web:
     volumes: 
       - ./:/var/www:cached
-  mysql:
-    volumes:
-      - mysql-data:/var/lib/mysql:cached
   phpmyadmin: 
     ports:
       - 81:80

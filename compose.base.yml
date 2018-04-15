@@ -32,7 +32,7 @@ services:
       - app
   mysql:
     container_name: mysql
-    image: mysql:latest
+    image: mysql:5.7
     restart: on-failure
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
