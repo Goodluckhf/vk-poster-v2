@@ -7,7 +7,7 @@ services:
     volumes:
       - ./:/var/www:cached
   web:
-    volumes: 
+    volumes:
       - ./:/var/www:cached
   phpmyadmin: 
     ports:

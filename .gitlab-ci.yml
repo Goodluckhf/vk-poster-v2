@@ -30,9 +30,21 @@ build:
       - vendor/
     when: on_success
     expire_in: 5 mins
+  only:
+    - master
+    - docker-test
 
 deploy:
   stage: deploy
   script:
     - docker-compose -f compose.base.yml -f compose.prod.yml build
     - docker-compose -f compose.base.yml -f compose.prod.yml push
+    - scp compose.base.yml just1ce@185.249.255.224:~/www
+    - scp compose.prod.yml just1ce@185.249.255.224:~/www
+    - ssh just1ce@185.249.255.224 "cd ~/www/ &&
+      ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml pull &&
+      ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up &&
+  when: manual
+  only:
+    - master
+    - docker-test

@@ -9,6 +9,11 @@ services:
       dockerfile: ./docker-services/php-base/Dockerfile
     depends_on:
       - mysql
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
   php-cron:
     container_name: php-cron
     restart: on-failure
@@ -18,6 +23,11 @@ services:
       dockerfile: ./docker-services/php-cron/Dockerfile
     depends_on:
       - mysql
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
   web:
     container_name: nginx
     image: registry.gitlab.com/just1ce/poster/nginx:dev
@@ -30,6 +40,11 @@ services:
       - 80:80
     depends_on:
       - app
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
   mysql:
     container_name: mysql
     image: mysql:5.7
@@ -40,6 +55,11 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE}
     volumes:
       - mysql-data:/var/lib/mysql:cached
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
   phpmyadmin: 
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin
@@ -49,5 +69,10 @@ services:
       - PMA_PASSWORD=${DB_PASSWORD}
     depends_on:
       - mysql
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
 volumes:
   mysql-data:
