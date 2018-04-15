@@ -21,6 +21,7 @@ build:
     - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
     - docker exec poster bash ./deploy.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down
+    - docker-compose -f compose.base.yml -f compose.dev.yml push
   cache:
     paths:
       - vendor/
