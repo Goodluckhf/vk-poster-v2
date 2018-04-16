@@ -27,7 +27,7 @@ build:
     - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
     - docker exec poster bash ./deploy.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down
-    - docker-compose -f compose.base.yml -f compose.dev.yml push
+    #- docker-compose -f compose.base.yml -f compose.dev.yml push
   cache:
     paths:
       - vendor/
@@ -35,7 +35,7 @@ build:
     paths:
       - vendor/
     when: on_success
-    expire_in: 5 mins
+    expire_in: 30 mins
   only:
     - master
     - docker-test
@@ -43,8 +43,7 @@ build:
 deploy:
   stage: deploy
   script:
-    - scp just1ce@185.249.255.224:~/www/.env .env
-    - ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml build
+    - docker-compose -f compose.base.yml -f compose.prod.yml build
     - docker-compose -f compose.base.yml -f compose.prod.yml push
     - scp compose.base.yml just1ce@185.249.255.224:~/www
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
