@@ -3,7 +3,6 @@ services:
   app:
     container_name: poster
     restart: on-failure
-    image: registry.gitlab.com/just1ce/poster/php-app:dev
     build:
       context: ./
       dockerfile: ./docker-services/php-base/Dockerfile
@@ -17,7 +16,6 @@ services:
   php-cron:
     container_name: php-cron
     restart: on-failure
-    image: registry.gitlab.com/just1ce/poster/php-cron:dev
     build:
       context: ./
       dockerfile: ./docker-services/php-cron/Dockerfile
@@ -30,7 +28,6 @@ services:
         max-file: "10"
   web:
     container_name: nginx
-    image: registry.gitlab.com/just1ce/poster/nginx:dev
     build:
       context: ./
       dockerfile: ./docker-services/nginx/Dockerfile
