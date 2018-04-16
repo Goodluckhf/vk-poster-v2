@@ -23,7 +23,7 @@ build:
   stage: build
   script:
     - cp -u .env.example .env
-    #- docker-compose -f compose.base.yml -f compose.dev.yml pull
+    - docker-compose -f compose.base.yml -f compose.dev.yml pull
     - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
     - docker exec poster bash ./deploy.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down
