@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSettings extends Migration
+class CreateTableImages extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,10 @@ class CreateSettings extends Migration
      */
     public function up()
     {
-        Schema::create('settings', function (Blueprint $table) {
+        Schema::create('images', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('likes_count');
+            $table->integer('post_id');
+            $table->string('url');
         });
     }
 
@@ -25,6 +26,6 @@ class CreateSettings extends Migration
      */
     public function down()
     {
-        Schema::drop('settings');
+        Schema::drop('images');
     }
 }
