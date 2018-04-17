@@ -21,6 +21,9 @@ services:
         - registry.gitlab.com/just1ce/poster/nginx:dev
     volumes:
       - ./:/var/www:cached
-  phpmyadmin: 
+  phpmyadmin:
+    environment:
+      - PMA_USER=${DB_USERNAME}
+      - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - 81:80

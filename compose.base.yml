@@ -62,9 +62,7 @@ services:
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin
     environment:
-      - PMA_USER=${DB_USERNAME}
       - PMA_HOST=mysql
-      - PMA_PASSWORD=${DB_PASSWORD}
     depends_on:
       - mysql
     logging:    
