@@ -7,7 +7,8 @@ RUN apk update && \
 	docker-php-ext-install \
 		mysqli \
 		pdo \
-		pdo_mysql
+		pdo_mysql \
+		opcache
 
 COPY ./docker-services/php-base/php.conf /usr/local/etc/php-fpm.d/docker.conf
 
