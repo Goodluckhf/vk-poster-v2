@@ -37,7 +37,7 @@ class GroupSeek extends Command {
 		$jobs = Job::whereType(Job::GROUP_SEEK)
 			->whereIsFinish(0)
 			->get();
-		
+		Log::info('herer', [$jobs->toArray()]);
 		foreach ($jobs as $job) {
 			Log::info('start check post job_id: ', [$job->id]);
 			$this->seek($job);
@@ -92,7 +92,7 @@ class GroupSeek extends Command {
 	}
 	
 	private function getLinkFromWikiUrl($url) {
-		$html = HtmlDomParser::file_get_html($url);
+		$html = HtmlDomParser::file_get_html($url, false, null, 0);
 		$wikiBody = $html->find('div.wiki_body', 0);
 		if (! $wikiBody) {
 			return null;

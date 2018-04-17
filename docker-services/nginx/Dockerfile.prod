@@ -1,0 +1,5 @@
+FROM registry.gitlab.com/just1ce/poster/nginx:dev
+
+RUN mkdir -p /var/www/public
+ADD ./public /var/www/public
+#RUN rm /var/www/public/index.php

@@ -17,6 +17,8 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email', 191)->unique();
             $table->string('password');
+            $table->string('vk_token');
+            $table->integer('vk_user_id');
             $table->rememberToken();
             $table->timestamps();
         });
