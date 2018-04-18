@@ -1,5 +1,7 @@
 <?php
 namespace App\Vk;
+
+
 use Log;
 
 // @TODO: выброс и обработка ошибок
@@ -53,44 +55,51 @@ class VkApi {
 		return $img;
 	}
 	
-	public function callApi($method, $data = [], $httpMethod = 'get') {
+	public function callApi($method, $data = [], $httpMethod = 'GET') {
+		$httpClient = App::make('HttpRequest');
+		
+		$httpMethod strtoupper($httpMethod);
+		
 		if(!isset($data['access_token'])) {
 			$data['access_token'] = $this->token;
 		}
 		
-		$params = http_build_query($data);
-		$curl = curl_init();
-		$curlOpts = [
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_HTTPHEADER     => [],
-			CURLOPT_USERAGENT      => $this->user_agent,
-			CURLOPT_TIMEOUT        => 10,
-			CURLOPT_SSL_VERIFYPEER => false,
-			CURLOPT_POST           => $httpMethod === 'get' ? false : true,
-		];
-		
-		if ($this->useProxy) {
-			$curlOpts[CURLOPT_PROXY]        = $this->proxyHost;
-			$curlOpts[CURLOPT_PROXYTYPE]    = CURLPROXY_HTTP;
-			$curlOpts[CURLOPT_PROXYUSERPWD] = $this->proxyAuth;
-		}
-
 		$url = self::API_URL . $method;
 		
-		if($httpMethod == 'get') {
-			$url .= '?'. $params;
-		} else if($httpMethod == 'post') {
-			$curlOpts[CURLOPT_POSTFIELDS] = $data;
-		}
-		$curlOpts[CURLOPT_URL] = $url;
+		$httpParams = [
+			'headers'         => [ 'User-Agent' => $this->user_agent ],
+			'connect_timeout' => 10,
+		];
 		
-		curl_setopt_array($curl, $curlOpts);
-		$res = curl_exec($curl);
+		if($httpMethod == 'GET') {
+			$httpParams['query'] = $data;
+		} else if($httpMethod == 'POST') {
+			$httpParams['body'] = $data;
+		}
+		
+		if ($this->useProxy) {
+			$httpParams['curl'] = [
+				CURLOPT_PROXY        => $this->proxyHost,
+				CURLOPT_PROXYTYPE    => CURLPROXY_HTTP,
+				CURLOPT_PROXYUSERPWD => $this->proxyAuth
+			];
+		}
+		
+		try {
+			$httpClient->request($httpMethod, $url, $httpParams);
+		} catch (GuzzleHttp\Exception\TransferException $e) {
+			Log::error('errr_api: ', [
+				'apiMethod' => $method,
+				'data'      => $data,
+				'error'     => $e
+			]);
+			
+			throw $e;
+		}
+		
 		if ($res === false) {
 			$error =  "curl_error: " . curl_error($curl) . "| curl_errno: " . curl_errno($curl);
 			Log::error('errr_api% ', [$error]);
-			throw new \Exception($error);
 		}
 		
 		return json_decode($res, true);
