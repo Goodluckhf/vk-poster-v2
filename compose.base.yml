@@ -1,0 +1,74 @@
+version: "3.2"
+services:
+  app:
+    container_name: poster
+    restart: on-failure
+    build:
+      context: ./
+      dockerfile: ./docker-services/php-base/Dockerfile
+    depends_on:
+      - mysql
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
+  php-cron:
+    container_name: php-cron
+    restart: on-failure
+    build:
+      context: ./
+      dockerfile: ./docker-services/php-cron/Dockerfile
+    depends_on:
+      - mysql
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
+  web:
+    container_name: nginx
+    build:
+      context: ./
+      dockerfile: ./docker-services/nginx/Dockerfile
+    volumes:
+      - /dev/null:/var/log/nginx/access.log
+    ports:
+      - 80:80
+    depends_on:
+      - app
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    restart: on-failure
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_DATABASE=${DB_DATABASE}
+    volumes:
+      - mysql-data:/var/lib/mysql:cached
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
+  phpmyadmin: 
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+    logging:    
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "10"
+volumes:
+  mysql-data:

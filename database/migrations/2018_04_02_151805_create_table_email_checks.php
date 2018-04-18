@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class JobAddType extends Migration
+class CreateTableEmailChecks extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,13 @@ class JobAddType extends Migration
      */
     public function up()
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->enum('type', ['post', 'seek', 'like_seek']);
-        });
+        Schema::create('email_checks', function (Blueprint $table) {
+			$table->bigIncrements('id');
+			$table->string('email');
+			$table->string('token');
+			$table->timestamp('created_at');
+			$table->timestamp('updated_at');
+		});
     }
 
     /**
@@ -24,8 +28,6 @@ class JobAddType extends Migration
      */
     public function down()
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('type');
-        });
+        Schema::drop('email_checks');
     }
 }

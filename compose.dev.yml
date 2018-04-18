@@ -1,0 +1,29 @@
+version: "3.2"
+services:
+  app:
+    image: registry.gitlab.com/just1ce/poster/php-app:dev
+    build:
+      cache_from:
+        - registry.gitlab.com/just1ce/poster/php-app:dev
+    volumes:
+      - ./:/var/www:cached
+  php-cron:
+    image: registry.gitlab.com/just1ce/poster/php-cron:dev
+    build:
+      cache_from:
+        - registry.gitlab.com/just1ce/poster/php-cron:dev
+    volumes:
+      - ./:/var/www:cached
+  web:
+    image: registry.gitlab.com/just1ce/poster/nginx:dev
+    build:
+      cache_from:
+        - registry.gitlab.com/just1ce/poster/nginx:dev
+    volumes:
+      - ./:/var/www:cached
+  phpmyadmin:
+    environment:
+      - PMA_USER=${DB_USERNAME}
+      - PMA_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 81:80

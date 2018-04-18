@@ -41,6 +41,14 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
+$app->configureMonologUsing(function($monolog) {
+    if (config('app.debug')) {
+        $monolog->pushHandler(
+        	new \Monolog\Handler\StreamHandler('php://stdout', \Monolog\Logger::DEBUG)
+        );
+    }
+});
+
 /*
 |--------------------------------------------------------------------------
 | Return The Application

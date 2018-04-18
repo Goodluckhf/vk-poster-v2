@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class JobAddType extends Migration
+class UsersAddLikesCount extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,8 @@ class JobAddType extends Migration
      */
     public function up()
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->enum('type', ['post', 'seek', 'like_seek']);
+        Schema::table('users', function (Blueprint $table) {
+            $table->integer('likes_count');
         });
     }
 
@@ -24,8 +24,8 @@ class JobAddType extends Migration
      */
     public function down()
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('type');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('likes_count');
         });
     }
 }

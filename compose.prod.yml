@@ -1,0 +1,32 @@
+version: "3.2"
+services:
+  web:
+    image: registry.gitlab.com/just1ce/poster/nginx:prod
+    build:
+      dockerfile: ./docker-services/nginx/Dockerfile.prod
+      cache_from:
+        - registry.gitlab.com/just1ce/poster/nginx:prod
+    restart: always
+  app:
+    image: registry.gitlab.com/just1ce/poster/php-app:prod
+    build:
+      dockerfile: ./docker-services/php-base/Dockerfile.prod
+      cache_from:
+        - registry.gitlab.com/just1ce/poster/php-app:prod
+    restart: always
+    volumes:
+      - ${ENV_FILE}:/var/www/.env
+  php-cron:
+    image: registry.gitlab.com/just1ce/poster/php-cron:prod
+    build:
+      dockerfile: ./docker-services/php-cron/Dockerfile.prod
+      cache_from:
+        - registry.gitlab.com/just1ce/poster/php-cron:prod
+    restart: always
+    volumes:
+      - ${ENV_FILE}:/var/www/.env
+  phpmyadmin:
+    ports:
+      - 8996:80
+  mysql:
+    restart: always
