@@ -49,10 +49,10 @@ class Kernel extends ConsoleKernel
 		if (config('app.debug')) {
 			$schedule->command('GroupSeek')->everyMinute();
 		} else {
-			$schedule->command('GroupSeek')->everyTenMinutes();
+			$schedule->command('GroupSeek')->everyFiveMinutes();
 		}
 		
-		// Лайки
+		/* // Лайки
 		$schedule->call(function() {
 			$jobs = \App\Job::whereType(\App\Job::LIKES_SEEK)
 				->whereIsFinish(0)
@@ -62,7 +62,7 @@ class Kernel extends ConsoleKernel
 				$this->seekLikes($job);
 			}
 		//})->everyMinute();
-		})->everyFiveMinutes();
+		})->everyFiveMinutes(); */
 	}
 	
 	private function getFirstPost($vkResponse) {
