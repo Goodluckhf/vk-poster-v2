@@ -46,7 +46,7 @@ deploy:
     - docker-compose -f compose.base.yml -f compose.prod.yml push
     - scp compose.base.yml just1ce@185.249.255.224:~/www
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
-    - ssh just1ce@185.249.255.224 "docker login $CI_REGISTRY -u gitlab-ci-token -p $CI_BUILD_TOKEN &&
+    - ssh just1ce@185.249.255.224 "docker login registry.gitlab.com -u gitlab-ci-token -p $CI_BUILD_TOKEN &&
       cd ~/www/ &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml pull &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up -d &&
