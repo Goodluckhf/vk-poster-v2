@@ -38,7 +38,6 @@ build:
     expire_in: 30 mins
   only:
     - master
-    - docker-test
 
 deploy:
   stage: deploy
@@ -55,4 +54,3 @@ deploy:
   #when: manual
   only:
     - master
-    - docker-test
