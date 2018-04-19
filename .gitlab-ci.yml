@@ -25,7 +25,7 @@ build:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
     - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
-    - docker exec poster bash ./deploy.sh
+    - docker exec poster bash ./installDeps.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down
     - docker-compose -f compose.base.yml -f compose.dev.yml push
   cache:
@@ -46,11 +46,13 @@ deploy:
     - docker-compose -f compose.base.yml -f compose.prod.yml push
     - scp compose.base.yml just1ce@185.249.255.224:~/www
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
-    - ssh just1ce@185.249.255.224 "docker login registry.gitlab.com -u gitlab-ci-token -p $CI_BUILD_TOKEN &&
+    - ssh just1ce@185.249.255.224 "docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY &&
       cd ~/www/ &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml pull &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up -d &&
-      docker exec poster php artisan migrate --seed"
+      docker exec poster php artisan migrate --seed &&
+      docker exec poster deploy.sh &&
+      docker exec php-cron deploy.sh"
   #when: manual
   only:
     - master
