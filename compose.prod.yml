@@ -16,7 +16,7 @@ services:
     restart: always
     volumes:
       - ${ENV_FILE}:/var/www/.env
-      - logs:/var/www/storage/logs
+      - ./logs:/var/www/storage/logs
   php-cron:
     image: registry.gitlab.com/just1ce/poster/php-cron:prod
     build:
@@ -26,7 +26,7 @@ services:
     restart: always
     volumes:
       - ${ENV_FILE}:/var/www/.env
-      - logs:/var/www/storage/logs
+      - ./logs:/var/www/storage/logs
   phpmyadmin:
     ports:
       - 8996:80
