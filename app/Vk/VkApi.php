@@ -2,6 +2,7 @@
 namespace App\Vk;
 
 use App\Exceptions\VkApiException;
+use App\Exceptions\VkApiResponseNotJsonException;
 use App;
 use Log;
 
@@ -59,6 +60,8 @@ class VkApi {
 	public function callApi(string $method, array $data = [], string $httpMethod = 'GET') {
 		$httpClient = App::make('HttpRequest');
 		
+		$httpMethod = strtoupper($httpMethod);
+		
 		if(!isset($data['access_token'])) {
 			$data['access_token'] = $this->token;
 		}
@@ -87,7 +90,13 @@ class VkApi {
 				throw new VkApiException($response->getBody(), $response->getStatusCode());
 			}
 			
-			return json_decode($response->getBody(), true);
+			$result = json_decode($response->getBody(), true);
+			
+			if (! $result) {
+				throw new VkApiResponseNotJsonException($response->getBody(), $response->getStatusCode());
+			}
+			
+			return $result;
 		} catch (\Exception $e) {
 			Log::error('vk error api: ', [
 				'apiMethod' => $method,
