@@ -1,7 +1,8 @@
 <?php
 namespace App\Vk;
 
-
+use App\Exceptions\VkApiException;
+use App;
 use Log;
 
 // @TODO: выброс и обработка ошибок
@@ -55,10 +56,8 @@ class VkApi {
 		return $img;
 	}
 	
-	public function callApi($method, $data = [], $httpMethod = 'GET') {
+	public function callApi(string $method, array $data = [], string $httpMethod = 'GET') {
 		$httpClient = App::make('HttpRequest');
-		
-		$httpMethod strtoupper($httpMethod);
 		
 		if(!isset($data['access_token'])) {
 			$data['access_token'] = $this->token;
@@ -74,21 +73,23 @@ class VkApi {
 		if($httpMethod == 'GET') {
 			$httpParams['query'] = $data;
 		} else if($httpMethod == 'POST') {
-			$httpParams['body'] = $data;
+			$httpParams['form_params'] = $data;
 		}
 		
 		if ($this->useProxy) {
-			$httpParams['curl'] = [
-				CURLOPT_PROXY        => $this->proxyHost,
-				CURLOPT_PROXYTYPE    => CURLPROXY_HTTP,
-				CURLOPT_PROXYUSERPWD => $this->proxyAuth
-			];
+			$httpParams['proxy'] = "http://{$this->proxyAuth}@{$this->proxyHost}";
 		}
 		
 		try {
-			$httpClient->request($httpMethod, $url, $httpParams);
-		} catch (GuzzleHttp\Exception\TransferException $e) {
-			Log::error('errr_api: ', [
+			$response = $httpClient->request($httpMethod, $url, $httpParams);
+			
+			if ($response->getStatusCode() !== 200) {
+				throw new VkApiException($response->getBody(), $response->getStatusCode());
+			}
+			
+			return json_decode($response->getBody(), true);
+		} catch (\Exception $e) {
+			Log::error('vk error api: ', [
 				'apiMethod' => $method,
 				'data'      => $data,
 				'error'     => $e
@@ -96,13 +97,6 @@ class VkApi {
 			
 			throw $e;
 		}
-		
-		if ($res === false) {
-			$error =  "curl_error: " . curl_error($curl) . "| curl_errno: " . curl_errno($curl);
-			Log::error('errr_api% ', [$error]);
-		}
-		
-		return json_decode($res, true);
 	}
 	
 	public function getUploadServer() {
