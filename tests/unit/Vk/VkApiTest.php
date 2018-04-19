@@ -98,5 +98,4 @@ class VkApiTest extends TestCase {
 		$vkApi = new VkApi('token');
 		$response = $vkApi->callApi('method');
 	}
-	
 }

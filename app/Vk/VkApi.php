@@ -3,22 +3,20 @@ namespace App\Vk;
 
 use App\Exceptions\VkApiException;
 use App\Exceptions\VkApiResponseNotJsonException;
+use Illuminate\Database\Eloquent\Collection;
 use App;
 use Log;
 
 // @TODO: выброс и обработка ошибок
 class VkApi {
-	//const IMG_DIR =  '/vk-images/';
-	const API_URL = 'https://api.vk.com/method/';
+	const API_URL    = 'https://api.vk.com/method/';
+	const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0';
 	
 	private $imgDir;
 	private $useProxy = false;
-	private $uploadServer;
 	private $token;
 	private $groupId;
 	private $userId;
-	private $post;
-	private $user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0';
 	
 	private function populateByOpts($opts) {
 		$allowedOpts = [
@@ -47,29 +45,46 @@ class VkApi {
 		}
 	}
 	
-	public function setPost($post) {
-		$this->post = $post;
+	private function buildProxyParam(): string {
+		return "http://{$this->proxyAuth}@{$this->proxyHost}";
 	}
 	
-	public function loadImgByUrl($url, $number) {
+	private function buildMultiPartParam(string $filePath, $key = 'file'): array {
+		return [
+			'name'     => $key,
+			'contents'  => fopen($filePath, 'r'),
+			'filename' => 'test_name.gif'
+		];
+	}
+	
+	private function buildMultiPartParamArray(array $filePathes): array {
+		$result = [];
+		foreach ($filePathes as $path) {
+			$result[] = $this->buildMultiPartParam($path);
+		}
+		
+		return $result;
+	}
+	
+	public function loadImgByUrl(string $url, int $number): string {
 		$img = $this->imgDir . 'img-'. $number . '-' . md5(microtime()) . '.jpg';
 		file_put_contents($img, file_get_contents($url));
 		return $img;
 	}
 	
-	public function callApi(string $method, array $data = [], string $httpMethod = 'GET') {
+	public function callApi(string $method, array $data = [], string $httpMethod = 'GET'): array {
 		$httpClient = App::make('HttpRequest');
 		
 		$httpMethod = strtoupper($httpMethod);
 		
-		if(!isset($data['access_token'])) {
+		if(! isset($data['access_token'])) {
 			$data['access_token'] = $this->token;
 		}
 		
 		$url = self::API_URL . $method;
 		
 		$httpParams = [
-			'headers'         => [ 'User-Agent' => $this->user_agent ],
+			'headers'         => [ 'User-Agent' => self::USER_AGENT ],
 			'connect_timeout' => 10,
 		];
 		
@@ -80,7 +95,7 @@ class VkApi {
 		}
 		
 		if ($this->useProxy) {
-			$httpParams['proxy'] = "http://{$this->proxyAuth}@{$this->proxyHost}";
+			$httpParams['proxy'] = $this->buildProxyParam();
 		}
 		
 		try {
@@ -96,71 +111,70 @@ class VkApi {
 				throw new VkApiResponseNotJsonException($response->getBody(), $response->getStatusCode());
 			}
 			
+			if (isset($result['error'])) {
+				throw new VkApiException($result['error'], $response->getStatusCode());
+			}
+			
 			return $result;
 		} catch (\Exception $e) {
-			Log::error('vk error api: ', [
+			$error = [
 				'apiMethod' => $method,
-				'data'      => $data,
+				'data'      => json_encode($data),
 				'error'     => $e
-			]);
+			];
+			
+			if ($e instanceof VkApiException) {
+				$error['body'] = json_encode($e->getBody());
+			}
+			
+			Log::error('vk error api: ', $error);
 			
 			throw $e;
 		}
 	}
 	
-	public function getUploadServer() {
-		if(!isset($this->uploadServer)) {
-			$this->uploadServer = $this->callApi('photos.getWallUploadServer', [
-				'group_id'     => $this->groupId * (-1),
-				'access_token' => $this->token,
-				'v'            => "5.73"
-			]);
-		}
-		
-		return $this->uploadServer;
+	public function getUploadServer(): array {
+		return $this->callApi('photos.getWallUploadServer', [
+			'group_id'     => $this->groupId * (-1),
+			'access_token' => $this->token,
+			'v'            => "5.73"
+		]);
 	}
 	
-	public function sendImgs($uploadUrl, $imgs) {
-		$curl=curl_init();
-		$curlOpts = [
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_HTTPHEADER     => ['Content-Type: multipart/form-data'],
-			CURLOPT_USERAGENT      => $this->user_agent,
-			CURLOPT_TIMEOUT        => 15,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_URL            => $uploadUrl,
-			CURLOPT_POST           => true,
-			CURLOPT_POSTFIELDS     => $imgs,
-			CURLOPT_SSL_VERIFYPEER => false
+	public function sendImgs(string $uploadUrl, array $imgs): array {
+		$httpClient = App::make('HttpRequest');
+		$httpParams = [
+			'multipart'       => $imgs,
+			'headers'         => [ 'User-Agent' => self::USER_AGENT ],
+			'connect_timeout' => 10,
 		];
 		
 		if ($this->useProxy) {
-			$curlOpts[CURLOPT_PROXY]        = $this->proxyHost;
-			$curlOpts[CURLOPT_PROXYUSERPWD] = $this->proxyAuth;
-			$curlOpts[CURLOPT_PROXYTYPE]    = CURLPROXY_HTTP;
+			$httpParams['proxy'] = $this->buildProxyParam();
 		}
 		
-		curl_setopt_array($curl, $curlOpts);
-		$postResult = curl_exec($curl);
-		if ($postResult === false) {
-			$error =  "curl_error: " . curl_error($curl) . "| curl_errno: " . curl_errno($curl);
-			Log::error('errr_send% ', [$error]);
-			throw new \Exception($error);
+		$response = $httpClient->request('POST', $uploadUrl, $httpParams);
+		
+		if ($response->getStatusCode() !== 200) {
+			throw new VkApiException($response->getBody(), $response->getStatusCode());
 		}
-
-		curl_close($curl);
-		return json_decode($postResult, true);
+		
+		$result = json_decode($response->getBody(), true);
+			
+		if (! $result) {
+			throw new VkApiResponseNotJsonException($response->getBody(), $response->getStatusCode());
+		}
+		
+		return $result;
 	}
 	
-	public function uploadDoc($file) {
+	public function uploadDoc(string $file): array {
 		$uploadServer = $this->callApi('docs.getUploadServer');
 		Log::info([
 			'$uploadServer' => $uploadServer
 		]);
 		
-		$doc = [
-			'file' => curl_file_create($file, 'image/gif', 'test_name.gif')
-		];
+		$doc = [ $this->buildMultiPartParam($file) ];
 		
 		$result = $this->sendImgs($uploadServer['response']['upload_url'], $doc);
 		Log::info([
@@ -181,66 +195,58 @@ class VkApi {
 		return $saveResult;
 	}
 	
-	// @TODO: переписать этот метод
-	public function curlPost() {
-		$photos = $this->post['images'];
-		$imgs = [];
-		$resultPhotoResponse = [];
-		foreach($photos as $key => $photo) {
-//            if($photo['type'] != 'photo') {
-//                continue;
-//            }
-//            $url = $photo['photo']['photo_604'];
-			$url = $photo['url'];
-			Log::info('url: "' . $url .'"');
-			$imgFile = $this->loadImgByUrl($url, ($key + 1));
-			$imgs['file' . ($key + 1) ] = curl_file_create($imgFile, 'image/jpeg','test_name.jpg');
+	public function uploadImages(Collection $images): array {
+		$imgs   = [];
+		$pathes = [];
+		foreach($images as $key => $image) {
+			$fileKey  = $key + 1;
+			$imgPath  = $this->loadImgByUrl($image->url, $fileKey);
+			$imgs[]   = $this->buildMultiPartParam($imgPath, "file{$fileKey}");
+			$pathes[] = $imgPath;
 		}
-		$uploadResult = $this->getUploadServer();
-		Log::info('uploadResult: ' . json_encode($uploadResult));
+		Log::info('image_path', $imgs);
 		
-		if(isset($uploadResult['error'])) {
-			Log::info('uploadResut error:' . json_encode($uploadResult));
-			return false;
-		}
 		
-		$uploadUrl = $uploadResult['response']['upload_url'];
-		if(count($imgs) > 6) {
-			$firstImgs = [];
-			$lastImgs  = [];
-			
-			$i = 1;
-			foreach($imgs as $key => $val) {
-				if($i <= 6) {
-					$firstImgs['file' . $i] = $val;
-				}
-				else if($i > 6) {
-					$lastImgs['file' . ($i - 6)] = $val;
-				}
-				$i++;
-			}
-			
-			$result = $this->sendImgs($uploadUrl, $firstImgs);
-			
-			$photosResponse1 = $this->saveWallPhoto($result['photo'], $result['server'], $result['hash']);
-			
-			$result2 = $this->sendImgs($uploadUrl, $lastImgs);
-			$photosResponse2 = $this->saveWallPhoto($result2['photo'], $result2['server'], $result2['hash']);
-			
-			$resultPhotoResponseList = array_merge($photosResponse1['response'], $photosResponse2['response']);
-			$resultPhotoResponse['response'] = $resultPhotoResponseList;
-		} else {
-			$result = $this->sendImgs($uploadUrl, $imgs);
-			$resultPhotoResponse = $this->saveWallPhoto($result['photo'], $result['server'], $result['hash']);
+		//Log::info('uploadResult: ' . json_encode($uploadResult));
+		
+		
+		
+		$chunks = array_chunk($imgs, 5);
+		$result['response'] = [];
+		foreach ($chunks as $chKey => $chunk) {
+			$uploadResult = $this->getUploadServer();
+			$uploadUrl = $uploadResult['response']['upload_url'];
+			Log::info('chunk_+cnt_>>>>', [count($chunk)]);
+			$imagesToUpload  = $this->collectImages($chunk);
+			$sendResult      = $this->sendImgs($uploadUrl, $imagesToUpload);
+			//Log::info('$sendResult', [$sendResult]);
+			$saveResult      = $this->saveWallPhoto(
+				$sendResult['photo'],
+				$sendResult['server'],
+				$sendResult['hash']
+			);
+			$result['response'] = array_merge($result['response'], $saveResult['response']);
+			//Log::info('merged response: ' . json_encode($saveResult['response'], JSON_PRETTY_PRINT));
 		}
 		
-		foreach($imgs as $val) {
-			unlink($val->name);
+		Log::info('cnt_>>>>', [count($result['response'])]);
+		// Чистим картинки с диска
+		foreach($pathes as $path) {
+			unlink($path);
 		}
-		return $resultPhotoResponse;
+		
+		return $result;
 	}
 	
-	public function saveWallPhoto($photo, $server, $hash) {
+	private function collectImages(array $images): array {
+		$result = [];
+		foreach ($images as $key => $image) {
+			$result["file{$key}"] = $image;
+		}
+		return $result;
+	}
+	
+	public function saveWallPhoto($photo, $server, $hash): array {
 		$data = [
 			'photo'    => $photo,
 			'server'   => $server,
@@ -252,10 +258,10 @@ class VkApi {
 		return $result;
 	}
 	
-	public function post($publishDate, $photos) {
+	public function post(int $publishDate, array $photos, string $message): array {
 		$data = [
 			'owner_id'     => $this->groupId,
-			'message'      => $this->post['text'],
+			'message'      => $message,
 			'attachments'  => implode(',', $photos),
 			'from_group'   => 1,
 			'v'            => "5.73"
@@ -269,7 +275,7 @@ class VkApi {
 		return $result;
 	}
 	
-	public function getPhotosByResponse($response) {
+	public function getPhotosByResponse(array $response): array {
 		$photos = [];
 		foreach($response['response'] as $key => $photo) {
 			$photos[] = $photo['id'];

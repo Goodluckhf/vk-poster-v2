@@ -214,7 +214,6 @@ class Post extends Api {
 			'imgDir'   => $imgDir,
 			'useProxy' => $useProxy
 		]);
-		$vk->setPost($newPost);
 		//Если время постинга прошло, публикуем сразу
 		$publishDate = Carbon::createFromTimestamp(Request::get('publish_date'));
 		if ( $publishDate->gt(Carbon::now()) ) {
@@ -224,9 +223,10 @@ class Post extends Api {
 		}
 		
 		try {
-			$result = $vk->curlPost();
+			Log::info('post', [$newPost]);
+			$result = $vk->uploadImages($newPost->images);
 			
-			$resPost = $vk->post($publish_dateForPosting, $vk->getPhotosByResponse($result));
+			$resPost = $vk->post($publish_dateForPosting, $vk->getPhotosByResponse($result), $newPost->text);
 			Log::info(['resPost' => $resPost]);
 			$this->_data = $resPost['response']['post_id'];
 			return $this;
