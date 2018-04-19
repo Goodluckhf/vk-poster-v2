@@ -51,8 +51,8 @@ deploy:
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml pull &&
       ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up -d &&
       docker exec poster php artisan migrate --seed &&
-      docker exec poster deploy.sh &&
-      docker exec php-cron deploy.sh"
+      docker exec poster bash deploy.sh &&
+      docker exec php-cron bash deploy.sh"
   #when: manual
   only:
     - master
