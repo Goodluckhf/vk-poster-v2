@@ -23,6 +23,7 @@ class CreateNewTableGifs extends Migration
             $table->timestamp('created_at');
             $table->timestamp('updated_at');
             */
+            //test2
             $table->bigInteger('owner_user_id');
         });
     }
