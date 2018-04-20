@@ -38,7 +38,19 @@ build:
     expire_in: 30 mins
   only:
     - master
+    - refactoring
 
+unit-tests:
+  stage: test
+  script:
+    - cp -u .env.test .env
+    - ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up --build
+    - docker exec poster vendor/bin/phpunit
+    - docker-compose -f compose.base.yml -f compose.dev.yml down
+  only:
+    - master
+    - refactoring
+      
 deploy:
   stage: deploy
   script:
