@@ -1,4 +1,0 @@
-#!/bin/bash
-echo 'docker-compose -f compose.base.yml -f compose.dev.yml  up --build'
-docker-compose -f compose.base.yml -f compose.dev.yml  up --build
-firefox poster.vdev
