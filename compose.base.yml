@@ -8,6 +8,9 @@ services:
       dockerfile: ./docker-services/php-base/Dockerfile
     depends_on:
       - mysql
+    environment:
+      env_file:
+        - ./.env
     logging:    
       driver: "json-file"
       options:
@@ -21,6 +24,9 @@ services:
       dockerfile: ./docker-services/php-cron/Dockerfile
     depends_on:
       - mysql
+    environment:
+      env_file:
+        - ./.env
     logging:    
       driver: "json-file"
       options:
@@ -37,6 +43,9 @@ services:
       - 80:80
     depends_on:
       - app
+    environment:
+      env_file:
+        - ./.env
     logging:    
       driver: "json-file"
       options:
@@ -53,6 +62,9 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE}
     volumes:
       - mysql-data:/var/lib/mysql:cached
+    environment:
+      env_file:
+        - ./.env
     logging:    
       driver: "json-file"
       options:
@@ -65,6 +77,9 @@ services:
       - PMA_HOST=mysql
     depends_on:
       - mysql
+    environment:
+      env_file:
+        - ./.env
     logging:    
       driver: "json-file"
       options:

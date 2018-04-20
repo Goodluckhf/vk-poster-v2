@@ -14,9 +14,6 @@ services:
       cache_from:
         - registry.gitlab.com/just1ce/poster/php-app:prod
     restart: always
-    environment:
-      env_file:
-        - './.env'
     volumes:
       - ./.env:/var/www/.env
   php-cron:
@@ -26,9 +23,6 @@ services:
       cache_from:
         - registry.gitlab.com/just1ce/poster/php-cron:prod
     restart: always
-    environment:
-      env_file:
-        - './.env'
     volumes:
       - ./.env:/var/www/.env
   phpmyadmin:
@@ -36,6 +30,3 @@ services:
       - 8996:80
   mysql:
     restart: always
-    environment:
-      env_file:
-          - './.env'
