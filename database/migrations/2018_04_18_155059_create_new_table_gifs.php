@@ -12,7 +12,8 @@ class CreateNewTableGifs extends Migration
      */
     public function up()
     {
-        Schema::create('gifs', function (Blueprint $table) {
+        Schema::table('gifs', function (Blueprint $table) {
+            /*
             $table->bigIncrements('id');
             $table->bigInteger('doc_id');
             $table->bigInteger('owner_id');
@@ -21,6 +22,7 @@ class CreateNewTableGifs extends Migration
             $table->string('thumb');
             $table->timestamp('created_at');
             $table->timestamp('updated_at');
+            */
             $table->bigInteger('owner_user_id');
         });
     }
