@@ -46,8 +46,8 @@ unit-tests:
   script:
     - cp -u .env.test .env
     - ENV_FILE="./.env" docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
-    - docker exec poster php artisan migrate --seed
     - docker exec poster bash deploy.sh
+    - docker exec poster php artisan migrate --seed
     - docker exec poster vendor/bin/phpunit
     - docker-compose -f compose.base.yml -f compose.dev.yml down -v
   only:
