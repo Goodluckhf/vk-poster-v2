@@ -3,6 +3,7 @@ namespace App\Vk;
 
 use App\Exceptions\VkApiException;
 use App\Exceptions\VkApiResponseNotJsonException;
+use GuzzleHttp\Psr7;
 use Illuminate\Database\Eloquent\Collection;
 use App;
 use Log;
@@ -18,7 +19,7 @@ class VkApi {
 	private $groupId;
 	private $userId;
 	
-	private function populateByOpts($opts) {
+	private function populateByOpts(array $opts) {
 		$allowedOpts = [
 			'imgDir'  => true,
 			'groupId' => true,
@@ -34,7 +35,7 @@ class VkApi {
 		}
 	}
 	
-	public function __construct($token, $opts=[]) {
+	public function __construct(string $token, array $opts=[]) {
 		$this->populateByOpts($opts);
 		
 		$this->token = $token;
@@ -49,10 +50,28 @@ class VkApi {
 		return "http://{$this->proxyAuth}@{$this->proxyHost}";
 	}
 	
+	private function validateResponse(Psr7\Response $response): array {
+		if ($response->getStatusCode() !== 200) {
+			throw new VkApiException($response->getBody(), $response->getStatusCode());
+		}
+		
+		$result = json_decode($response->getBody(), true);
+		
+		if (! $result) {
+			throw new VkApiResponseNotJsonException($response->getBody(), $response->getStatusCode());
+		}
+		
+		if (isset($result['error'])) {
+			throw new VkApiException($result['error'], $response->getStatusCode());
+		}
+		
+		return $result;
+	}
+	
 	private function buildMultiPartParam(string $filePath, $key = 'file'): array {
 		return [
 			'name'     => $key,
-			'contents'  => fopen($filePath, 'r'),
+			'contents' => fopen($filePath, 'r'),
 			'filename' => 'test_name.gif'
 		];
 	}
@@ -101,21 +120,7 @@ class VkApi {
 		try {
 			$response = $httpClient->request($httpMethod, $url, $httpParams);
 			
-			if ($response->getStatusCode() !== 200) {
-				throw new VkApiException($response->getBody(), $response->getStatusCode());
-			}
-			
-			$result = json_decode($response->getBody(), true);
-			
-			if (! $result) {
-				throw new VkApiResponseNotJsonException($response->getBody(), $response->getStatusCode());
-			}
-			
-			if (isset($result['error'])) {
-				throw new VkApiException($result['error'], $response->getStatusCode());
-			}
-			
-			return $result;
+			return $this->validateResponse($response);
 		} catch (\Exception $e) {
 			$error = [
 				'apiMethod' => $method,
@@ -155,17 +160,7 @@ class VkApi {
 		
 		$response = $httpClient->request('POST', $uploadUrl, $httpParams);
 		
-		if ($response->getStatusCode() !== 200) {
-			throw new VkApiException($response->getBody(), $response->getStatusCode());
-		}
-		
-		$result = json_decode($response->getBody(), true);
-			
-		if (! $result) {
-			throw new VkApiResponseNotJsonException($response->getBody(), $response->getStatusCode());
-		}
-		
-		return $result;
+		return $this->validateResponse($response);
 	}
 	
 	public function uploadDoc(string $file): array {
@@ -178,7 +173,7 @@ class VkApi {
 		
 		$result = $this->sendImgs($uploadServer['response']['upload_url'], $doc);
 		Log::info([
-			'file' => $doc,
+			'file'     => $doc,
 			'uploaded' => $result
 		]);
 		
@@ -195,44 +190,41 @@ class VkApi {
 		return $saveResult;
 	}
 	
-	public function uploadImages(Collection $images): array {
+	private function uploadChunk(array $chunk): array {
 		$imgs   = [];
 		$pathes = [];
-		foreach($images as $key => $image) {
+		
+		foreach($chunk as $key => $image) {
 			$fileKey  = $key + 1;
-			$imgPath  = $this->loadImgByUrl($image->url, $fileKey);
+			$imgPath  = $this->loadImgByUrl($image['url'], $fileKey);
 			$imgs[]   = $this->buildMultiPartParam($imgPath, "file{$fileKey}");
 			$pathes[] = $imgPath;
 		}
-		Log::info('image_path', $imgs);
 		
+		$uploadResult    = $this->getUploadServer();
+		$uploadUrl       = $uploadResult['response']['upload_url'];
+		$imagesToUpload  = $this->collectImages($imgs);
+		$sendResult      = $this->sendImgs($uploadUrl, $imagesToUpload);
+		$saveResult      = $this->saveWallPhoto(
+			$sendResult['photo'],
+			$sendResult['server'],
+			$sendResult['hash']
+		);
 		
-		//Log::info('uploadResult: ' . json_encode($uploadResult));
-		
-		
-		
-		$chunks = array_chunk($imgs, 5);
-		$result['response'] = [];
-		foreach ($chunks as $chKey => $chunk) {
-			$uploadResult = $this->getUploadServer();
-			$uploadUrl = $uploadResult['response']['upload_url'];
-			Log::info('chunk_+cnt_>>>>', [count($chunk)]);
-			$imagesToUpload  = $this->collectImages($chunk);
-			$sendResult      = $this->sendImgs($uploadUrl, $imagesToUpload);
-			//Log::info('$sendResult', [$sendResult]);
-			$saveResult      = $this->saveWallPhoto(
-				$sendResult['photo'],
-				$sendResult['server'],
-				$sendResult['hash']
-			);
-			$result['response'] = array_merge($result['response'], $saveResult['response']);
-			//Log::info('merged response: ' . json_encode($saveResult['response'], JSON_PRETTY_PRINT));
-		}
-		
-		Log::info('cnt_>>>>', [count($result['response'])]);
 		// Чистим картинки с диска
 		foreach($pathes as $path) {
 			unlink($path);
+		}
+		
+		return $saveResult;
+	}
+	
+	public function uploadImages(Collection $images): array {
+		$chunks = array_chunk($images->toArray(), 6);
+		$result['response'] = [];
+		foreach ($chunks as $chKey => $chunk) {
+			$saveResult = $this->uploadChunk($chunk);
+			$result['response'] = array_merge($result['response'], $saveResult['response']);
 		}
 		
 		return $result;
@@ -277,7 +269,7 @@ class VkApi {
 	
 	public function getPhotosByResponse(array $response): array {
 		$photos = [];
-		foreach($response['response'] as $key => $photo) {
+		foreach($response['response'] as $photo) {
 			$photos[] = $photo['id'];
 		}
 		return $photos;

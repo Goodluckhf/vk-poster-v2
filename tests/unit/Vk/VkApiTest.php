@@ -55,21 +55,6 @@ class VkApiTest extends TestCase {
 		$this->assertEquals($mock->getLastRequest()->getMethod(), 'GET');
 	}
 	
-	public function testShouldThrowExceptionIfStatusNot200() {
-		$mock = new MockHandler([$this->makeResponse(400)]);
-		
-		$httpRequest = new Client(['handler' => $mock]);
-		$this->app->instance('HttpRequest', $httpRequest);
-		
-		$vkApi = new VkApi('token');
-		Log::shouldReceive('error')
-			->with(Mockery::any(), Mockery::any())
-			->once();
-			
-		$this->setExpectedException(VkApiException::class);
-		$vkApi->callApi('method');
-	}
-	
 	public function testShouldReturnResultInJsonIfStatus200() {
 		$expectedResponse = ['result' => 'ok'];
 		$clientResponse = $this->makeResponse(200, [], json_encode($expectedResponse));
@@ -83,19 +68,33 @@ class VkApiTest extends TestCase {
 		$this->assertEquals($expectedResponse, $response);
 	}
 	
-	public function testShouldThrowInvalidJsonException() {
-		$clientResponse = $this->makeResponse(200, [], "not json");
-		$mock = new MockHandler([$clientResponse]);
+	public function testValidateResponseThrowCorrectExcepions() {
+		$clientResponse = $this->makeResponse(400);
+		$class = new ReflectionClass('App\Vk\VkApi');
+		$method = $class->getMethod('validateResponse');
+		$method->setAccessible(true);
 		
-		$httpRequest = new Client(['handler' => $mock]);
-		$this->app->instance('HttpRequest', $httpRequest);
-		
-		Log::shouldReceive('error')
-			->with(Mockery::any(), Mockery::any())
-			->once();
-			
-		$this->setExpectedException(VkApiResponseNotJsonException::class);
 		$vkApi = new VkApi('token');
-		$response = $vkApi->callApi('method');
+		
+		$this->setExpectedException(VkApiException::class);
+		$method->invokeArgs($vkApi, [$clientResponse]);
+		
+		$clientResponse = $this->makeResponse(200, [], 'ok');
+		$this->setExpectedException(VkApiResponseNotJsonException::class);
+		$method->invokeArgs($vkApi, $clientResponse);
+	}
+	
+	public function getPhotosByResponseReturnCorrectResult() {
+		$vkApi = new VkApi('token');
+		
+		$photos['response'] = [
+			['id' => 0],
+			['id' => 1],
+			['id' => 2],
+		];
+		
+		$result = $vkApi->getPhotosByResponse($photos);
+		
+		$this->assertEquals([0, 1, 2], $result);
 	}
 }
