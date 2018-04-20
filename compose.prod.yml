@@ -15,8 +15,7 @@ services:
         - registry.gitlab.com/just1ce/poster/php-app:prod
     restart: always
     volumes:
-      - ${ENV_FILE}:/var/www/.env
-      - ./logs:/var/www/storage/logs
+      - ./.env:/var/www/.env
   php-cron:
     image: registry.gitlab.com/just1ce/poster/php-cron:prod
     build:
@@ -25,8 +24,7 @@ services:
         - registry.gitlab.com/just1ce/poster/php-cron:prod
     restart: always
     volumes:
-      - ${ENV_FILE}:/var/www/.env
-      - ./logs:/var/www/storage/logs
+      - ./.env:/var/www/.env
   phpmyadmin:
     ports:
       - 8996:80
