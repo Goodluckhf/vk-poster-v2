@@ -2,6 +2,7 @@ image: $CI_REGISTRY/just1ce/poster/docker
 
 stages:
   - build
+  - test
   - deploy
 
 variables:
