@@ -1,6 +1,8 @@
 version: "3.2"
 services:
   web:
+    networks:
+      - custom-n
     image: registry.gitlab.com/just1ce/poster/nginx:prod
     build:
       dockerfile: ./docker-services/nginx/Dockerfile.prod
@@ -8,6 +10,8 @@ services:
         - registry.gitlab.com/just1ce/poster/nginx:prod
     restart: always
   app:
+    networks:
+      - custom-n
     image: registry.gitlab.com/just1ce/poster/php-app:prod
     build:
       dockerfile: ./docker-services/php-base/Dockerfile.prod
@@ -17,6 +21,8 @@ services:
     volumes:
       - ./.env:/var/www/.env
   php-cron:
+    networks:
+      - custom-n
     image: registry.gitlab.com/just1ce/poster/php-cron:prod
     build:
       dockerfile: ./docker-services/php-cron/Dockerfile.prod
@@ -26,7 +32,15 @@ services:
     volumes:
       - ./.env:/var/www/.env
   phpmyadmin:
+    networks:
+      - custom-n
     ports:
       - 8996:80
   mysql:
+    networks:
+      - custom-n
     restart: always
+    
+networks:
+  custom-n:
+    driver: bridge
