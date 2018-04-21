@@ -45,12 +45,13 @@ unit-tests:
   stage: test
   script:
     - cp -u .env.test .env
+    - docker-compose -f compose.base.yml -f compose.prod.yml down -v
     - docker-compose -f compose.base.yml -f compose.prod.yml pull
     - docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
     - docker exec poster bash deploy.sh
     - docker exec poster php artisan migrate --seed
     - docker exec poster vendor/bin/phpunit
-    - docker-compose -f compose.base.yml -f compose.dev.yml down -v
+    - docker-compose -f compose.base.yml -f compose.prod.yml down -v
   only:
     - master
     - refactoring
