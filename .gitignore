@@ -7,4 +7,3 @@ Homestead.json
 .DS_Store
 .idea/*
 *.log
-run_composer

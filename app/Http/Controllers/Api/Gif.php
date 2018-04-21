@@ -23,7 +23,9 @@ class Gif extends Api {
 			'owner_id' => 'required|integer',
 			'title'    => 'required',
 			'url'      => 'required',
-			'thumb'    => 'required'
+			'thumb'    => 'required',
+			//почитать
+			'user_id'  => 'integer'
 		]);
 		
 		$newGif = new \App\Gif;
@@ -36,10 +38,11 @@ class Gif extends Api {
 	//Новая функция от имени юзера
 	//имеем на входе юзера, там-же его айдишник
 	//а как здесь учитывать этого юзера? $user->id
-	public function add_by_user($user) {
+	/*
+	public function add_by_user() {
 		$this->_methodName = 'add_by_user';
 		//прочекать в checkAttr что?, то же самое + owner_user_id required? не суть
-		//$this->checkAttr([]);
+		$this->checkAttr([]);
 		$newGif = new \App\Gif;
 
 		//тут добавить к гифке собсна ид юзера
@@ -52,6 +55,7 @@ class Gif extends Api {
 		$newGif->save();
 		return $this;
 	}
+	*/
 
 	/*
 	суть такая
@@ -65,34 +69,29 @@ class Gif extends Api {
 	//надо ли сделать artisan migrate чтобы изменилась моделька? без этого не будет работать $newGif->owner_user_id = user->id; потому что      //этого поля нет в модельке
     //Надо ли эту новую миграцию добавить через гит адд? добавил
 	
+
+
+
+	изменить миграцию
+	вернуть старую
+	добавить новую
+	юзера получаю из риквеста в чекаттр
+	поменять owner_user_id на user_id
+	??? еще что-то ???
+	джс
+	читать доки про риквест, аус, ..., 
 	*/
-
-
-
-	//просто скопипастил из Auth.php
-	/**
-	 * get authorized user
-	 * то что нужно, пиздим юзера отсюда?
-	 * @auth required
-	 * @return \App\Http\Controllers\ControllerApiAuth
-	 */
-	public function getUser() {
-		$this->_methodName = 'getUser';
-		$this->checkAuth();
-		$user = AuthManager::user();
-		return \App\User::getFullRelated($user);
-		
-	}
 	
 
 	// и тут в постРандом учитывать. как?
-	public function postRandom($user) {
+	public function postRandom() {
 		$this->_methodName = 'postRandom';
 		
 		$this->checkAuth(\App\User::ACTIVATED);
 		$this->checkAttr([
 			'group_id' => 'required|integer',
-			'dates' => 'required|array'
+			'dates'    => 'required|array',
+			'user_id'  => 'integer'
 		]);
 		$dates = Request::get('dates');
 		$datesCount = count($dates);
@@ -103,12 +102,16 @@ class Gif extends Api {
 				['разом запостить можно не больше 24 записей']
 			);
 		}
-		
-
-		//тут чтоли? при получении всех гифок брать только те, которые подходят по user->id?
+		$user_id = Request::get('user_id');
+		if($user_id == null) {
+			throw new \App\Exceptions\Api\ParamsBad(
+				$this->_controllerName,
+				$this->_methodName,
+				['Нет юзера в риквесте']
+			);
+		}
 		$gifs = \App\Gif::inRandomOrder()
-			//так?
-			->where('owner_user_id', $user->id)
+			->where('user_id', $user_id)
 			->take($datesCount)
 			->get();
 		
