@@ -12,7 +12,6 @@ class UpdateTableGifs extends Migration
      */
     public function up()
     {
-        //Добавил юзер ид
         Schema::table('gifs', function (Blueprint $table) {
             $table->integer('user_id');
         });
@@ -27,7 +26,7 @@ class UpdateTableGifs extends Migration
     {
         //
         Schema::table('gifs', function (Blueprint $table) {
-            $table->dropColumns('user_id');
+            $table->dropColumn('user_id');
         });
     }
 }
