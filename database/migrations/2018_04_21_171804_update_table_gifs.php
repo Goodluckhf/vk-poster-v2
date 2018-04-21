@@ -27,7 +27,7 @@ class UpdateTableGifs extends Migration
     {
         //
         Schema::table('gifs', function (Blueprint $table) {
-            $table->dropColumns('user_id');
+            $table->dropColumn('user_id');
         });
     }
 }
