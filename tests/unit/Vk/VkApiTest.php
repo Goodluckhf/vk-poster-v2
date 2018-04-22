@@ -84,7 +84,7 @@ class VkApiTest extends TestCase {
 		$method->invokeArgs($vkApi, $clientResponse);
 	}
 	
-	public function getPhotosByResponseReturnCorrectResult() {
+	public function testGetPhotosByResponseReturnCorrectResult() {
 		$vkApi = new VkApi('token');
 		
 		$photos['response'] = [
