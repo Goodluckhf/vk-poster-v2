@@ -2,6 +2,7 @@
 
 namespace App;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 
 class Post extends Model {
@@ -25,10 +26,9 @@ class Post extends Model {
 		$this->text     = $data['post']['text'];
 		$this->user_id  = $data['user_id'];
 		$this->group_id = $data['group_id'];
-		$this->save();
 		
 		if(isset($data['images'])) {
-			$this->images()->saveMany($data['images']);
+			$this->images = new Collection($data['images']);
 		}
 	}
 	

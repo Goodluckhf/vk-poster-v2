@@ -6,6 +6,7 @@ use Request;
 use Carbon\Carbon;
 use Log;
 use Auth;
+use App\Exceptions\VkApiException;
 use App\Exceptions\Api\NotFound;
 use App\Exceptions\Api\ParamsBad;
 
@@ -183,7 +184,7 @@ class Post extends Api {
 		];
 		$this->checkAttr($arNeed);
 		$useProxy = Auth::user()->isAdmin() && Request::get('useProxy') ? true : false;
-		$imgDir = public_path() . '/vk-images/';
+		$imgDir   = public_path() . '/vk-images/';
 		Log::info('useProxy', [
 			$useProxy
 		]);
@@ -202,7 +203,7 @@ class Post extends Api {
 				continue;
 			}
 			
-			$images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
+			$images[] = [ 'url' => $attach['photo']['photo_604'] ];
 		}
 		$data['images'] = $images;
 		$newPost = new \App\Post;
@@ -226,11 +227,15 @@ class Post extends Api {
 			Log::info('post', [$newPost]);
 			$result = $vk->uploadImages($newPost->images);
 			
-			$resPost = $vk->post($publish_dateForPosting, $vk->getPhotosByResponse($result), $newPost->text);
+			$resPost = $vk->post(
+				$publish_dateForPosting,
+				$vk->getPhotosByResponse($result),
+				$newPost->text
+			);
 			Log::info(['resPost' => $resPost]);
 			$this->_data = $resPost['response']['post_id'];
 			return $this;
-		} catch (\Exception $err) {
+		} catch (VkApiException $err) {
 			throw new ParamsBad($this->_controllerName, $this->_methodName, [$err->getMessage()]);
 		}
 	}
