@@ -1,13 +1,19 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\Api\JobAlreadyExist;
-use App\Exceptions\Api\LikesNotEnough;
-use App\Exceptions\Api\NotFound;
+use App\Exceptions\Api\{
+	JobAlreadyExist,
+	LikesNotEnough,
+	NotFound
+};
 use Request;
 use Auth;
 use Carbon\Carbon;
 use Log;
+use App\Models\{
+	User,
+	Job
+};
 
 class Like extends Api {
 	protected $_controllerName = 'Like';
@@ -20,7 +26,7 @@ class Like extends Api {
 	 */
 	public function seek() {
 		$this->_methodName = 'seek';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$this->checkAttr([
 			'group_id'      => 'required|integer',
 			'groups'        => 'required|array',
@@ -52,20 +58,20 @@ class Like extends Api {
 		}
 		
 		if (! Auth::user()->isAdmin()) {
-			$jobsLikesCount = \App\Job::getLikesCount(Auth::id(), self::JOB_TYPE, $groups);
+			$jobsLikesCount = Job::getLikesCount(Auth::id(), self::JOB_TYPE, $groups);
 			if ($jobsLikesCount > Auth::user()['likes_count']) {
 				throw new LikesNotEnough($this->_controllerName, $this->_methodName);
 			}
 		}
 		
-		$job = \App\Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
+		$job = Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
 		
 		if ($job) {
 			$findedJobData = json_decode($job->data, true);
 			$groups        = array_merge($findedJobData['groups'], $groups);
 			$newJob        = $job;
 		} else {
-			$newJob = new \App\Job;
+			$newJob = new Job;
 			$newJob->is_finish = 0;
 			$newJob->user_id   = Auth::id();
 			$newJob->type      = self::JOB_TYPE;
@@ -89,9 +95,9 @@ class Like extends Api {
 	 */
 	public function getInfo() {
 		$this->_methodName = 'getInfo';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		
-		$jobs = \App\Job::findByUserId(Auth::id(), self::JOB_TYPE);
+		$jobs = Job::findByUserId(Auth::id(), self::JOB_TYPE);
 		
 		if($jobs->count() == 0) {
 			throw new NotFound($this->_controllerName, $this->_methodName);
@@ -111,9 +117,9 @@ class Like extends Api {
 	
 	public function getLast() {
 		$this->_methodName = 'getLast';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		
-		$lastActualJob = \App\Job::findLastActualJob(Auth::id());
+		$lastActualJob = Job::findLastActualJob(Auth::id());
 		
 		if (! $lastActualJob) {
 			throw new NotFound($this->_controllerName, $this->_methodName);
@@ -127,12 +133,12 @@ class Like extends Api {
 	
 	public function stopSeek() {
 		$this->_methodName = 'stopSeek';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$this->checkAttr([
 			'id' => 'required'
 		]);
 		
-		$job = \App\Job::find(Request::get('id'));
+		$job = Job::find(Request::get('id'));
 		
 		if(! $job) {
 			return $this;

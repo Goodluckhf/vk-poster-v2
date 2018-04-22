@@ -7,7 +7,8 @@ use Carbon\Carbon;
 use App\Vk\VkApi;
 use Log;
 use Mail;
-use \App\Job;
+use \App\Models\Job;
+use \App\Models\User;
 use \App\Helpers\Helper;
 use Sunra\PhpSimple\HtmlDomParser;
 
@@ -47,7 +48,7 @@ class GroupSeek extends Command {
 	private function seek($job) {
 		$jobData = json_decode($job->data, true);
 		
-		$user  = \App\User::find($job->user_id);
+		$user  = User::find($job->user_id);
 		
 		if (! $user) {
 			Log::info('User has deleted', ['user_id' => $job->user_id]);

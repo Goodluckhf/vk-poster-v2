@@ -1,6 +1,7 @@
 <?php
 
-namespace App;
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Log;
@@ -17,11 +18,11 @@ class Job extends Model {
 	const LIKES_SEEK = 'like_seek';
 	
 	public function post() {
-		return $this->belongsTo('\App\Post');
+		return $this->belongsTo('\App\Models\Post');
 	}
 	
 	public function user() {
-		return $this->belongsTo('\App\User');
+		return $this->belongsTo('\App\Models\User');
 	}
 	
 	public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {

@@ -1,21 +1,30 @@
 <?php
-
 namespace App\Http\Controllers\Api;
+
 use App\Vk\VkApi;
 use Request;
 use Carbon\Carbon;
 use Log;
 use Auth;
-use App\Exceptions\VkApiException;
-use App\Exceptions\Api\NotFound;
-use App\Exceptions\Api\ParamsBad;
+use App\Exceptions\{
+	VkApiException,
+	Api\NotFound,
+	Api\ParamsBad
+};
+
+use App\Models\{
+	User,
+	Job,
+	Post,
+	Image
+};
 
 class Post extends Api {
 	protected $_controllerName = 'Post';
 	
 	public function postDelay() {
 		$this->_methodName = 'postDelay';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$arNeed = [
 			'post'         => 'array',
 			'group_id'     => 'required|integer',
@@ -34,8 +43,8 @@ class Post extends Api {
 		$time = new Carbon;
 		$time->timestamp = $data['publish_date'];
 		
-		$newPost            = \App\Post::postByVkData($data);
-		$newJob             = new \App\Job;
+		$newPost            = Post::postByVkData($data);
+		$newJob             = new Job;
 		$newJob->started_at = $time->toDateTimeString();
 		$newJob->post_id    = $newPost->id;
 		$newJob->save();
@@ -47,7 +56,7 @@ class Post extends Api {
 	
 	public function update() {
 		$this->_methodName = 'update';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$arNeed = [
 			'post_id' => 'required|integer',
 			'post'    => 'required|array'
@@ -64,12 +73,12 @@ class Post extends Api {
 			'publish_date' => $newPost['publish_date'],
 		];
 		
-		$post = \App\Post::find(Request::get('post_id'));
+		$post = Post::find(Request::get('post_id'));
 		$post->populateByRequestData($data);
 		$time = new Carbon;
 		$time->timestamp = Request::get('post')['publish_date'];
 		
-		$job = \App\Job::wherePostId(Request::get('post_id'))->first();
+		$job = Job::wherePostId(Request::get('post_id'))->first();
 		//@TODO: возможно будет 500 здесь
 		// надо проверить 
 		$job->started_at = $time->toDateTimeString();
@@ -80,28 +89,28 @@ class Post extends Api {
 	
 	public function remove() {
 		$this->_methodName = 'remove';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$arNeed = [
 			'id' => 'required|integer'
 		];
 		$this->checkAttr($arNeed);
 		
-		\App\Post::destroy(Request::get('id'));
-		\App\Image::wherePostId(Request::get('id'))->delete();
-		\App\Job::wherePostId(Request::get('id'))->delete();
+		Post::destroy(Request::get('id'));
+		Image::wherePostId(Request::get('id'))->delete();
+		Job::wherePostId(Request::get('id'))->delete();
 		return $this;
 	}
 	
 	public function getDelayed() {
 		$this->_methodName = 'getDelayed';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$arNeed = [
 			'group_id' => 'required',
 		];
 		$this->checkAttr($arNeed);
 		
 		$now = Carbon::now();
-		$posts = \App\Post::with('images')
+		$posts = Post::with('images')
 				->whereUserId(Auth::id())
 				->whereGroupId(Request::get('group_id'))
 				->where('publish_date', '>=', $now->toDateTimeString())
@@ -118,7 +127,7 @@ class Post extends Api {
 	
 	public function postByViews() {
 		$this->_methodName = 'postByViews';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$this->checkAttr([
 			'group_id' => 'required|integer',
 			'views'    => 'required|integer'
@@ -146,7 +155,7 @@ class Post extends Api {
 	
 	public function removePostsByIds() {
 		$this->_methodName = 'removePostsByViews';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$this->checkAttr([
 			'group_id' => 'required|integer',
 			'ids'      => 'required|array'
@@ -175,7 +184,7 @@ class Post extends Api {
 	 */
 	public function post() {
 		$this->_methodName = 'post';
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$arNeed = [
 			'group_id'     => 'required|integer',
 			'publish_date' => 'required',
@@ -206,7 +215,7 @@ class Post extends Api {
 			$images[] = [ 'url' => $attach['photo']['photo_604'] ];
 		}
 		$data['images'] = $images;
-		$newPost = new \App\Post;
+		$newPost = new Post;
 		$newPost->populateByRequestData($data);
 		
 		$vk = new VkApi($_COOKIE['vk-token'], [

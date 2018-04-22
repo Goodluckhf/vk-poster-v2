@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Carbon\Carbon;
 use App\Vk\VkApi;
+use App\Models\User;
 use Log;
 use Mail;
 
@@ -128,7 +129,7 @@ class Kernel extends ConsoleKernel
 	
 	private function seekLikes($job) {
 		$jobData = json_decode($job->data, true);
-		$user = \App\User::with('role')->find($job->user_id);
+		$user = User::with('role')->find($job->user_id);
 		$vkApi = new VkApi($user->vk_token);
 		$isFinish = true;
 		$now = Carbon::now();

@@ -1,19 +1,23 @@
 <?php
 
-namespace App;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\{
+	Model,
+	Collection
+};
+use App\Models\Image;
 use Carbon\Carbon;
 
 class Post extends Model {
 	protected $table = 'posts';
 	
 	public function images() {
-		return $this->hasMany('\App\Image');
+		return $this->hasMany('\App\Models\Image');
 	}
 	
 	public function user() {
-		return $this->belongsTo('\App\User');
+		return $this->belongsTo('\App\Models\User');
 	}
 	
 	public function populateByRequestData($data) {
@@ -41,7 +45,7 @@ class Post extends Model {
 					continue;
 				}
 				
-				$images[] = new \App\Image(['url' => $attach['photo']['photo_604']]);
+				$images[] = new Image(['url' => $attach['photo']['photo_604']]);
 			}
 			
 			$data['images'] = $images;
