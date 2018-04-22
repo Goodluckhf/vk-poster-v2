@@ -15,7 +15,7 @@ use App\Exceptions\{
 use App\Models\{
 	User,
 	Job,
-	Post,
+	Post as PostModel,
 	Image
 };
 
@@ -43,7 +43,7 @@ class Post extends Api {
 		$time = new Carbon;
 		$time->timestamp = $data['publish_date'];
 		
-		$newPost            = Post::postByVkData($data);
+		$newPost            = PostModel::postByVkData($data);
 		$newJob             = new Job;
 		$newJob->started_at = $time->toDateTimeString();
 		$newJob->post_id    = $newPost->id;
@@ -73,7 +73,7 @@ class Post extends Api {
 			'publish_date' => $newPost['publish_date'],
 		];
 		
-		$post = Post::find(Request::get('post_id'));
+		$post = PostModel::find(Request::get('post_id'));
 		$post->populateByRequestData($data);
 		$time = new Carbon;
 		$time->timestamp = Request::get('post')['publish_date'];
@@ -95,7 +95,7 @@ class Post extends Api {
 		];
 		$this->checkAttr($arNeed);
 		
-		Post::destroy(Request::get('id'));
+		PostModel::destroy(Request::get('id'));
 		Image::wherePostId(Request::get('id'))->delete();
 		Job::wherePostId(Request::get('id'))->delete();
 		return $this;
@@ -110,7 +110,7 @@ class Post extends Api {
 		$this->checkAttr($arNeed);
 		
 		$now = Carbon::now();
-		$posts = Post::with('images')
+		$posts = PostModel::with('images')
 				->whereUserId(Auth::id())
 				->whereGroupId(Request::get('group_id'))
 				->where('publish_date', '>=', $now->toDateTimeString())
@@ -215,7 +215,7 @@ class Post extends Api {
 			$images[] = [ 'url' => $attach['photo']['photo_604'] ];
 		}
 		$data['images'] = $images;
-		$newPost = new Post;
+		$newPost = new PostModel;
 		$newPost->populateByRequestData($data);
 		
 		$vk = new VkApi($_COOKIE['vk-token'], [
