@@ -49,10 +49,11 @@ class Helper {
 	public static function hrefByGroupObjVk($group) {
 		$href = 'https://vk.com/';
 		if (isset($group['owner_id'])) {
-			return $href . 'club' . self::groupIdForLink($group['owner_id']);
+			$groupId = self::groupIdForLink($group['owner_id']);
+			return "{$href}club{$groupId}";
 		}
 		
-		return $href . $group['domain'];
+		return "{$href}{$group['domain']}";
 	}
 	
 	public static function addProtocol($href) {
