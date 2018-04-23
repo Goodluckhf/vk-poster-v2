@@ -13,7 +13,7 @@ class UsersAddLikesCount extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('likes_count');
+            $table->integer('likes_count')->nullable();
         });
     }
 

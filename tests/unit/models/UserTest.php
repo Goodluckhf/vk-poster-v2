@@ -1,10 +1,15 @@
 <?php
 
 use \App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class UserTest extends TestCase {
-	use DatabaseMigrations;
+	
+	public function setUp() {
+		parent::setUp();
+		Artisan::call('migrate:fresh', [
+			'--seed' => true,
+		]);
+	}
 	
 	public function testDefaultRoleUserIsInActive() {
 		$user = factory(User::class)->make();
