@@ -44,6 +44,7 @@ build:
 unit-tests:
   stage: test
   script:
+    - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.prod.yml pull
     - docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
     - docker exec poster bash deploy.sh
