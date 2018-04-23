@@ -15,7 +15,7 @@ class JobRefactorPolymorph extends Migration
         Schema::table('jobs', function (Blueprint $table) {
             $table->dropIndex('jobs_type_user_id_is_finish_index');
             
-            $table->string('job_type');
+            $table->string('job_type')->nullable();
             $table->integer('job_id');
             $table->dropColumn('type');
             $table->dropColumn('data');
