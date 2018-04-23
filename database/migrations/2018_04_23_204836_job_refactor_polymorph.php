@@ -16,7 +16,7 @@ class JobRefactorPolymorph extends Migration
             $table->dropIndex('jobs_type_user_id_is_finish_index');
             
             $table->string('job_type')->nullable();
-            $table->integer('job_id');
+            $table->integer('job_id')->nullable();
             $table->dropColumn('type');
             $table->dropColumn('data');
         });
