@@ -15,7 +15,7 @@ use App\Exceptions\Api\{
 
 use App\Models\{
 	User,
-	Job
+	GroupSeekJob
 };
 use Request;
 use Auth;
@@ -34,7 +34,7 @@ class Group extends Api {
 			'count'    => 'required'
 		]);
 		
-		$job = Job::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
+		$job = GroupSeekJob::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
 		
 		if($job) {
 			throw new JobAlreadyExist($this->_controllerName, $this->_methodName);

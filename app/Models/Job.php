@@ -14,15 +14,16 @@ class Job extends Model {
 		'user_id' => 'integer'
 	];
 	
-	const GROUP_SEEK = 'seek';
-	const LIKES_SEEK = 'like_seek';
-	
-	public function post() {
-		return $this->belongsTo('\App\Models\Post');
+	public function job() {
+		return $this->morphTo();
 	}
 	
 	public function user() {
 		return $this->belongsTo('\App\Models\User');
+	}
+	
+	public function scopeActive($query) {
+		return $query->where('is_finish', 0);
 	}
 	
 	public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {
