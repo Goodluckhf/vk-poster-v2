@@ -21,6 +21,7 @@ class VkApi {
 		
 		const form           = opts.data || {};
 		form['access_token'] = this._token;
+		form['v'] = '5.74';
 		requestData['form']  = form;
 		
 		if (opts.onProgress) {
@@ -32,11 +33,15 @@ class VkApi {
 	
 	async getuploadUrl() {
 		const result = await this.apiRequest('docs.getUploadServer');
+		//console.log(result);
 		return JSON.parse(result).response.upload_url;
 	};
 	
 	async sendFile(opts) {
 		const stat = await fs.statAsync(opts.file);
+		//console.log();
+		//console.log(opts.file);
+		//console.log();
 		const reqData = {
 			uri    : opts.url,
 			method : 'post',
@@ -44,6 +49,8 @@ class VkApi {
 				file : fs.createReadStream(opts.file),
 			},
 		};
+
+		//console.log('reqData' +  reqData);
 		
 		if (opts.onProgress) {
 			reqData.onProgress = (sent, speed) => {

@@ -21,7 +21,7 @@ const rp = (opts) => {
 				return reject({
 					error,
 					body,
-					reponse
+					response
 				});
 			}
 			
