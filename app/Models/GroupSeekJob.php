@@ -6,12 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Log;
 use App\Helpers\Helper;
-use App\Models\User;
+use App\Models\{
+	User,
+	Job
+};
 use App\Vk\VkApi;
 use Sunra\PhpSimple\HtmlDomParser;
 
+// Фикс такой
+// текущая версия laravel не совсем совместима с php
+// @TODO: переехать на новую версию laravel
+if (version_compare(PHP_VERSION, '7.2.0', '>=')) {
+	// Ignores notices and reports all other kinds... and warnings
+	error_reporting(E_ALL ^ E_WARNING);
+}
+
 class GroupSeekJob extends Model {
 	protected $table = 'group_seek_jobs';
+	
+	public $timestamps = false;
+	
+	protected $casts = [
+		'id'       => 'integer',
+		'count'    => 'integer',
+		'group_id' => 'integer'
+	];
 	
 	const URL_PATTERN = "/(?:(?:http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(?:\/[a-z0-9-_]+\/?)*/i";
 	
@@ -19,11 +38,28 @@ class GroupSeekJob extends Model {
 		return $this->morphOne('\App\Models\Job', 'job');
 	}
 	
-	public static function findActive() {
-		return self::with('job')->whereHas('job', function($q) {
+	public function scopeActive($query) {
+		return $query->with('job')->whereHas('job', function($q) {
 			$q->active();
-		})->get();
+		});
 	}
+	
+	public function scopeUser($query, $userId) {
+		return $query->with('job')->whereHas('job', function($q) use ($userId) {
+			$q->whereUserId($userId);
+		});
+	}
+	
+	public static function create(array $opts = []) {
+		$newJob           = new GroupSeekJob;
+		$newJob->count    = $opts['userId'];
+		$newJob->group_id = $opts['groupId'];
+		//$newJob->save();
+		$newAbstractJob   = new Job(['user_id' => $opts['userId']]);
+		$newJob->job()->save($newAbstractJob);
+		return $newJob;
+	}
+	
 	
 	
 	public function seek() {

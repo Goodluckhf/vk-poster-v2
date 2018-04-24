@@ -15,16 +15,14 @@ use App\Exceptions\Api\{
 
 use App\Models\{
 	User,
-	GroupSeekJob
+	GroupSeekJob,
+	Job
 };
 use Request;
 use Auth;
 
 class Group extends Api {
 	protected $_controllerName = 'Group';
-	
-	const URL_PATTERN = "/((http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(\/[a-z0-9-_]+)*/";
-	const JOB_TYPE    = 'seek';
 	
 	public function seek() {
 		$this->_methodName = 'seek';
@@ -34,26 +32,22 @@ class Group extends Api {
 			'count'    => 'required'
 		]);
 		
-		$job = GroupSeekJob::findByGroupAndUserId(Request::get('group_id'), Auth::id(), self::JOB_TYPE);
+		$job = GroupSeekJob::active()
+			->user(Auth::id())
+			->whereGroupId(Request::get('group_id'))
+			->first();
 		
-		if($job) {
+		if ($job) {
 			throw new JobAlreadyExist($this->_controllerName, $this->_methodName);
 		}
 		
-		$dataForJob = [
-			'count'    => (int) Request::get('count'),
-			'group_id' => (int) Request::get('group_id'),
-		];
-		
-		$newJob            = new Job;
-		$newJob->is_finish = 0;
-		$newJob->user_id   = Auth::id();
-		$newJob->type      = 'seek';
-		$newJob->data      = json_encode($dataForJob);
-		$newJob->save();
+		$newJob = GroupSeekJob::create([
+			'groupId' => (int) Request::get('group_id'),
+			'userId'  => Auth::id(),
+			'count'   => (int) Request::get('count'),
+		]);
 		
 		$this->_data = $newJob->toArray();
-		$this->_data['data'] = $dataForJob;
 		
 		return $this;
 	}
@@ -61,21 +55,15 @@ class Group extends Api {
 	public function getSeekInfo() {
 		$this->_methodName = 'getSeekInfo';
 		$this->checkAuth(User::ACTIVATED);
-		$jobs = Job::findByUserId(Auth::id());
+		$jobs = GroupSeekJob::active()
+			->user(Auth::id())
+			->get();
 		
-		if($jobs->count() == 0) {
+		if($jobs->count() === 0) {
 			throw new NotFound($this->_controllerName, $this->_methodName);
 		}
 		
-		$arrJobs = [];
-		foreach ($jobs as $job) {
-			$data           = json_decode($job->data, true);
-			$arrJob         = $job->toArray();
-			$arrJob['data'] = $data;
-			$arrJobs[]      = $arrJob;
-		}
-		
-		$this->_data = $arrJobs;
+		$this->_data = $jobs->toArray();
 		return $this;
 	}
 	
@@ -86,15 +74,13 @@ class Group extends Api {
 			'id' => 'required'
 		]);
 		
-		$job = Job::find(Request::get('id'));
+		$job = GroupSeekJob::find(Request::get('id'));
 		
 		if(! $job) {
 			return $this;
 		}
 		
-		$job->is_finish = 1;
-		$job->save();
-		
+		$job->job->finish();
 		return $this;
 	}
 }

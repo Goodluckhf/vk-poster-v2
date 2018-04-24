@@ -8,7 +8,6 @@ use App\Vk\VkApi;
 use Log;
 use Mail;
 use \App\Models\GroupSeekJob;
-use \App\Models\User;
 use \App\Helpers\Helper;
 
 
@@ -34,7 +33,7 @@ class GroupSeek extends Command {
 	 * @return mixed
 	 */
 	public function handle() {
-		$jobs = GroupSeekJob::findActive();
+		$jobs = GroupSeekJob::active()->get();
 		$this->info('herer', [$jobs->toArray()]);
 		foreach ($jobs as $job) {
 			$job->seek();

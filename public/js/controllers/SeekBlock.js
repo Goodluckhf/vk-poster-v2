@@ -22,9 +22,9 @@
 	deferGroupLoad.resolve(true);
 	
 	var htmlForJob = function (job) {
-		return '<div class="job">Начало: ' + job['created_at'] +
-			' || <a href="' + helper.hrefByGroupId(job['data']['group_id']) + '">Перейти в группу</a>' +
-			' || кол-во постов: ' + job['data']['count'] +
+		return '<div class="job">Начало: ' + job['job']['created_at'] +
+			' || <a href="' + helper.hrefByGroupId(job['group_id']) + '">Перейти в группу</a>' +
+			' || кол-во постов: ' + job['count'] +
 			'<button class="stopJob btn btn-sm btn-warning" data-id="' + job['id'] + '">Остановить</button><hr></div>';
 	};
 	
@@ -59,7 +59,6 @@
 		}
 		
 		deferGroupLoad = deferGroupLoad.then(function () {
-			console.log(1);
 			return Request.vkApi('groups.getById', {
 				group_id: groupId,
 				v: 5.68
@@ -99,8 +98,8 @@
 			}
 			
 			return Request.api('Group.seek', {
-				group_id:  helper.groupIdForApi(groupId),
-				count: count
+				group_id : helper.groupIdForApi(groupId),
+				count    : count
 			});
 		}).then(function (data) {
 			if (! data) {
@@ -143,6 +142,7 @@
 			console.log(err);
 			$('.jobs').html('<span class="error" style="color:tomato; display:flex; justify-content:center;">' + err['responseJSON']['message'] + '</span>');
 		}).then(function (data) {
+			console.log(data);
 			populateJobs(data.data);
 			return true;
 		});

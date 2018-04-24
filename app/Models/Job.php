@@ -14,6 +14,12 @@ class Job extends Model {
 		'user_id' => 'integer'
 	];
 	
+	protected $attributes = [
+		'is_finish' => 0
+	];
+	
+	protected $fillable = ['user_id'];
+	
 	public function job() {
 		return $this->morphTo();
 	}
