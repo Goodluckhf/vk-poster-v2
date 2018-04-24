@@ -7,7 +7,7 @@ const readline = require('readline');
 const gifPath       = './gifs/';
 const _token        = 'bb4b7eff46af950564f72c3b66e78e3441ed9a7da342c6c37167d2f7b023e356b27ab9d1b87b880611db0';
 const captchaAPIKey = '2f54bb2ffb6a092f725a35366deed8f2';
-const apiUrl        = 'http://new.poster.dev/api/';
+const apiUrl        = 'http://web:80/api/';
 
 const taskUploadGif = async (title) => {
 	const vkApi = new VkApi(_token);
@@ -59,8 +59,11 @@ const taskUploadGif = async (title) => {
 	}
 	
 	const savedFile = jsonRes['response'][0];
-	
-	/* jsonres
+	//console.log();
+	//console.log('Saved file :');
+	//console.log(savedFile.preview.photo);
+
+	/* 
 { response: 
  { id: 464403517,
    owner_id: 223261420,
@@ -73,9 +76,8 @@ const taskUploadGif = async (title) => {
    preview: [Object] } ] }
 	*/
 
-
-	//savedfile['did'] ??
-	//thumb'a net voobsche
+	console.log();
+	console.log(apiUrl + 'Gif.add:');
 	const apiResult = await lib.rp({
 		method : 'post',
 		uri    : apiUrl + 'Gif.add',
@@ -153,8 +155,12 @@ const loopTask = async (gif) => {
 			await loopTask(gif);
 			console.log('\n__________');
 		}
+		console.log('------end try(()=>{})();------');
+
 	} catch (error) {
 		if (error.response) {
+			console.log('----------body-------------');
+			console.log(error.response.body);
 			return console.log('status> ', error.response.statusCode);
 		}
 		

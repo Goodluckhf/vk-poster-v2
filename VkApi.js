@@ -4,6 +4,7 @@ const Promise  = require('bluebird');
 const lib      = require('./lib');
 const fs       = Promise.promisifyAll(require('fs'));
 
+const vkApiVersion = '3.0';
 const vkApiUrl = 'https://api.vk.com/method';
 
 class VkApi {
@@ -21,17 +22,21 @@ class VkApi {
 		
 		const form           = opts.data || {};
 		form['access_token'] = this._token;
-		form['v'] = '5.74';
+		form['v'] = vkApiVersion;
 		requestData['form']  = form;
 		
 		if (opts.onProgress) {
 			requestData[onProgress] = opts.onProgress;
 		}
+		console.log();
+		console.log('Api request into ' + requestData.uri + ' | ' + requestData.method);
 		
 		return lib.rp(requestData);
 	};
 	
 	async getuploadUrl() {
+		console.log();
+		console.log('Getting upload url');
 		const result = await this.apiRequest('docs.getUploadServer');
 		//console.log(result);
 		return JSON.parse(result).response.upload_url;
@@ -66,13 +71,18 @@ class VkApi {
 				});
 			};
 		}
-		
+		console.log('');
+		console.log('Uploading result:');
 		const uploadResult = await lib.rp(reqData);
-		
+		console.log(uploadResult);
 		try {
+			console.log('');
+			console.log('Try send');
 			const jsonRes = JSON.parse(uploadResult);
+			console.log('Sent: ' + jsonRes.file);
 			return jsonRes.file;
 		} catch (error) {
+			console.log('Send error');
 			console.log(error, uploadResult);
 		}
 	};
