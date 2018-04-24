@@ -32,49 +32,16 @@ class Job extends Model {
 		return $query->where('is_finish', 0);
 	}
 	
-	public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {
-		$jobs = self::whereType($type)
-			->whereUserId($user_id)
-			->whereIsFinish(0)
-			->get();
-		
-		if(! $jobs->count()) {
-			return null;
-		}
-		
-		foreach ($jobs as $job) {
-			$data = json_decode($job->data, true);
-			if($data['group_id'] == $group_id) {
-				$currentJob = $job;
-			}
-		}
-		
-		if(! isset($currentJob)) {
-			return null;
-		}
-		
-		return $currentJob;
+	public function finish() {
+		$this->is_finish = 1;
+		$this->save();
 	}
 	
-	public static function findByUserId($user_id, $type = 'seek') {
-		$jobs = self::whereType($type)
-			->whereUserId($user_id)
-			->whereIsFinish(0)
-			->get();
-		
-		if(! $jobs->count()) {
-			return $jobs;
-		}
-		
-		$foundJobs = new \Illuminate\Database\Eloquent\Collection;
-		foreach ($jobs as $job) {
-			$data = json_decode($job->data, true);
-			$foundJobs->push($job);
-		}
-		
-		return $foundJobs;
-	}
-	
+	//
+	// Лайки пока не используются
+	// Все методы ниже
+	// @TODO: Переписать в отдельный Job
+	//
 	/**
 	 * Считает кол-во лайков в работе
 	 * @return int
@@ -135,11 +102,6 @@ class Job extends Model {
 		}
 		
 		return $sum;
-	}
-	
-	public function finish() {
-		$this->is_finish = 1;
-		$this->save();
 	}
 	
 	/**

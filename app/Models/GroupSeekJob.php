@@ -54,9 +54,11 @@ class GroupSeekJob extends Model {
 		$newJob           = new GroupSeekJob;
 		$newJob->count    = $opts['userId'];
 		$newJob->group_id = $opts['groupId'];
-		//$newJob->save();
+		$newJob->save();
+		
 		$newAbstractJob   = new Job(['user_id' => $opts['userId']]);
 		$newJob->job()->save($newAbstractJob);
+		$newJob->load('job');
 		return $newJob;
 	}
 	
