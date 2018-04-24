@@ -52,7 +52,7 @@ class GroupSeekJob extends Model {
 	
 	public static function create(array $opts = []) {
 		$newJob           = new GroupSeekJob;
-		$newJob->count    = $opts['userId'];
+		$newJob->count    = $opts['count'];
 		$newJob->group_id = $opts['groupId'];
 		$newJob->save();
 		

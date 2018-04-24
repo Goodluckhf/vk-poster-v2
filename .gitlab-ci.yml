@@ -26,7 +26,7 @@ build:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
     - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
-    - docker exec poster bash ./installDeps.sh
+    - docker exec poster bash ./bin/installDeps.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down -v
     - docker-compose -f compose.base.yml -f compose.dev.yml push
   cache:
@@ -47,7 +47,7 @@ unit-tests:
     - cp -u .env.test .env
     - docker-compose -f compose.base.yml -f compose.prod.yml pull
     - docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
-    - docker exec poster bash deploy.sh
+    - docker exec poster bash ./bin/deploy.sh
     - docker exec poster php artisan config:clear
     - docker exec poster vendor/bin/phpunit
     - docker-compose -f compose.base.yml -f compose.prod.yml down -v
@@ -65,11 +65,7 @@ deploy:
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
     - ssh just1ce@185.249.255.224 "docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY &&
       cd ~/www/ &&
-      docker-compose -f compose.base.yml -f compose.prod.yml pull &&
-      docker-compose -f compose.base.yml -f compose.prod.yml up -d &&
-      docker exec poster php artisan migrate --seed &&
-      docker exec poster bash deploy.sh &&
-      docker exec php-cron bash deploy.sh"
+      ./bin/docker-deploy.prod.sh"
   #when: manual
   only:
     - master
