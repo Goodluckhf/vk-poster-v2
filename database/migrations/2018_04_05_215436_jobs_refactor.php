@@ -28,9 +28,10 @@ class JobsRefactor extends Migration
     public function down()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('data');
-            $table->dropColumn('user_id');
-            
+            $table->dropColumn(['data', 'user_id']);
+        });
+        
+        Schema::table('jobs', function (Blueprint $table) {
             $table->dropIndex('jobs_type_user_id_is_finish_index');
         });
     }

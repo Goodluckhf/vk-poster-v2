@@ -6,8 +6,11 @@ class UserTest extends TestCase {
 	
 	public function setUp() {
 		parent::setUp();
-		Artisan::call('migrate:fresh', [
-			'--seed' => true,
+		$this->resetSqlite();
+		
+		Artisan::call('migrate', [
+			'--database' => 'sqlite',
+			'--seed'     => true
 		]);
 	}
 	

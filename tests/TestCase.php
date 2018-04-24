@@ -22,4 +22,8 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
 
         return $app;
     }
+    
+    public function resetSqlite() {
+        file_put_contents( $this->app['db']->connection('sqlite')->getDatabaseName(), '');
+    }
 }

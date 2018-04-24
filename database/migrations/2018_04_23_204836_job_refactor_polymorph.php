@@ -14,11 +14,12 @@ class JobRefactorPolymorph extends Migration
     {
         Schema::table('jobs', function (Blueprint $table) {
             $table->dropIndex('jobs_type_user_id_is_finish_index');
-            
+        });
+        
+        Schema::table('jobs', function (Blueprint $table) {
             $table->string('job_type')->nullable();
             $table->integer('job_id')->nullable();
-            $table->dropColumn('type');
-            $table->dropColumn('data');
+            $table->dropColumn(['type', 'data']);
         });
         
         Schema::create('group_seek_jobs', function (Blueprint $table) {
@@ -36,11 +37,9 @@ class JobRefactorPolymorph extends Migration
     public function down()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('job_type');
-            $table->dropColumn('job_id');
+            $table->dropColumn(['job_type', 'job_id']);
             $table->text('data')->nullable();
             $table->enum('type', ['post', 'seek', 'like_seek'])->nullable();
-            
             $table->index(['type', 'user_id', 'is_finish']);
         });
         

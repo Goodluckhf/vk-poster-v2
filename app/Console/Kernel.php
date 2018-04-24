@@ -21,7 +21,6 @@ class Kernel extends ConsoleKernel
 	 */
 	protected $commands = [
 		Commands\GroupSeek::class,
-		Commands\FreshCommand::class,
 	];
 	
 	
