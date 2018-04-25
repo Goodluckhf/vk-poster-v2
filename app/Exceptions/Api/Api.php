@@ -1,7 +1,7 @@
 <?php
 namespace App\Exceptions\Api;
 
-abstract class Api extends \Exception {
+abstract class Api extends \App\Exceptions\BaseException {
 	
 	protected $_controllerName;
 	protected $_methodName;
@@ -27,9 +27,5 @@ abstract class Api extends \Exception {
 			'method'     => $this->getMethod(),
 			'message'    => $this->getMessage()
 		];
-	}
-	
-	public function toJson() {
-		return json_encode($this->toArray());
 	}
 }

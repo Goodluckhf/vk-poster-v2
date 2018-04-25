@@ -13,7 +13,7 @@ class JobAddType extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->enum('type', ['post', 'seek', 'like_seek']);
+            $table->enum('type', ['post', 'seek', 'like_seek'])->nullable();
         });
     }
 

@@ -1,6 +1,7 @@
 <?php
 
-namespace App;
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Log;
@@ -13,60 +14,34 @@ class Job extends Model {
 		'user_id' => 'integer'
 	];
 	
-	const GROUP_SEEK = 'seek';
-	const LIKES_SEEK = 'like_seek';
+	protected $attributes = [
+		'is_finish' => 0
+	];
 	
-	public function post() {
-		return $this->belongsTo('\App\Post');
+	protected $fillable = ['user_id'];
+	
+	public function job() {
+		return $this->morphTo();
 	}
 	
 	public function user() {
-		return $this->belongsTo('\App\User');
+		return $this->belongsTo('\App\Models\User');
 	}
 	
-	public static function findByGroupAndUserId($group_id, $user_id, $type = 'seek') {
-		$jobs = self::whereType($type)
-			->whereUserId($user_id)
-			->whereIsFinish(0)
-			->get();
-		
-		if(! $jobs->count()) {
-			return null;
-		}
-		
-		foreach ($jobs as $job) {
-			$data = json_decode($job->data, true);
-			if($data['group_id'] == $group_id) {
-				$currentJob = $job;
-			}
-		}
-		
-		if(! isset($currentJob)) {
-			return null;
-		}
-		
-		return $currentJob;
+	public function scopeActive($query) {
+		return $query->where('is_finish', 0);
 	}
 	
-	public static function findByUserId($user_id, $type = 'seek') {
-		$jobs = self::whereType($type)
-			->whereUserId($user_id)
-			->whereIsFinish(0)
-			->get();
-		
-		if(! $jobs->count()) {
-			return $jobs;
-		}
-		
-		$foundJobs = new \Illuminate\Database\Eloquent\Collection;
-		foreach ($jobs as $job) {
-			$data = json_decode($job->data, true);
-			$foundJobs->push($job);
-		}
-		
-		return $foundJobs;
+	public function finish() {
+		$this->is_finish = 1;
+		$this->save();
 	}
 	
+	//
+	// Лайки пока не используются
+	// Все методы ниже
+	// @TODO: Переписать в отдельный Job
+	//
 	/**
 	 * Считает кол-во лайков в работе
 	 * @return int
@@ -127,11 +102,6 @@ class Job extends Model {
 		}
 		
 		return $sum;
-	}
-	
-	public function finish() {
-		$this->is_finish = 1;
-		$this->save();
 	}
 	
 	/**

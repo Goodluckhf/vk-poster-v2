@@ -6,8 +6,10 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Carbon\Carbon;
 use App\Vk\VkApi;
+use App\Models\User;
 use Log;
 use Mail;
+use Artisan;
 
 //@TODO: сделать дебаг мод
 //@TODO: разделить на классы слежку группы и лайки
@@ -47,9 +49,14 @@ class Kernel extends ConsoleKernel
 	   
 		// Слежка группы на бан
 		if (config('app.debug')) {
-			$schedule->command('GroupSeek')->everyMinute();
+			// Так потому, что если вызывать комманду, логи пропадают
+			$schedule->call(function () {
+				Artisan::call('GroupSeek');
+			})->everyMinute();
 		} else {
-			$schedule->command('GroupSeek')->everyFiveMinutes();
+			$schedule->call(function () {
+				Artisan::call('GroupSeek');
+			})->everyFiveMinutes();
 		}
 		
 		/* // Лайки
@@ -128,7 +135,7 @@ class Kernel extends ConsoleKernel
 	
 	private function seekLikes($job) {
 		$jobData = json_decode($job->data, true);
-		$user = \App\User::with('role')->find($job->user_id);
+		$user = User::with('role')->find($job->user_id);
 		$vkApi = new VkApi($user->vk_token);
 		$isFinish = true;
 		$now = Carbon::now();

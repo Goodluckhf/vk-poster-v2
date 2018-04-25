@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\Api\NotFound;
 use Request;
 use DB;
+use App\Models\{User, Job};
 
 class Account extends Api {
 	protected $_controllerName = 'Account';
 	
 	public function get() {
 		$this->_methodName = 'get';
-		$this->checkAuth(\App\User::ADMIN);
-		$users = \App\User::with('role')
-			->where('role_id', '>', \App\User::ADMIN)
+		$this->checkAuth(User::ADMIN);
+		$users = User::with('role')
+			->where('role_id', '>', User::ADMIN)
 			->orderBy('role_id', 'asc')
 			->orderBy('created_at', 'asc');
 			
@@ -33,12 +34,12 @@ class Account extends Api {
 	
 	public function activate() {
 		$this->_methodName = 'activate';
-		$this->checkAuth(\App\User::ADMIN);
+		$this->checkAuth(User::ADMIN);
 		$arNeed = [
 			'id' => 'required|integer'
 		];
 		$this->checkAttr($arNeed);
-		$user = \App\User::find(Request::get('id'));
+		$user = User::find(Request::get('id'));
 		
 		if (! $user) {
 			throw new NotFound($this->_controllerName, $this->_methodName);
@@ -50,12 +51,12 @@ class Account extends Api {
 	
 	public function deactivate() {
 		$this->_methodName = 'deactivate';
-		$this->checkAuth(\App\User::ADMIN);
+		$this->checkAuth(User::ADMIN);
 		$arNeed = [
 			'id' => 'required|integer'
 		];
 		$this->checkAttr($arNeed);
-		$user = \App\User::find(Request::get('id'));
+		$user = User::find(Request::get('id'));
 		
 		if (! $user) {
 			throw new NotFound($this->_controllerName, $this->_methodName);
@@ -67,13 +68,13 @@ class Account extends Api {
 	
 	public function update() {
 		$this->_methodName = 'update';
-		$this->checkAuth(\App\User::ADMIN);
+		$this->checkAuth(User::ADMIN);
 		$arNeed = [
 			'id' => 'required|integer',
 			'likes_count' => 'integer'
 		];
 		$this->checkAttr($arNeed);
-		$user = \App\User::find(Request::get('id'));
+		$user = User::find(Request::get('id'));
 		
 		if (! $user) {
 			throw new NotFound($this->_controllerName, $this->_methodName);
@@ -99,15 +100,15 @@ class Account extends Api {
 	 */
 	public function getSettings() {
 		$this->_methodName = 'getSettings';
-		$this->checkAuth(\App\User::ADMIN);
+		$this->checkAuth(User::ADMIN);
 		$this->_data['settings'] = DB::table('settings')->first();
-		$this->_data['disabled_likes'] = \App\Job::countDisabledLikes();
+		$this->_data['disabled_likes'] = Job::countDisabledLikes();
 		return $this;
 	}
 	
 	public function updateSettings() {
 		$this->_methodName = 'getSettings';
-		$this->checkAuth(\App\User::ADMIN);
+		$this->checkAuth(User::ADMIN);
 		$this->checkAttr([
 			'likes_count' => 'required|integer'
 		]);
@@ -126,13 +127,13 @@ class Account extends Api {
 	 */
 	public function activateFor() {
 		$this->_methodName = 'activateFor';
-		$this->checkAuth(\App\User::ADMIN);
+		$this->checkAuth(User::ADMIN);
 		$arNeed = [
 			'id' => 'required|integer',
 			'days' => 'required|integer'
 		];
 		$this->checkAttr($arNeed);
-		$user = \App\User::find(Request::get('id'));
+		$user = User::find(Request::get('id'));
 		$this->activateUser($user);
 		return $this;
 	}

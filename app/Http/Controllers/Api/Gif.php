@@ -1,8 +1,14 @@
 <?php
 namespace App\Http\Controllers\Api;
+
 use Request;
-use App\Vk\VkApi;
 use Log;
+use App\Vk\VkApi;
+use App\Exceptions\Api\ParamsBad;
+use App\Models\{
+	Gif as GifModel,
+	User,
+};
 
 class Gif extends Api {
 	protected $_controllerName = 'Gif';
@@ -24,7 +30,7 @@ class Gif extends Api {
 			'thumb'    => 'required'
 		]);
 		
-		$newGif = new \App\Gif;
+		$newGif = new GifModel;
 		$newGif->populateByRequest(Request::all());
 		$newGif->save();
 		
@@ -34,7 +40,7 @@ class Gif extends Api {
 	public function postRandom() {
 		$this->_methodName = 'postRandom';
 		
-		$this->checkAuth(\App\User::ACTIVATED);
+		$this->checkAuth(User::ACTIVATED);
 		$this->checkAttr([
 			'group_id' => 'required|integer',
 			'dates' => 'required|array'
@@ -49,7 +55,7 @@ class Gif extends Api {
 			);
 		}
 		
-		$gifs = \App\Gif::inRandomOrder()
+		$gifs = Gif::inRandomOrder()
 			->take($datesCount)
 			->get();
 		

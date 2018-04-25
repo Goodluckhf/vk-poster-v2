@@ -1,0 +1,42 @@
+<?php
+
+use \App\Models\User;
+
+class UserTest extends TestCase {
+	
+	public function setUp() {
+		parent::setUp();
+		$this->resetSqlite();
+		
+		Artisan::call('migrate', [
+			'--database' => 'sqlite',
+			'--seed'     => true
+		]);
+	}
+	
+	public function testDefaultRoleUserIsInActive() {
+		$user = factory(User::class)->make();
+		$this->assertEquals(User::USER, $user->role_id);
+	}
+	
+	public function testUserCanBeActivated() {
+		$user = factory(User::class)->make();
+		$user->activate();
+		$this->assertEquals(User::ACTIVATED, $user->role_id);
+	}
+	
+	public function testUserCanBeDeactivated() {
+		$user = factory(User::class)->make();
+		$user->activate();
+		$user->deactivate();
+		$this->assertEquals(User::USER, $user->role_id);
+	}
+	
+	public function testIsAdminReturbTrueOnlyIfUserIsAdmin() {
+		$user = factory(User::class)->make();
+		$this->assertFalse($user->isAdmin());
+		$user->role_id = USER::ADMIN;
+		$this->assertTrue($user->isAdmin());
+	}
+	
+}

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\Api\AuthRequire;
-use App\Exceptions\Api\ParamsBad;
-use App\Exceptions\Api\AuthBadPermission;
+use App\Exceptions\Api\{
+	AuthRequire,
+	ParamsBad,
+	AuthBadPermission,
+	CaptchaFail
+};
 use Validator;
 use Request;
 use Auth;
@@ -64,7 +67,7 @@ class Api extends \App\Http\Controllers\Controller {
 		curl_close($curl);
 		$data = (array) json_decode($result);
 		if(!$data['success']) {
-			throw new \App\Exceptions\Api\CaptchaFail($this->_controllerName, $this->_methodName);
+			throw new CaptchaFail($this->_controllerName, $this->_methodName);
 		}
 	}
 	
@@ -72,25 +75,29 @@ class Api extends \App\Http\Controllers\Controller {
 		$validator = Validator::make(Request::all(), $attrs);
 		
 		if ($validator->fails()) {
-			throw new ParamsBad($this->_controllerName, $this->_methodName, $validator->messages()->all());
+			throw new ParamsBad(
+				$this->_controllerName,
+				$this->_methodName,
+				$validator->messages()->all()
+			);
 		}
 	}
 	
 	protected function getGUID(){
 		if (function_exists('com_create_guid')){
 			return com_create_guid();
-		}else{
-			mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.
-			$charid = strtoupper(md5(uniqid(rand(), true)));
-			$hyphen = chr(45);// "-"
-			$uuid = substr($charid, 0, 8).$hyphen
-				.substr($charid, 8, 4).$hyphen
-				.substr($charid,12, 4).$hyphen
-				.substr($charid,16, 4).$hyphen
-				.substr($charid,20,12);
-				
-			return $uuid;
 		}
+		
+		mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.
+		$charid = strtoupper(md5(uniqid(rand(), true)));
+		$hyphen = chr(45);// "-"
+		$uuid = substr($charid, 0, 8).$hyphen
+			.substr($charid, 8, 4).$hyphen
+			.substr($charid,12, 4).$hyphen
+			.substr($charid,16, 4).$hyphen
+			.substr($charid,20,12);
+			
+		return $uuid;
 	}
 	
 	public function toArray() {

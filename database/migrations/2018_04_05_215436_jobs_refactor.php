@@ -13,8 +13,8 @@ class JobsRefactor extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->text('data');
-            $table->integer('user_id');
+            $table->text('data')->nullable();
+            $table->integer('user_id')->nullable();
             
             $table->index(['type', 'user_id', 'is_finish']);
         });
@@ -28,9 +28,10 @@ class JobsRefactor extends Migration
     public function down()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('data');
-            $table->dropColumn('user_id');
-            
+            $table->dropColumn(['data', 'user_id']);
+        });
+        
+        Schema::table('jobs', function (Blueprint $table) {
             $table->dropIndex('jobs_type_user_id_is_finish_index');
         });
     }

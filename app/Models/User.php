@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -24,6 +24,10 @@ class User extends Authenticatable {
 		'likes_count' => 'integer'
 	];
 	
+	protected $attributes = [
+		'role_id' => self::USER
+	];
+	
 	/**
 	 * The attributes that should be hidden for arrays.
 	 *
@@ -34,7 +38,7 @@ class User extends Authenticatable {
 	];
 	
 	public function role() {
-		return $this->belongsTo('App\Role');
+		return $this->belongsTo('App\Models\Role');
 	}
 	
 	public static function getFullRelated(User $user) {

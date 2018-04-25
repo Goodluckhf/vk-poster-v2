@@ -1,15 +1,24 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use Auth as AuthManager;
 use Request;
 use Hash;
-use App\Exceptions\Api\AuthAlready;
-use App\Exceptions\Api\AuthFail;
-use App\Exceptions\Api\TokenFail;
-use App\Exceptions\Api\TokenInactive;
-use App\Exceptions\Api\TokenTooMuch;
 use Mail;
+use App\Exceptions\Api\{
+	AuthAlready,
+	AuthFail,
+	VkAuthFail,
+	TokenFail,
+	TokenInactive,
+	TokenTooMuch,
+};
+
+use App\Models\{
+	User,
+	EmailCheck
+};
 
 
 class Auth extends Api {
@@ -44,7 +53,7 @@ class Auth extends Api {
 		}
 		
 		$user = AuthManager::user();
-		$this->_data = \App\User::getFullRelated($user);
+		$this->_data = User::getFullRelated($user);
 		
 		return $this;
 	}
@@ -52,7 +61,7 @@ class Auth extends Api {
 	public function logout() {
 		$this->_methodName = 'logout';
 		
-		if (!AuthManager::check()) {
+		if (! AuthManager::check()) {
 			throw new AuthRequire($this->_controllerName, $this->_methodName);
 		}
 		
@@ -73,7 +82,7 @@ class Auth extends Api {
 		$this->_methodName = 'getUser';
 		$this->checkAuth();
 		$user = AuthManager::user();
-		$this->_data = \App\User::getFullRelated($user);
+		$this->_data = User::getFullRelated($user);
 		return $this;
 	}
 	
@@ -87,7 +96,7 @@ class Auth extends Api {
 		
 		$this->checkAttr($arNeed);
 		$this->checkCaptcha(Request::get('g-recaptcha-response'));
-		$email = \App\EmailCheck::whereEmail(Request::get('email'))
+		$email = EmailCheck::whereEmail(Request::get('email'))
 				->orderBy('email', 'DESC')
 				->first();
 		
@@ -99,7 +108,7 @@ class Auth extends Api {
 		
 		$token = $this->getGUID();
 		
-		$newEmail        = new \App\EmailCheck;
+		$newEmail        = new EmailCheck;
 		$newEmail->email = Request::get('email');
 		$newEmail->token = $token;
 		$newEmail->save();
@@ -128,7 +137,7 @@ class Auth extends Api {
 		];
 		
 		$this->checkAttr($arNeed);
-		$email = \App\EmailCheck::whereEmail(Request::get('email'))
+		$email = EmailCheck::whereEmail(Request::get('email'))
 				->whereToken(Request::get('post_code'))
 				->first();
 		
@@ -140,9 +149,9 @@ class Auth extends Api {
 			throw new TokenInactive($this->_controllerName, $this->_methodName);
 		}
 		
-		$user           = new \App\User;
+		$user           = new User;
 		$user->email    = Request::get('email');
-		$user->role_id  = \App\User::USER;
+		$user->role_id  = User::USER;
 		$user->password = Hash::make(Request::get('password'));
 		
 		if(Request::has('name')) {
@@ -155,7 +164,7 @@ class Auth extends Api {
 			'password' => Request::get('password')
 		], 1);
 		
-		$this->_data = \App\User::getFullRelated($user);
+		$this->_data = User::getFullRelated($user);
 		
 		return $this;
 	}
@@ -173,7 +182,7 @@ class Auth extends Api {
 		
 		$result = (array)json_decode($res);
 		if(! isset($result['access_token'])) {
-			throw new \App\Exceptions\Api\VkAuthFail($this->_controllerName, $this->_methodName);
+			throw new VkAuthFail($this->_controllerName, $this->_methodName);
 		}
 		
 		//Используется на клиенте поэтому не через laravel
