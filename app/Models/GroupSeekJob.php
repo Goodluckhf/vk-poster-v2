@@ -10,8 +10,10 @@ use App\Models\{
 	User,
 	Job
 };
+use App;
 use App\Vk\VkApi;
 use Sunra\PhpSimple\HtmlDomParser;
+use App\Exceptions\Models\GroupSeekFailException;
 
 // Фикс такой
 // текущая версия laravel не совсем совместима с php
@@ -62,8 +64,6 @@ class GroupSeekJob extends Model {
 		return $newJob;
 	}
 	
-	
-	
 	public function seek() {
 		Log::info('start check post job_id: ', [$this->id]);
 		$user  = User::find($this->job->user_id);
@@ -80,34 +80,11 @@ class GroupSeekJob extends Model {
 			'v'        => 5.40
 		]);
 		
-		if (isset($wallRequest['error'])) {
-			$wallReqErr = $wallRequest['error'];
-			$errMessage = "error (group_id: {$this->group_id}): {$wallReqErr['error_code']}. msg: {$wallReqErr['error_msg']}";
-			
-			Log::error($errMessage);
-			
-			Helper::sendSeekMail([
-				'title'     => 'Слежка: ошибка VK',
-				'postText'  => $errMessage,
-				'userEmail' => $user->email
-			]);
-			
-			return $this->job->finish();
-		}
-		
 		$wall = $wallRequest['response'];
 		
-		for ($i = 0; $i < $this->job->count; $i++) {
+		for ($i = 0; $i < $this->count; $i++) {
 			$vkPost = $wallRequest['response']['items'][$i];
-			if(! $this->checkPost($vkPost)) {
-				Helper::sendSeekMail([
-					'title'     => 'Слежка: Ссылку забанили!',
-					'postText'  => $vkPost['text'],
-					'userEmail' => $user->email
-				]);
-				
-				$job->finish();
-			}
+			$this->checkPost($vkPost);
 		}
 	}
 	
@@ -163,7 +140,7 @@ class GroupSeekJob extends Model {
 			
 			if (! isset($link[0])) {
 				Log::info('Слежка: Нет ссылки');
-				return true;
+				return;
 			}
 			
 			$link = $link[0];
@@ -178,20 +155,20 @@ class GroupSeekJob extends Model {
 		$response = $httpClient->request(
 			'GET',
 			$vkChekLink, [
-				'headers' => [
-					'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0'
+				'allow_redirects' => false,
+				'headers'         => [
+					'User-Agent'  => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0'
 				]
 			]
 		);
 		
 		if ($response->getStatusCode() === 200) {
-			Log::error('ссылку забанили: ', [
-				'post_id' => $post['id'],
-				'group_id' => $post['to_id']
-			]);
-			return false;
+			throw new GroupSeekFailException(
+				'Cсылку забанили',
+				$post['id'],
+				$post['to_id'],
+				$post['text']
+			);
 		}
-		
-		return true;
 	}
 }

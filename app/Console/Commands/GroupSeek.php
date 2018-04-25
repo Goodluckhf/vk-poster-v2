@@ -7,8 +7,10 @@ use Carbon\Carbon;
 use App\Vk\VkApi;
 use Log;
 use Mail;
-use \App\Models\GroupSeekJob;
-use \App\Helpers\Helper;
+use App\Models\GroupSeekJob;
+use App\Helpers\Helper;
+use App\Exceptions\VkApiException;
+use App\Exceptions\Models\GroupSeekFailException;
 
 
 class GroupSeek extends Command {
@@ -34,9 +36,34 @@ class GroupSeek extends Command {
 	 */
 	public function handle() {
 		$jobs = GroupSeekJob::active()->get();
-		$this->info('herer', [$jobs->toArray()]);
 		foreach ($jobs as $job) {
-			$job->seek();
+			try {
+				$job->seek();
+			} catch (VkApiException $e) {
+				$jsonErr = $e->toJson(true);
+				Log::error('GroupSeekJob vkApi error: ', [$jsonErr]);
+				
+				$errMessage = "error (group_id: {$job->group_id}): {$e->getStatusCode()}. msg: {$jsonErr}";
+				
+				Helper::sendSeekMail([
+					'title'     => 'Слежка: ошибка VK',
+					'postText'  => $errMessage,
+					'userEmail' => $job->job->user->email
+				]);
+				
+				$job->job->finish();
+			} catch (GroupSeekFailException $e) {
+				$jsonErr = $e->toJson(true);
+				Log::error('ссылку забанили: ', [$jsonErr]);
+				
+				Helper::sendSeekMail([
+					'title'     => 'Слежка: Ссылку забанили!',
+					'postText'  => $jsonErr,
+					'userEmail' => $job->job->user->email
+				]);
+				
+				$job->job->finish();
+			}
 		}
 	}
 }

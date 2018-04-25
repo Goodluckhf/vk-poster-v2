@@ -9,6 +9,7 @@ use App\Vk\VkApi;
 use App\Models\User;
 use Log;
 use Mail;
+use Artisan;
 
 //@TODO: сделать дебаг мод
 //@TODO: разделить на классы слежку группы и лайки
@@ -48,9 +49,14 @@ class Kernel extends ConsoleKernel
 	   
 		// Слежка группы на бан
 		if (config('app.debug')) {
-			$schedule->command('GroupSeek')->everyMinute();
+			// Так потому, что если вызывать комманду, логи пропадают
+			$schedule->call(function () {
+				Artisan::call('GroupSeek');
+			})->everyMinute();
 		} else {
-			$schedule->command('GroupSeek')->everyFiveMinutes();
+			$schedule->call(function () {
+				Artisan::call('GroupSeek');
+			})->everyFiveMinutes();
 		}
 		
 		/* // Лайки
