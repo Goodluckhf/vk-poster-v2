@@ -37,9 +37,6 @@ build:
       - vendor/
     when: on_success
     expire_in: 30 mins
-  only:
-    - master
-    - refactoring
 
 unit-tests:
   stage: test
@@ -51,9 +48,6 @@ unit-tests:
     - docker exec poster php artisan config:clear
     - docker exec poster vendor/bin/phpunit
     - docker-compose -f compose.base.yml -f compose.prod.yml down -v
-  only:
-    - master
-    - refactoring
       
 deploy:
   stage: deploy
