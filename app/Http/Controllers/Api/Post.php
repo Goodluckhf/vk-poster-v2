@@ -233,7 +233,6 @@ class Post extends Api {
 		}
 		
 		try {
-			Log::info('post', [$newPost]);
 			$result = $vk->uploadImages($newPost->images);
 			
 			$resPost = $vk->post(
