@@ -43,9 +43,8 @@ var VKAuthService = (new function () {
 			return true;
 		}
 		else {
-			window.open("https://oauth.vk.com/authorize?client_id=&display=popup&scope=offline,wall,photos,docs&response_type=code&v=5.40&redirect_uri=https://oauth.vk.com/blank.html");
+			window.open("https://oauth.vk.com/authorize?client_id=5180832&display=popup&scope=offline,wall,photos,docs&response_type=code&v=5.40&redirect_uri=https://oauth.vk.com/blank.html");
 			return false;
-			//5180832
 		}
 	};
 	//262144 + 4 + 8192

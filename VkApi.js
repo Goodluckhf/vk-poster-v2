@@ -4,7 +4,6 @@ const Promise  = require('bluebird');
 const lib      = require('./lib');
 const fs       = Promise.promisifyAll(require('fs'));
 
-const vkApiVersion = '3.0';
 const vkApiUrl = 'https://api.vk.com/method';
 
 class VkApi {
@@ -22,33 +21,22 @@ class VkApi {
 		
 		const form           = opts.data || {};
 		form['access_token'] = this._token;
-		///
-		form['v'] = opts.vkApiVersion ? opts.vkApiVersion : '5.74';
-		///
 		requestData['form']  = form;
 		
 		if (opts.onProgress) {
 			requestData[onProgress] = opts.onProgress;
 		}
-		//console.log();
-		//console.log('Api request into ' + requestData.uri + ' | ' + requestData.method);
 		
 		return lib.rp(requestData);
 	};
 	
 	async getuploadUrl() {
-		console.log();
-		console.log('Getting upload url');
 		const result = await this.apiRequest('docs.getUploadServer');
-		//console.log(result);
 		return JSON.parse(result).response.upload_url;
 	};
 	
 	async sendFile(opts) {
 		const stat = await fs.statAsync(opts.file);
-		//console.log();
-		//console.log(opts.file);
-		//console.log();
 		const reqData = {
 			uri    : opts.url,
 			method : 'post',
@@ -56,8 +44,6 @@ class VkApi {
 				file : fs.createReadStream(opts.file),
 			},
 		};
-
-		//console.log('reqData' +  reqData);
 		
 		if (opts.onProgress) {
 			reqData.onProgress = (sent, speed) => {
@@ -73,18 +59,13 @@ class VkApi {
 				});
 			};
 		}
-		//console.log('');
-		//console.log('Uploading result:');
+		
 		const uploadResult = await lib.rp(reqData);
-		console.log(uploadResult);
+		
 		try {
-			//console.log('');
-			//console.log('Try send');
 			const jsonRes = JSON.parse(uploadResult);
-			//console.log('Sent: ' + jsonRes.file);
 			return jsonRes.file;
 		} catch (error) {
-			console.log('Send error');
 			console.log(error, uploadResult);
 		}
 	};
@@ -105,8 +86,7 @@ class VkApi {
 		}
 		
 		return this.apiRequest('docs.save', {
-			data : data,
-			vkApiVersion : '3'
+			data : data
 		});
 	};
 }
