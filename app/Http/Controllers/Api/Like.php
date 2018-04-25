@@ -23,6 +23,7 @@ class Like extends Api {
 	
 	/**
 	 * Создания joba для отслеживания лайков
+	 * @TODO: сделать по подобию GroupSeekJob
 	 */
 	public function seek() {
 		$this->_methodName = 'seek';
@@ -31,7 +32,7 @@ class Like extends Api {
 			'group_id'      => 'required|integer',
 			'groups'        => 'required|array',
 		]);
-		
+		throw new LikesNotEnough($this->_controllerName, $this->_methodName);
 		$groups = [];
 		
 		foreach (Request::get('groups') as $group) {
@@ -96,6 +97,7 @@ class Like extends Api {
 	public function getInfo() {
 		$this->_methodName = 'getInfo';
 		$this->checkAuth(User::ACTIVATED);
+		throw new NotFound($this->_controllerName, $this->_methodName);
 		
 		$jobs = Job::findByUserId(Auth::id(), self::JOB_TYPE);
 		
@@ -118,7 +120,7 @@ class Like extends Api {
 	public function getLast() {
 		$this->_methodName = 'getLast';
 		$this->checkAuth(User::ACTIVATED);
-		
+		throw new NotFound($this->_controllerName, $this->_methodName);
 		$lastActualJob = Job::findLastActualJob(Auth::id());
 		
 		if (! $lastActualJob) {
@@ -137,7 +139,7 @@ class Like extends Api {
 		$this->checkAttr([
 			'id' => 'required'
 		]);
-		
+		throw new NotFound($this->_controllerName, $this->_methodName);
 		$job = Job::find(Request::get('id'));
 		
 		if(! $job) {
