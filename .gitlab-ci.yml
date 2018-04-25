@@ -52,6 +52,7 @@ unit-tests:
 deploy:
   stage: deploy
   script:
+    - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.prod.yml pull
     - docker-compose -f compose.base.yml -f compose.prod.yml build
     - docker-compose -f compose.base.yml -f compose.prod.yml push
