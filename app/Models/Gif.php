@@ -10,8 +10,7 @@ class Gif extends Model {
 	protected $casts = [
 		'id'       => 'integer',
 		'doc_id'   => 'integer',
-		'owner_id' => 'integer',
-		'user_id'  => 'integer'
+		'owner_id' => 'integer'
 	];
 	
 	public function populateByRequest($request) {
@@ -20,7 +19,5 @@ class Gif extends Model {
 		$this->title    = $request['title'];
 		$this->doc_id   = $request['doc_id'];
 		$this->owner_id = $request['owner_id'];
-		//
-		$this->user_id  = $request['user_id'];
 	}
 }

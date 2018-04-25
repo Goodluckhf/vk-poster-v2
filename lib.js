@@ -9,8 +9,6 @@ const roundToPlace = (number, place) => {
 }; 
 
 const rp = (opts) => {
-	//console.log(opts);
-
 	return new Promise((resolve, reject) => {
 		let timer;
 		const method = ''.toLowerCase.call(opts.method || 'post');
@@ -18,15 +16,12 @@ const rp = (opts) => {
 			if (opts.onProgress) {
 				clearInterval(timer);
 			}
-			console.log();
-			console.log('----------------body----------------');
-			console.log(body);
 			
 			if (error) {
 				return reject({
 					error,
 					body,
-					response
+					reponse
 				});
 			}
 			
