@@ -18,7 +18,7 @@ class VkApiException extends BaseException {
 	
 	public function toArray() {
 		$parentArr         = parent::toArray();
-		$parentArr['body'] = $body;
+		$parentArr['body'] = $this->getbody();
 		return $parentArr;
 	}
 }
