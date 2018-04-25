@@ -21,9 +21,27 @@ services:
         - registry.gitlab.com/just1ce/poster/nginx:dev
     volumes:
       - ./:/var/www:cached
+#    networks:
+#      - backbone
   phpmyadmin:
     environment:
       - PMA_USER=${DB_USERNAME}
       - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - 81:80
+  node:
+    image: "node:9"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/node/app
+    container_name: "node"
+    command: "npm start"
+#    networks:
+#      - backbone
+#    expose:
+#      - 8080
+#networks:
+#  backbone:
+#    driver: bridge
