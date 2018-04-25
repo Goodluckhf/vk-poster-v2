@@ -8,6 +8,7 @@ const gifPath       = './gifs/';
 const _token        = 'bb4b7eff46af950564f72c3b66e78e3441ed9a7da342c6c37167d2f7b023e356b27ab9d1b87b880611db0';
 const captchaAPIKey = '2f54bb2ffb6a092f725a35366deed8f2';
 const apiUrl        = 'http://web:80/api/';
+const conf = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 const taskUploadGif = async (title) => {
 	const vkApi = new VkApi(_token);
@@ -77,7 +78,7 @@ const taskUploadGif = async (title) => {
 	*/
 
 	console.log();
-	console.log(apiUrl + 'Gif.add:');
+	console.log(apiUrl + 'Gif.add');
 	const apiResult = await lib.rp({
 		method : 'post',
 		uri    : apiUrl + 'Gif.add',
@@ -86,7 +87,9 @@ const taskUploadGif = async (title) => {
 			owner_id : savedFile['owner_id'],
 			title    : title,
 			url      : savedFile['url'],
-			thumb    : savedFile['thumb']
+			thumb    : savedFile['thumb'],
+			//
+			user_id	 : conf['user_id']
 		}
 	});
 };
@@ -160,7 +163,7 @@ const loopTask = async (gif) => {
 	} catch (error) {
 		if (error.response) {
 			console.log('----------body-------------');
-			console.log(error.response.body);
+			console.log(error.response.body.error);
 			return console.log('status> ', error.response.statusCode);
 		}
 		

@@ -22,14 +22,16 @@ class VkApi {
 		
 		const form           = opts.data || {};
 		form['access_token'] = this._token;
-		form['v'] = vkApiVersion;
+		///
+		form['v'] = opts.vkApiVersion ? opts.vkApiVersion : '5.74';
+		///
 		requestData['form']  = form;
 		
 		if (opts.onProgress) {
 			requestData[onProgress] = opts.onProgress;
 		}
-		console.log();
-		console.log('Api request into ' + requestData.uri + ' | ' + requestData.method);
+		//console.log();
+		//console.log('Api request into ' + requestData.uri + ' | ' + requestData.method);
 		
 		return lib.rp(requestData);
 	};
@@ -71,15 +73,15 @@ class VkApi {
 				});
 			};
 		}
-		console.log('');
-		console.log('Uploading result:');
+		//console.log('');
+		//console.log('Uploading result:');
 		const uploadResult = await lib.rp(reqData);
 		console.log(uploadResult);
 		try {
-			console.log('');
-			console.log('Try send');
+			//console.log('');
+			//console.log('Try send');
 			const jsonRes = JSON.parse(uploadResult);
-			console.log('Sent: ' + jsonRes.file);
+			//console.log('Sent: ' + jsonRes.file);
 			return jsonRes.file;
 		} catch (error) {
 			console.log('Send error');
@@ -103,7 +105,8 @@ class VkApi {
 		}
 		
 		return this.apiRequest('docs.save', {
-			data : data
+			data : data,
+			vkApiVersion : '3'
 		});
 	};
 }
