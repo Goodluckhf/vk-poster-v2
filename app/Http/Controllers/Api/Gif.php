@@ -55,7 +55,7 @@ class Gif extends Api {
 		
 		//$user_id = Request::get('user_id');
 		//$user_id = Auth()->getUser()['vk_user_id'];
-		$user_id = Auth::id();
+		$user_id = Auth::user()->vk_user_id;
 
 		$gifs = \App\Gif::inRandomOrder()
 			->where('user_id', $user_id)
