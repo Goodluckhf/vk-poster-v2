@@ -64,15 +64,41 @@ class Gif extends Api {
 		#doc<owner_id>_<doc_id>
 		$vkPostData = [];
 		foreach ($gifs as $key => $gif) {
-			'owner_id' => (-1) * Request::get('group_id'),
-			'from_group' => '1',
-			'attachments' => 'doc'.$gif['owner_id'].'_'.$gif['doc_id'],
-			'publish_date' => $dates[$key]
+			$tmp = []
+			$tmp['owner_id'] 	=> Request::get('group_id') * (-1);
+			$tmp['attachments']  => 'doc'.$gif['owner_id'].'_'.$gif['doc_id'];
+			$tmp['publish_date'] => $dates[$key];
+			$tmp['from_group']   => '1';
+
+			$vkPostData.add($tmp);
 		}
+		/*
+		$vkPostData = [];
+		foreach ($gifs as $key => $gif) {
+			$tmp = []
+			$tmp['owner_id'] 	=> Request::get('group_id') * (-1);
+			$tmp['attachments']  => 'doc'.$gif['owner_id'].'_'.$gif['doc_id'];
+			$tmp['publish_date'] => $dates[$key];
+			$tmp['from_group']   => '1';
+
+			$vkPostData.add($tmp);
+		}
+
+		vkpostdata = [
+			[owner=>a, attach=>b, ...],
+			[owner=>x, attach=>y, ...],
+			...
+		]
+		callApi плюнет на такой массив
+		или нет?
+		http_build_query сделает ?0[asd]=asd&0[sasd]
+		просто их слепить?
+
+		*/
 
 		$vkApi = new VkApi($_COOKIE['vk-token']);
 		$res = $vkApi->callApi('wall.post',$vkPostsData);
-		
+
 		/*
 		$vkPostsStr = '';
 		foreach ($gifs as $key => $gif) {
