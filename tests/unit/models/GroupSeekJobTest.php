@@ -2,6 +2,7 @@
 
 use \App\Models\{
 	Job,
+	User,
 	GroupSeekJob
 };
 use Illuminate\Database\Schema\Blueprint;
@@ -62,15 +63,37 @@ class GroupSeekJobTest extends TestCase {
 		$this->assertEquals(123, $findedJob->group_id);
 	}
 	
-	/*public function checkPostTextHasNotBannedLink() {
-		$vkApi = $this->mock(App::make('VkApi'));
+	public function testFinishJobIfUserNotExist() {
+		$job = GroupSeekJob::create([
+			'count'   => 2,
+			'groupId' => 123,
+			'userId'  => 123221
+		]);
+		
+		$job->seek();
+		$this->assertEquals(1, $job->job->is_finish);
+	}
+	
+	public function testCheckPostJobShouldNotFinishedIfThereIsnoLink() {
+		$user = factory(User::class)->create();
+		$job = GroupSeekJob::create([
+			'count'   => 1,
+			'groupId' => 123,
+			'userId'  => $user->id
+		]);
+		
+		$vkApi = Mockery::mock(App::make('VkApi', ['token']));
+		App::instance('VkApi', $vkApi);
 		$vkApi->shouldReceive('callApi')
-			->with('wall.get')
+			->with('wall.get', Mockery::any())
 			->andReturn(['response' => ['items' => [
 				[
-					
+					'text' => 'tyt|lol.r--u| ssillka'
 				]
 			]]]);
-	}*/
+			
+		$job->seek();
+		$this->assertEquals(0, $job->job->is_finish);
+	}
 	
 }
