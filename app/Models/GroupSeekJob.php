@@ -34,7 +34,7 @@ class GroupSeekJob extends Model {
 		'group_id' => 'integer'
 	];
 	
-	const URL_PATTERN = "/(?:(?:http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(?:\/[a-z0-9-_]+\/?)*/i";
+	const URL_PATTERN = "/(?:(?:http|https):\/\/)?[a-z0-9-_.]+\.[a-z]{2,5}(?:\/[a-z0-9-_]+)*\/?/i";
 	
 	public function job() {
 		return $this->morphOne('\App\Models\Job', 'job');
@@ -73,7 +73,8 @@ class GroupSeekJob extends Model {
 			return $this->job->finish();
 		}
 		
-		$vkApi = new VkApi($user->vk_token);
+		$vkApi = App::make('VkApi', [$user->vk_token]);
+		
 		$wallRequest = $vkApi->callApi('wall.get', [
 			'owner_id' => $this->group_id,
 			'count'    => $this->count,
