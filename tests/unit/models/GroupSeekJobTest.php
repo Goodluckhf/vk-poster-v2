@@ -5,6 +5,17 @@ use \App\Models\{
 	User,
 	GroupSeekJob
 };
+
+use \App\Exceptions\{
+	VkApiException,
+	Models\GroupSeekFailException
+};
+
+use GuzzleHttp\{
+	Client,
+	Handler\MockHandler
+};
+
 use Illuminate\Database\Schema\Blueprint;
 
 class GroupSeekJobTest extends TestCase {
@@ -82,8 +93,8 @@ class GroupSeekJobTest extends TestCase {
 			'userId'  => $user->id
 		]);
 		
-		$vkApi = Mockery::mock(App::make('VkApi', ['token']));
-		App::instance('VkApi', $vkApi);
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$this->app->instance('VkApi', $vkApi);
 		$vkApi->shouldReceive('callApi')
 			->with('wall.get', Mockery::any())
 			->andReturn(['response' => ['items' => [
@@ -94,6 +105,122 @@ class GroupSeekJobTest extends TestCase {
 			
 		$job->seek();
 		$this->assertEquals(0, $job->job->is_finish);
+	}
+	
+	public function testJobShouldFinishIfVkApiThrowException() {
+		$user = factory(User::class)->create();
+		$job = GroupSeekJob::create([
+			'count'   => 1,
+			'groupId' => 123,
+			'userId'  => $user->id
+		]);
+		
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$this->app->instance('VkApi', $vkApi);
+		
+		$vkApi->shouldReceive('callApi')
+			->with('wall.get', Mockery::any())
+			->andThrow(VkApiException::class);
+		
+		$this->setExpectedException(VkApiException::class);
+		
+		$job->seek();
+		$this->assertEquals(1, $job->job->is_finish);
+	}
+	
+	public function testJobShouldFinishAndThrowExceptionIfLinkBanned() {
+		$user = factory(User::class)->create();
+		$job = GroupSeekJob::create([
+			'count'   => 1,
+			'groupId' => 123,
+			'userId'  => $user->id
+		]);
+		
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$vkApi->shouldReceive('callApi')
+			->with('wall.get', Mockery::any())
+			->andReturn(['response' => ['items' => [
+				[
+					'text'  => 'tyt|lol.ru| ssillka',
+					'id'    => 123,
+					'to_id' => 321
+				]
+			]]]);
+			
+		$this->app->instance('VkApi', $vkApi);
+		
+		$mock = new MockHandler([$this->makeResponse(200)]);
+		$httpRequest = new Client(['handler' => $mock]);
+		$this->app->instance('HttpRequest', $httpRequest);
+		
+		$this->setExpectedException(GroupSeekFailException::class);
+		$job->seek();
+		$this->assertEquals(1, $job->job->is_finish);
+	}
+	
+	public function testJobShouldNotFinishedIfLinkNotBanned() {
+		$user = factory(User::class)->create();
+		$job = GroupSeekJob::create([
+			'count'   => 1,
+			'groupId' => 123,
+			'userId'  => $user->id
+		]);
+		
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$vkApi->shouldReceive('callApi')
+			->with('wall.get', Mockery::any())
+			->andReturn(['response' => ['items' => [
+				[
+					'text'  => 'tyt|lol.ru| ssillka',
+					'id'    => 123,
+					'to_id' => 321
+				]
+			]]]);
+			
+		$this->app->instance('VkApi', $vkApi);
+		
+		$mock = new MockHandler([$this->makeResponse(301)]);
+		$httpRequest = new Client(['handler' => $mock]);
+		$this->app->instance('HttpRequest', $httpRequest);
+		
+		$job->seek();
+		$this->assertEquals(0, $job->job->is_finish);
+	}
+	
+	public function testJobShouldCheckLinkInAttachmentLink() {
+		$user = factory(User::class)->create();
+		$job = GroupSeekJob::create([
+			'count'   => 1,
+			'groupId' => 123,
+			'userId'  => $user->id
+		]);
+		
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$vkApi->shouldReceive('callApi')
+			->with('wall.get', Mockery::any())
+			->andReturn(['response' => ['items' => [
+				[
+					'id'    => 123,
+					'to_id' => 321,
+					'attachments' => [
+						[
+							'type' => 'link',
+							'link' => ['url' => 'lol.ru']
+						]
+					]
+				]
+			]]]);
+			
+		$this->app->instance('VkApi', $vkApi);
+		
+		$mock = new MockHandler([$this->makeResponse(200)]);
+		$httpRequest = new Client(['handler' => $mock]);
+		$this->app->instance('HttpRequest', $httpRequest);
+		
+		$this->setExpectedException(GroupSeekFailException::class);
+		
+		$job->seek();
+		$this->assertEquals(1, $job->job->is_finish);
 	}
 	
 }

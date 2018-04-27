@@ -168,7 +168,7 @@ class GroupSeekJob extends Model {
 				'Cсылку забанили',
 				$post['id'],
 				$post['to_id'],
-				$post['text']
+				$post['text'] ?? "link: {$link}"
 			);
 		}
 	}
