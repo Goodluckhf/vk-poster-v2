@@ -19,6 +19,9 @@ class JobRefactorPolymorph extends Migration
         Schema::table('jobs', function (Blueprint $table) {
             $table->string('job_type')->nullable();
             $table->integer('job_id')->nullable();
+        });
+            
+        Schema::table('jobs', function (Blueprint $table) {
             $table->dropColumn(['type', 'data']);
         });
         

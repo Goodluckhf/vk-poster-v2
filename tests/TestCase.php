@@ -1,4 +1,6 @@
 <?php
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Response;
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
@@ -23,7 +25,12 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
         return $app;
     }
     
-    public function resetSqlite() {
+    protected function resetSqlite() {
         file_put_contents( $this->app['db']->connection('sqlite')->getDatabaseName(), '');
     }
+    
+    protected function makeResponse(int $code = 200, array $headers = [], string $body = '{"ok": "ok"}') {
+		$stream = Psr7\stream_for($body);
+		return new Response($code, $headers, $stream);
+	}
 }

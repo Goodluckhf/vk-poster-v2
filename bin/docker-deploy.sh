@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#-env COLUMNS=`tput cols` --env LINES=`tput lines`
+
 #Цвета
 GREEN='\033[1;32m'
 NC='\033[0m'

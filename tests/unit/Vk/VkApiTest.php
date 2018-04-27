@@ -11,11 +11,6 @@ use App\Exceptions\VkApiResponseNotJsonException;
 
 class VkApiTest extends TestCase {
 	
-	private function makeResponse(int $code = 200, array $headers = [], string $body = '{"ok": "ok"}') {
-		$stream = Psr7\stream_for($body);
-		return new Response($code, $headers, $stream);
-	}
-	
 	//Метод callApi
 	public function testRequestHasCorrectParams() {
 		$mock = new MockHandler([$this->makeResponse()]);

@@ -41,11 +41,17 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-$app->configureMonologUsing(function($monolog) {
+$app->configureMonologUsing(function($monolog) use ($app){
     if (config('app.debug')) {
         $monolog->pushHandler(
         	new \Monolog\Handler\StreamHandler('php://stdout', \Monolog\Logger::DEBUG)
         );
+    }
+    
+    // Если тесты - выключаем логгирование
+    if ($app->environment('testing')) {
+        $nullLogger = new \Monolog\Handler\NullHandler();
+        $monolog->setHandlers(array($nullLogger));
     }
 });
 
