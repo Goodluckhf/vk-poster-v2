@@ -2,11 +2,13 @@ const VkApi   = require('./VkApi');
 const Promise = require('bluebird');
 const fs      = Promise.promisifyAll(require('fs'));
 const lib     = require('./lib');
+const readline = require('readline');
 
 const gifPath       = './gifs/';
-const _token        = '8ad59c39e12dd54444b130ace24f2110b7bc1db4def6de09c77851e7e1675dfe16eff2ce9919d5e3a8b51';
+const _token        = 'bb4b7eff46af950564f72c3b66e78e3441ed9a7da342c6c37167d2f7b023e356b27ab9d1b87b880611db0';
 const captchaAPIKey = '2f54bb2ffb6a092f725a35366deed8f2';
-const apiUrl        = 'http://new.poster.dev/api/';
+const apiUrl        = 'http://web:80/api/';
+const conf = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 const taskUploadGif = async (title) => {
 	const vkApi = new VkApi(_token);
@@ -16,17 +18,26 @@ const taskUploadGif = async (title) => {
 		file: `${gifPath}${title}.gif`, 
 		url : uploadUrl,
 		onProgress: function (progress) {
-			process.stdout.clearLine();
-			process.stdout.cursorTo(0);
+			//process.stdout.clearLine();
+			//process.stdout.cursorTo(0);
+			readline.cursorTo(0);
 			process.stdout.write(`Uploaded: ${progress.percent}% | size: ${progress.mbSent} / ${progress.mbSize} Mb | speed: ${progress.speed} Mb/sec |`);
 		}
 	});
+
+	//console.log('resultSendingFile' + resultSendingFile);
 	
 	let resSaveFile = await vkApi.saveFile({
 		uploadFile : resultSendingFile,
 		title      : title
 	});
+
+	//console.log('taskuploadgif.resSaveFile = ' + resSaveFile);
+
 	let jsonRes   = JSON.parse(resSaveFile);
+
+	//console.log(jsonRes);
+
 	const jsonErr = jsonRes['error'];
 	if (jsonErr) {
 		if (jsonErr['error_code'] !== 14) {
@@ -49,7 +60,25 @@ const taskUploadGif = async (title) => {
 	}
 	
 	const savedFile = jsonRes['response'][0];
-	
+	//console.log();
+	//console.log('Saved file :');
+	//console.log(savedFile.preview.photo);
+
+	/* 
+{ response: 
+ { id: 464403517,
+   owner_id: 223261420,
+   title: 'Shakal',
+   size: 559135,
+   ext: 'gif',
+   url: 'https://vk.com/doc223261420_464403517?hash=3e4d02faa0e498ad69&dl=GIZDGMRWGE2DEMA:1524494581:64c7d4ea525bd715e9&api=1&no_preview=1',
+   date: 1524494581,
+   type: 3,
+   preview: [Object] } ] }
+	*/
+
+	console.log();
+	console.log(apiUrl + 'Gif.add');
 	const apiResult = await lib.rp({
 		method : 'post',
 		uri    : apiUrl + 'Gif.add',
@@ -58,7 +87,9 @@ const taskUploadGif = async (title) => {
 			owner_id : savedFile['owner_id'],
 			title    : title,
 			url      : savedFile['url'],
-			thumb    : savedFile['thumb']
+			thumb    : savedFile['thumb'],
+			//
+			user_id	 : conf['user_id']
 		}
 	});
 };
@@ -127,8 +158,12 @@ const loopTask = async (gif) => {
 			await loopTask(gif);
 			console.log('\n__________');
 		}
+		console.log('------end try(()=>{})();------');
+
 	} catch (error) {
 		if (error.response) {
+			console.log('----------body-------------');
+			console.log(error.response.body.error);
 			return console.log('status> ', error.response.statusCode);
 		}
 		
