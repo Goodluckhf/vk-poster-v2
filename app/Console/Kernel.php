@@ -313,4 +313,14 @@ class Kernel extends ConsoleKernel
 		$job->is_finish = 1;
 		$job->save();
 	}
+	
+	/**
+     * Register the Closure based commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        require base_path('routes/console.php');
+    }
 }
