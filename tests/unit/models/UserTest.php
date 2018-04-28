@@ -1,19 +1,14 @@
 <?php
+namespace Tests\Unit\Models;
 
+use Tests\TestCase;
 use \App\Models\User;
+use \Artisan;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTest extends TestCase {
-	
-	public function setUp() {
-		parent::setUp();
-		$this->resetSqlite();
+	use RefreshDatabase;
 		
-		Artisan::call('migrate', [
-			'--database' => 'sqlite',
-			'--seed'     => true
-		]);
-	}
-	
 	public function testDefaultRoleUserIsInActive() {
 		$user = factory(User::class)->make();
 		$this->assertEquals(User::USER, $user->role_id);

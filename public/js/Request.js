@@ -49,6 +49,7 @@ var Request = (new function() {
 		console.log(requestObj);
 		
 		return $.ajax(requestObj).fail(function (e) {
+			console.log(e);
 			toastr["error"](e.responseJSON.message, 'Ошибка!');
 		});
 	};

@@ -95,6 +95,7 @@ class Like extends Api {
 	 * Получить информацию о джобах слежки лайков
 	 */
 	public function getInfo() {
+		
 		$this->_methodName = 'getInfo';
 		$this->checkAuth(User::ACTIVATED);
 		throw new NotFound($this->_controllerName, $this->_methodName);

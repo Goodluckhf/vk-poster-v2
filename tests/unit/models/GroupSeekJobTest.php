@@ -1,5 +1,9 @@
 <?php
+namespace Tests\Unit\Models;
 
+use Tests\TestCase;
+use Artisan;
+use Mockery;
 use \App\Models\{
 	Job,
 	User,
@@ -17,18 +21,10 @@ use GuzzleHttp\{
 };
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class GroupSeekJobTest extends TestCase {
-	
-	public function setUp() {
-		parent::setUp();
-		$this->resetSqlite();
-		
-		Artisan::call('migrate', [
-			'--database' => 'sqlite',
-			'--seed'     => true
-		]);
-	}
+	use RefreshDatabase;
 	
 	public function testUrlRegExpCanExtractUrl() {
 		preg_match(GroupSeekJob::URL_PATTERN, 'sasdhttp://lol.ru', $result);
@@ -93,8 +89,12 @@ class GroupSeekJobTest extends TestCase {
 			'userId'  => $user->id
 		]);
 		
-		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
-		$this->app->instance('VkApi', $vkApi);
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token' => 'token']));
+		
+		$this->app->bind('VkApi', function () use ($vkApi){
+			return $vkApi;
+		});
+		
 		$vkApi->shouldReceive('callApi')
 			->with('wall.get', Mockery::any())
 			->andReturn(['response' => ['items' => [
@@ -115,14 +115,16 @@ class GroupSeekJobTest extends TestCase {
 			'userId'  => $user->id
 		]);
 		
-		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
-		$this->app->instance('VkApi', $vkApi);
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token' => 'token']));
+		$this->app->bind('VkApi', function () use ($vkApi){
+			return $vkApi;
+		});
 		
 		$vkApi->shouldReceive('callApi')
 			->with('wall.get', Mockery::any())
 			->andThrow(VkApiException::class);
 		
-		$this->setExpectedException(VkApiException::class);
+		$this->expectException(VkApiException::class);
 		
 		$job->seek();
 		$this->assertEquals(1, $job->job->is_finish);
@@ -136,7 +138,7 @@ class GroupSeekJobTest extends TestCase {
 			'userId'  => $user->id
 		]);
 		
-		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token' => 'token']));
 		$vkApi->shouldReceive('callApi')
 			->with('wall.get', Mockery::any())
 			->andReturn(['response' => ['items' => [
@@ -147,13 +149,15 @@ class GroupSeekJobTest extends TestCase {
 				]
 			]]]);
 			
-		$this->app->instance('VkApi', $vkApi);
+		$this->app->bind('VkApi', function () use ($vkApi){
+			return $vkApi;
+		});
 		
 		$mock = new MockHandler([$this->makeResponse(200)]);
 		$httpRequest = new Client(['handler' => $mock]);
 		$this->app->instance('HttpRequest', $httpRequest);
 		
-		$this->setExpectedException(GroupSeekFailException::class);
+		$this->expectException(GroupSeekFailException::class);
 		$job->seek();
 		$this->assertEquals(1, $job->job->is_finish);
 	}
@@ -166,7 +170,7 @@ class GroupSeekJobTest extends TestCase {
 			'userId'  => $user->id
 		]);
 		
-		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token' => 'token']));
 		$vkApi->shouldReceive('callApi')
 			->with('wall.get', Mockery::any())
 			->andReturn(['response' => ['items' => [
@@ -177,7 +181,9 @@ class GroupSeekJobTest extends TestCase {
 				]
 			]]]);
 			
-		$this->app->instance('VkApi', $vkApi);
+		$this->app->bind('VkApi', function () use ($vkApi){
+			return $vkApi;
+		});
 		
 		$mock = new MockHandler([$this->makeResponse(301)]);
 		$httpRequest = new Client(['handler' => $mock]);
@@ -195,7 +201,7 @@ class GroupSeekJobTest extends TestCase {
 			'userId'  => $user->id
 		]);
 		
-		$vkApi = Mockery::mock($this->app->make('VkApi', ['token']));
+		$vkApi = Mockery::mock($this->app->make('VkApi', ['token' => 'token']));
 		$vkApi->shouldReceive('callApi')
 			->with('wall.get', Mockery::any())
 			->andReturn(['response' => ['items' => [
@@ -211,13 +217,15 @@ class GroupSeekJobTest extends TestCase {
 				]
 			]]]);
 			
-		$this->app->instance('VkApi', $vkApi);
+		$this->app->bind('VkApi', function () use ($vkApi){
+			return $vkApi;
+		});
 		
 		$mock = new MockHandler([$this->makeResponse(200)]);
 		$httpRequest = new Client(['handler' => $mock]);
 		$this->app->instance('HttpRequest', $httpRequest);
 		
-		$this->setExpectedException(GroupSeekFailException::class);
+		$this->expectException(GroupSeekFailException::class);
 		
 		$job->seek();
 		$this->assertEquals(1, $job->job->is_finish);

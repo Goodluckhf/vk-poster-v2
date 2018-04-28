@@ -1,19 +1,14 @@
 <?php
+namespace Tests\Unit\Models;
+use Tests\TestCase;
 
+use Artisan;
 use \App\Models\Job;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class JobTest extends TestCase {
-	
-	public function setUp() {
-		parent::setUp();
-		$this->resetSqlite();
+	use RefreshDatabase;
 		
-		Artisan::call('migrate', [
-			'--database' => 'sqlite',
-			'--seed'     => true
-		]);
-	}
-	
 	public function testNewJobIsNotFinishedByDefault() {
 		$job = new Job;
 		$this->assertEquals(0, $job->is_finish);
@@ -26,7 +21,7 @@ class JobTest extends TestCase {
 	}
 	
 	//После переезда на новый ларавел запустить этот тест
-	/*public function testActiveScopeQuery() {
+	public function testActiveScopeQuery() {
 		$job = new Job;
 		$job->save();
 		
@@ -39,8 +34,8 @@ class JobTest extends TestCase {
 		$jobs = Job::active()->get();
 		
 		$this->assertEquals(2, $jobs->count());
-		$this->assertFalse($jobs->search(function ($job) {
+		$this->assertFalse($jobs->search(function ($job) use ($job2) {
 			return $job->id === $job2->id;
 		}));
-	}*/
+	}
 }

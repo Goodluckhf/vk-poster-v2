@@ -8,7 +8,6 @@ services:
       dockerfile: ./docker-services/php-base/Dockerfile
     depends_on:
       - mysql
-    env_file: ./.env
     logging:    
       driver: "json-file"
       options:
@@ -23,7 +22,6 @@ services:
     depends_on:
       - mysql
       - app
-    env_file: ./.env
     logging:    
       driver: "json-file"
       options:
@@ -40,7 +38,6 @@ services:
       - 80:80
     depends_on:
       - app
-    env_file: ./.env
     logging:    
       driver: "json-file"
       options:
@@ -57,7 +54,6 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE}
     volumes:
       - mysql-data:/var/lib/mysql:cached
-    env_file: ./.env
     logging:    
       driver: "json-file"
       options:
@@ -68,7 +64,6 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       - PMA_HOST=mysql
-    env_file: ./.env
     depends_on:
       - mysql
     logging:    

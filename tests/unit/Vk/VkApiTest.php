@@ -1,4 +1,6 @@
 <?php
+namespace Tests\Unit\Vk;
+use Tests\TestCase;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7;
@@ -65,17 +67,17 @@ class VkApiTest extends TestCase {
 	
 	public function testValidateResponseThrowCorrectExcepions() {
 		$clientResponse = $this->makeResponse(400);
-		$class = new ReflectionClass('App\Vk\VkApi');
+		$class = new \ReflectionClass('App\Vk\VkApi');
 		$method = $class->getMethod('validateResponse');
 		$method->setAccessible(true);
 		
 		$vkApi = new VkApi('token');
 		
-		$this->setExpectedException(VkApiException::class);
+		$this->expectException(VkApiException::class);
 		$method->invokeArgs($vkApi, [$clientResponse]);
 		
 		$clientResponse = $this->makeResponse(200, [], 'ok');
-		$this->setExpectedException(VkApiResponseNotJsonException::class);
+		$this->expectException(VkApiResponseNotJsonException::class);
 		$method->invokeArgs($vkApi, $clientResponse);
 	}
 	

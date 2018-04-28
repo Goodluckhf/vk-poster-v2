@@ -14,7 +14,6 @@ Route::post('/captcha', function() {
 });
 
 Route::any('/api/{model?}.{method?}', function($type = null, $method = null) {
-	echo 'test';
 	$controllerName = 'App\Http\Controllers\Api\\' . ucfirst($type);
 	try {
 		if (class_exists($controllerName)) {
