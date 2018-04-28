@@ -231,4 +231,56 @@ class GroupSeekJobTest extends TestCase {
 		$this->assertEquals(1, $job->job->is_finish);
 	}
 	
+	public function testScopeActive() {
+		$job = factory(GroupSeekJob::class)
+			->create()
+			->job()
+			->save(factory(Job::class)->make());
+		
+		$job1 = factory(GroupSeekJob::class)
+			->create();
+		$job1->job()
+			->save(factory(Job::class)->make());	
+			
+		$job1->job->finish();
+		$job1->save();
+		
+		$job2 = factory(GroupSeekJob::class)
+			->create()
+			->job()
+			->save(factory(Job::class)->make());
+		
+		$jobs = GroupSeekJob::active()->get();
+		
+		$this->assertEquals(2, $jobs->count());
+		
+		$this->assertFalse($jobs->search(function ($job) use ($job1) {
+			return $job->id === $job1->id;
+		}));
+		
+		$jobs->each(function($job) {
+			$this->assertTrue(
+				method_exists($job->job, 'finish')
+			);
+		});
+	}
+	
+	
+	public function testScopeUser() {
+		$job = factory(GroupSeekJob::class)
+			->create()
+			->job()
+			->save(factory(Job::class)->make(['user_id' => 321]));
+			
+		$job1 = factory(GroupSeekJob::class)
+			->create()
+			->job()
+			->save(factory(Job::class)->make(['user_id' => 432]));
+			
+		$jobs = GroupSeekJob::user(321)->get();
+		
+		$this->assertEquals(1, $jobs->count());
+		$this->assertEquals(321, $jobs[0]->job->user_id);
+	}
+	
 }
