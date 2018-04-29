@@ -24,6 +24,7 @@ build:
   stage: build
   script:
     - cp -u .env.example .env
+    - docker-compose -f compose.base.yml -f compose.dev.yml pull
     - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
     - docker exec poster bash ./bin/installDeps.sh
     - docker-compose -f compose.base.yml -f compose.dev.yml down -v
@@ -41,6 +42,7 @@ unit-tests:
   stage: test
   script:
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
+    - docker-compose -f compose.base.yml -f compose.prod.yml pull
     - docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
     - docker exec poster bash ./bin/deploy.sh
     - docker exec poster php artisan config:clear
