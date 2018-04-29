@@ -20,7 +20,7 @@ services:
       cache_from:
         - registry.gitlab.com/just1ce/poster/nginx:dev
     volumes:
-      - ./:/var/www:cached
+      - ./public:/var/www/public:cached
   phpmyadmin:
     environment:
       - PMA_USER=${DB_USERNAME}
