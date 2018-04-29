@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Carbon\Carbon;
-use App\Vk\VkApi;
 use Log;
 use Mail;
 use App\Models\GroupSeekJob;
@@ -35,6 +34,7 @@ class GroupSeek extends Command {
 	 * @return mixed
 	 */
 	public function handle() {
+		
 		$jobs = GroupSeekJob::active()->get();
 		foreach ($jobs as $job) {
 			try {

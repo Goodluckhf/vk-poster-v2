@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/just1ce/poster/app-php-base:latest
+FROM registry.gitlab.com/just1ce/poster/app-php-base
 
 COPY ./ /var/www
 

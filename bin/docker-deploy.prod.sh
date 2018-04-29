@@ -3,9 +3,18 @@
 #Цвета
 GREEN='\033[1;32m'
 NC='\033[0m'
-docker-compose -f compose.base.yml -f compose.prod.yml pull
-docker-compose -f compose.base.yml -f compose.prod.yml up -d
-sleep 3
+
+if [[ $1 == "build" ]]
+then
+	docker-compose -f compose.base.yml -f compose.dev.yml build
+	docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
+else
+	docker-compose -f compose.base.yml -f compose.prod.yml pull
+	docker-compose -f compose.base.yml -f compose.prod.yml up -d
+fi
+
+echo -e "${GREEN}Waiting 25 sec for [mysql]${NC}"
+sleep 25
 
 docker exec poster php artisan migrate --seed
 

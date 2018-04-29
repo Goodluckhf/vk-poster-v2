@@ -3,8 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use GuzzleHttp\Client;
-use App\Vk\VkApi;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,10 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('HttpRequest', function () {
-            return new Client;
-        });
+        $this->app->bind('HttpRequest', \GuzzleHttp\Client::class);
         
-        $this->app->bind('VkApi', VkApi::class);
+        $this->app->bind('VkApi', \App\Vk\VkApi::class);
     }
 }

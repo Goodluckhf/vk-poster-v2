@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
-         bootstrap="bootstrap/autoload.php"
+         bootstrap="vendor/autoload.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -9,11 +9,12 @@
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="Unit tests">
-            <directory suffix="Test.php">./tests/unit</directory>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
         </testsuite>
-        <testsuite name="Integration tests">
-            <directory suffix="Test.php">./tests/integration</directory>
+
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
     </testsuites>
     <logging>
@@ -22,14 +23,13 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./app</directory>
-            <exclude>
-                <file>./app/Http/routes.php</file>
-            </exclude>
         </whitelist>
     </filter>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="APP_KEY" value="base64:sNilrvg3StOJXtZMjq17B49q09W9GkI4IlKBnLsnbDs="/>
+        <env name="LOG_CHANNEL" value="none"/>
+        <env name="DB_CONNECTION" value="sqlite-test"/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>

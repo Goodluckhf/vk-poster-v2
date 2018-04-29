@@ -11,17 +11,8 @@ use App\Models\{
 	Job
 };
 use App;
-use App\Vk\VkApi;
 use Sunra\PhpSimple\HtmlDomParser;
 use App\Exceptions\Models\GroupSeekFailException;
-
-// Фикс такой
-// текущая версия laravel не совсем совместима с php
-// @TODO: переехать на новую версию laravel
-if (version_compare(PHP_VERSION, '7.2.0', '>=')) {
-	// Ignores notices and reports all other kinds... and warnings
-	error_reporting(E_ALL ^ E_WARNING);
-}
 
 class GroupSeekJob extends Model {
 	protected $table = 'group_seek_jobs';
@@ -73,7 +64,7 @@ class GroupSeekJob extends Model {
 			return $this->job->finish();
 		}
 		
-		$vkApi = App::make('VkApi', [$user->vk_token]);
+		$vkApi = App::make('VkApi', ['token' => $user->vk_token]);
 		
 		$wallRequest = $vkApi->callApi('wall.get', [
 			'owner_id' => $this->group_id,
