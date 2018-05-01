@@ -6,13 +6,16 @@ use Auth as AuthManager;
 use Request;
 use Hash;
 use Mail;
+use Cookie;
+
 use App\Exceptions\Api\{
-	AuthAlready,
 	AuthFail,
-	VkAuthFail,
 	TokenFail,
-	TokenInactive,
+	VkAuthFail,
+	AuthRequire,
+	AuthAlready,
 	TokenTooMuch,
+	TokenInactive
 };
 
 use App\Models\{
@@ -33,8 +36,8 @@ class Auth extends Api {
 		$this->mergeParams();
 		
 		$arNeed = [
-		  'login' => 'required',
-		  'password' => 'required'
+			'login'    => 'required',
+			'password' => 'required'
 		];
 		
 		$this->checkAttr($arNeed);
@@ -65,9 +68,8 @@ class Auth extends Api {
 			throw new AuthRequire($this->_controllerName, $this->_methodName);
 		}
 		
-		//Эти куки используются на клиенте - поэтому не через laravel
-		setcookie("vk-token","",time()-1000, '/');
-		setcookie("vk-user-id","",time()-1000, '/');
+		Cookie::queue(Cookie::forget('vk-token'));
+		Cookie::queue(Cookie::forget('vk-user-id'));
 		AuthManager::logout();
 		return $this;
 	}
