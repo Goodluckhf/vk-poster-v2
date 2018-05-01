@@ -10,7 +10,6 @@ use App\Models\{
 };
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-
 class ApiGroupSeekTest extends TestCase {
 	use RefreshDatabase;
 	

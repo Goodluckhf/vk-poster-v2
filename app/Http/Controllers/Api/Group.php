@@ -80,6 +80,11 @@ class Group extends Api {
 			return $this;
 		}
 		
+		// Если не пренадлежит пользователю, просто ничего не делаем
+		if ($job->job->user_id !== Auth::id()) {
+			return $this;
+		}
+		
 		$job->job->finish();
 		return $this;
 	}
