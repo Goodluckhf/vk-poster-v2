@@ -11,7 +11,7 @@ namespace App\Exceptions\Api;
 class JobAlreadyExist extends Api {
 	public function __construct($controllerName, $methodName)
 	{
-		$this->code = 500;
+		$this->code = 400;
 		parent::__construct($controllerName, $methodName, 'Такое задание уже существует');
 	}
 }

@@ -49,7 +49,7 @@ class GroupSeekJobTest extends TestCase {
 		$this->assertEquals('test.ru/', $result[0]);
 	}
 	
-	public function testCreateCanSaceCorrectStructureWithRelation() {
+	public function testCreateCanSaveCorrectStructureWithRelation() {
 		$job = GroupSeekJob::create([
 			'count'   => 2,
 			'groupId' => 123,
