@@ -58,7 +58,13 @@ $(function () {
 		$('a.sort-by-reposts').click(function() {
 			PostProvider.sortByReposts();
 		});
-		AuthService.getUser();
+		
+		AuthService.getUser().then(function() {
+			return AuthService.updateVk(
+				App.getCookie('vk-token'),
+				App.getCookie('vk-user-id')
+			);
+		});
 	});
 	
 	/**
