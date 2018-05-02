@@ -6,13 +6,17 @@ use Auth as AuthManager;
 use Request;
 use Hash;
 use Mail;
+use Cookie;
+use App;
+
 use App\Exceptions\Api\{
-	AuthAlready,
 	AuthFail,
-	VkAuthFail,
 	TokenFail,
-	TokenInactive,
+	VkAuthFail,
+	AuthRequire,
+	AuthAlready,
 	TokenTooMuch,
+	TokenInactive
 };
 
 use App\Models\{
@@ -26,15 +30,15 @@ class Auth extends Api {
 	protected $_controllerName = 'Auth';
 	
 	const ACTIVE_TOKEN_FOR_EMAIL = 30;
-	const DELAY_TOKEN_FOR_EMAIL = 1;
+	const DELAY_TOKEN_FOR_EMAIL  = 1;
 	
 	public function login() {
 		$this->_methodName = 'login';
 		$this->mergeParams();
 		
 		$arNeed = [
-		  'login' => 'required',
-		  'password' => 'required'
+			'login'    => 'required',
+			'password' => 'required'
 		];
 		
 		$this->checkAttr($arNeed);
@@ -65,9 +69,8 @@ class Auth extends Api {
 			throw new AuthRequire($this->_controllerName, $this->_methodName);
 		}
 		
-		//Эти куки используются на клиенте - поэтому не через laravel
-		setcookie("vk-token","",time()-1000, '/');
-		setcookie("vk-user-id","",time()-1000, '/');
+		Cookie::queue(Cookie::forget('vk-token'));
+		Cookie::queue(Cookie::forget('vk-user-id'));
 		AuthManager::logout();
 		return $this;
 	}
@@ -97,13 +100,15 @@ class Auth extends Api {
 		$this->checkAttr($arNeed);
 		$this->checkCaptcha(Request::get('g-recaptcha-response'));
 		$email = EmailCheck::whereEmail(Request::get('email'))
-				->orderBy('email', 'DESC')
+				->orderBy('created_at', 'DESC')
 				->first();
 		
-		if($email) {
-			if($email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
-				throw new TokenTooMuch($this->_controllerName, $this->_methodName, self::DELAY_TOKEN_FOR_EMAIL);
-			}
+		if($email && $email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
+			throw new TokenTooMuch(
+				$this->_controllerName,
+				$this->_methodName,
+				self::DELAY_TOKEN_FOR_EMAIL
+			);
 		}
 		
 		$token = $this->getGUID();
@@ -113,11 +118,7 @@ class Auth extends Api {
 		$newEmail->token = $token;
 		$newEmail->save();
 		
-		Mail::send('email.checkEmail', ['token' => $token], function($message)
-		{
-			$message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
-			$message->to(Request::get('email'), 'Support')->subject('Проверка почты');
-		});
+		Mail::to(Request::get('email'))->send(new \App\Mail\EmailCheck($token));
 		
 		return $this;
 	}
@@ -151,7 +152,6 @@ class Auth extends Api {
 		
 		$user           = new User;
 		$user->email    = Request::get('email');
-		$user->role_id  = User::USER;
 		$user->password = Hash::make(Request::get('password'));
 		
 		if(Request::has('name')) {
@@ -160,7 +160,7 @@ class Auth extends Api {
 		
 		$user->save();
 		AuthManager::attempt([
-			'email' => Request::get('email'),
+			'email'    => Request::get('email'),
 			'password' => Request::get('password')
 		], 1);
 		
@@ -177,31 +177,56 @@ class Auth extends Api {
 		];
 		$this->checkAttr($arNeed);
 		
-		// @TODO: вынести в конфиг secret и id
-		$res = @file_get_contents('https://oauth.vk.com/access_token?code=' . Request::get('code') . '&client_id=5180832&client_secret=G8PLjiQIwCSfD5jaNclV&redirect_uri=https://oauth.vk.com/blank.html');
+		$url        = 'https://oauth.vk.com/access_token';
+		$vkConfig   = config('api.vk');
+		$httpClient = App::make('HttpRequest');
+		$httpParams = [
+			'headers' => [
+				'User-Agent' => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16'
+			],
+			'connect_timeout' => 10,
+			'query' => [
+				'code'          => Request::get('code'),
+				'client_id'     => $vkConfig['client_id'],
+				'client_secret' => $vkConfig['client_secret'],
+				'redirect_uri'  => 'https://oauth.vk.com/blank.html'
+			]
+		];
+		try {
+			$response = $httpClient->request('GET', $url, $httpParams);
+			
+			$result = json_decode($response->getBody(), true);
+			if (! isset($result['access_token'])) {
+				throw new VkAuthFail($this->_controllerName, $this->_methodName);
+			}
+			
+			$vkCookieDuration = 60*60*24*30;
 		
-		$result = (array)json_decode($res);
-		if(! isset($result['access_token'])) {
+			Cookie::queue(
+				Cookie::make('vk-token', $result['access_token'], $vkCookieDuration, '/', null, null, false)
+			);
+			Cookie::queue(
+				Cookie::make('vk-user-id', $result['user_id'], $vkCookieDuration, '/', null, null, false)
+			);
+			
+			return $this;
+		} catch (\Exception $e) {
 			throw new VkAuthFail($this->_controllerName, $this->_methodName);
 		}
-		
-		//Используется на клиенте поэтому не через laravel
-		setcookie("vk-token",$result['access_token'],time()+60*60*24*30, '/');
-		setcookie("vk-user-id",$result['user_id'],time()+60*60*24*30, '/');
-		
-		return $this;
 	}
 	
 	public function updateVk() {
 		$this->_methodName = 'updateVk';
 		$this->checkAuth();
+		$this->checkAttr([
+			'token'  => 'required',
+			'userId' => 'required'
+		]);
 		
-		if(isset($_COOKIE['vk-token']) && isset($_COOKIE["vk-user-id"])) {
-			$user             = AuthManager::user();
-			$user->vk_token   = $_COOKIE['vk-token'];
-			$user->vk_user_id = $_COOKIE["vk-user-id"];
-			$user->save();
-		}
+		$user             = AuthManager::user();
+		$user->vk_token   = Request::get('token');
+		$user->vk_user_id = Request::get('userId');
+		$user->save();
 		
 		return $this;
 	}

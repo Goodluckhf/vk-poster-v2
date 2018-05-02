@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#-env COLUMNS=`tput cols` --env LINES=`tput lines`
+#--env COLUMNS=`tput cols` --env LINES=`tput lines`
 
 #Цвета
 GREEN='\033[1;32m'
@@ -8,8 +8,8 @@ NC='\033[0m'
 
 docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
 
-echo -e "${GREEN}Waiting 25 sec for [mysql]${NC}"
-sleep 25
+# Ждем пока мускул оклимается
+bash ./bin/wait_mysql.sh
 
 docker exec poster php artisan migrate --seed
 
