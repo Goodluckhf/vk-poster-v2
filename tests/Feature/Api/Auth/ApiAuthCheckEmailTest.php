@@ -84,7 +84,7 @@ class ApiAuthCheckEmailTest extends TestCase {
 		$httpRequest = new Client(['handler' => $mock]);
 		$this->app->instance('HttpRequest', $httpRequest);
 		
-		factory(EmailCheck::class)->make(['email' => 'test@test.ru'])->save();
+		factory(EmailCheck::class)->create(['email' => 'test@test.ru']);
 		
 		$response = $this->json('POST', '/api/Auth.checkEmail', [
 			'g-recaptcha-response' => 'res',

@@ -151,7 +151,6 @@ class Auth extends Api {
 		
 		$user           = new User;
 		$user->email    = Request::get('email');
-		$user->role_id  = User::USER;
 		$user->password = Hash::make(Request::get('password'));
 		
 		if(Request::has('name')) {
@@ -160,7 +159,7 @@ class Auth extends Api {
 		
 		$user->save();
 		AuthManager::attempt([
-			'email' => Request::get('email'),
+			'email'    => Request::get('email'),
 			'password' => Request::get('password')
 		], 1);
 		
