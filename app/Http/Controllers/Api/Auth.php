@@ -29,7 +29,7 @@ class Auth extends Api {
 	protected $_controllerName = 'Auth';
 	
 	const ACTIVE_TOKEN_FOR_EMAIL = 30;
-	const DELAY_TOKEN_FOR_EMAIL = 1;
+	const DELAY_TOKEN_FOR_EMAIL  = 1;
 	
 	public function login() {
 		$this->_methodName = 'login';
@@ -102,10 +102,12 @@ class Auth extends Api {
 				->orderBy('email', 'DESC')
 				->first();
 		
-		if($email) {
-			if($email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
-				throw new TokenTooMuch($this->_controllerName, $this->_methodName, self::DELAY_TOKEN_FOR_EMAIL);
-			}
+		if($email && $email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {
+			throw new TokenTooMuch(
+				$this->_controllerName,
+				$this->_methodName,
+				self::DELAY_TOKEN_FOR_EMAIL
+			);
 		}
 		
 		$token = $this->getGUID();
@@ -115,11 +117,7 @@ class Auth extends Api {
 		$newEmail->token = $token;
 		$newEmail->save();
 		
-		Mail::send('email.checkEmail', ['token' => $token], function($message)
-		{
-			$message->from('goodluckhf@yandex.ru', 'Постер для vk.com');
-			$message->to(Request::get('email'), 'Support')->subject('Проверка почты');
-		});
+		Mail::to(Request::get('email'))->send(new \App\Mail\EmailCheck($token));
 		
 		return $this;
 	}

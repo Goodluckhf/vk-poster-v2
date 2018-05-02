@@ -8,10 +8,11 @@ use App\Exceptions\Api\{
 	AuthBadPermission,
 	CaptchaFail
 };
-use Validator;
-use Request;
-use Auth;
 
+use App;
+use Auth;
+use Request;
+use Validator;
 
 class Api extends \App\Http\Controllers\Controller {
 	
@@ -57,16 +58,22 @@ class Api extends \App\Http\Controllers\Controller {
 	}
 	
 	protected function checkCaptcha($response) {
-		$url = self::GOOGLE_URL_FOR_CAPTCHA . '?secret=' . self::CAPTCHA_SECRET . '&response=' . $response;
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-		curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-		$result = curl_exec($curl);
-		curl_close($curl);
-		$data = (array) json_decode($result);
-		if(!$data['success']) {
+		$googleCongig = config('api.google');
+		$httpClient   = App::make('HttpRequest');
+		
+		$httpResponse = $httpClient->request('GET', $googleCongig['catcha_url'], [
+			'headers' => [
+				'User-Agent' => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16'
+			],
+			'connect_timeout' => 10,
+			'query' => [
+				'secret'   => $googleCongig['catcha_secret'],
+				'response' => $response
+			]
+		]);
+		
+		$data = json_decode($httpResponse->getBody(), true);
+		if(! ($data && $data['success']) ) {
 			throw new CaptchaFail($this->_controllerName, $this->_methodName);
 		}
 	}
