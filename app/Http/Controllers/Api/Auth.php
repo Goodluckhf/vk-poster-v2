@@ -99,7 +99,7 @@ class Auth extends Api {
 		$this->checkAttr($arNeed);
 		$this->checkCaptcha(Request::get('g-recaptcha-response'));
 		$email = EmailCheck::whereEmail(Request::get('email'))
-				->orderBy('email', 'DESC')
+				->orderBy('created_at', 'DESC')
 				->first();
 		
 		if($email && $email->isActive(self::DELAY_TOKEN_FOR_EMAIL)) {

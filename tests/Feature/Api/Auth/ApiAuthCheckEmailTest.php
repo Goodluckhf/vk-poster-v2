@@ -21,7 +21,7 @@ class ApiAuthCheckEmailTest extends TestCase {
 	
 	public function testCheckNeedParams() {
 		$response = $this->json('POST', '/api/Auth.checkEmail');
-			
+		
 		$response
 			->assertStatus(400)
 			->assertJson([
@@ -84,7 +84,7 @@ class ApiAuthCheckEmailTest extends TestCase {
 		$httpRequest = new Client(['handler' => $mock]);
 		$this->app->instance('HttpRequest', $httpRequest);
 		
-		factory(EmailCheck::class)->create(['email' => 'test@test.ru']);
+		factory(EmailCheck::class)->make(['email' => 'test@test.ru'])->save();
 		
 		$response = $this->json('POST', '/api/Auth.checkEmail', [
 			'g-recaptcha-response' => 'res',
@@ -119,7 +119,7 @@ class ApiAuthCheckEmailTest extends TestCase {
 		$checkEmail = EmailCheck::whereEmail('test@test.ru')->first();
 		$this->assertInstanceOf(EmailCheck::class, $checkEmail);
 		Mail::assertSent(\App\Mail\EmailCheck::class, function ($mail) use ($checkEmail) {
-            return $mail->token === $checkEmail->token;
-        });
+			return $mail->token === $checkEmail->token;
+		});
 	}
 }

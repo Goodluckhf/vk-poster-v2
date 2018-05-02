@@ -12,18 +12,18 @@ class EmailCheckTest extends TestCase {
 	public function testIsActive() {
 		$emailCheck = factory(EmailCheck::class)->create();
 		
-		$this->assertFalse($emailCheck->isActive(1));
+		$this->assertTrue($emailCheck->isActive(1));
 		
 		$date = Carbon::now()->addMinutes(1);
 		$emailCheck->created_at = $date->toDateTimeString();
 		$emailCheck->save();
 		
-		$this->assertTrue($emailCheck->isActive(1));
+		$this->assertFalse($emailCheck->isActive(1));
 		
 		$date = Carbon::now()->addMinutes(10);
 		$emailCheck->created_at = $date->toDateTimeString();
 		$emailCheck->save();
 		
-		$this->assertTrue($emailCheck->isActive(10));
+		$this->assertFalse($emailCheck->isActive(10));
 	}
 }

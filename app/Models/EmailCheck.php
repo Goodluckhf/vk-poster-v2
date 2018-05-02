@@ -12,12 +12,12 @@ class EmailCheck extends Model {
 	public function isActive(int $minutes) {
 		$createdAt = new Carbon($this->attributes['created_at']);
 		$now       = Carbon::now();
-		$hourdiff  = $createdAt->diffInMinutes($now);
+		$hourdiff  = $createdAt->diffInSeconds($now);
 		
-		if($hourdiff < $minutes) {
-			return false;
+		if($hourdiff < ($minutes * 60)) {
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 }
