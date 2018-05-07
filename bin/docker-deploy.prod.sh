@@ -6,8 +6,8 @@ NC='\033[0m'
 
 if [[ $1 == "build" ]]
 then
-	docker build -t registry.gitlab.com/just1ce/poster/php-base:dev -f ./docker-services/php-base/Dockerfile ./
-	docker build -t registry.gitlab.com/just1ce/poster/php-base:prod -f ./docker-services/php-base/Dockerfile.prod ./
+	docker build -t registry.gitlab.com/just1ce/poster/php-base:dev --cache-from registry.gitlab.com/just1ce/poster/php-base:dev -f ./docker-services/php-base/Dockerfile ./
+	docker build -t registry.gitlab.com/just1ce/poster/php-base:prod --cache-from registry.gitlab.com/just1ce/poster/php-base:prod -f ./docker-services/php-base/Dockerfile.prod ./
 	docker-compose -f compose.base.yml -f compose.dev.yml build
 	docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
 else
