@@ -24,7 +24,7 @@ tests:
   script:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
-    - sh ./bin/docker-deploy.sh
+    - bash ./bin/docker-deploy.sh
     - docker exec poster vendor/bin/phpunit
     - docker-compose -f compose.base.yml -f compose.dev.yml down -v
     - docker-compose -f compose.base.yml -f compose.dev.yml push
@@ -37,7 +37,7 @@ deploy:
   script:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.prod.yml pull
-    - bin/docker-deploy.prod.sh build
+    - bash ./bin/docker-deploy.prod.sh build
     - docker-compose -f compose.base.yml -f compose.prod.yml push
     - docker-compose -f compose.base.yml -f compose.prod.yml down -v
     - scp compose.base.yml just1ce@185.249.255.224:~/www
