@@ -24,7 +24,7 @@ tests:
   script:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
-    - bin/docker-deploy.sh
+    - sh ./bin/docker-deploy.sh
     - docker exec poster vendor/bin/phpunit
     - docker-compose -f compose.base.yml -f compose.dev.yml down -v
     - docker-compose -f compose.base.yml -f compose.dev.yml push
