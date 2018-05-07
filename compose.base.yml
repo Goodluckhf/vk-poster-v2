@@ -5,7 +5,6 @@ services:
     restart: on-failure
     build:
       context: ./
-      dockerfile: ./docker-services/php-base/Dockerfile
     depends_on:
       - mysql
     logging:    

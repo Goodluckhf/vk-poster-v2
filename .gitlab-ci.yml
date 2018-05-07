@@ -1,7 +1,6 @@
 image: $CI_REGISTRY/just1ce/poster/docker
 
 stages:
-  - build
   - test
   - deploy
 
@@ -19,43 +18,28 @@ before_script:
   - ssh-add sshkey
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-  
-build:
-  stage: build
+
+tests:
+  stage: test
   script:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
-    - docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
-    - docker exec poster bash ./bin/installDeps.sh
+    - bin/docker-deploy.sh
+    - docker exec poster vendor/bin/phpunit
     - docker-compose -f compose.base.yml -f compose.dev.yml down -v
     - docker-compose -f compose.base.yml -f compose.dev.yml push
   cache:
     paths:
       - vendor/
-  artifacts:
-    paths:
-      - vendor/
-    when: on_success
-    expire_in: 30 mins
 
-unit-tests:
-  stage: test
-  script:
-    - docker-compose -f compose.base.yml -f compose.dev.yml pull
-    - docker-compose -f compose.base.yml -f compose.prod.yml pull
-    - docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
-    - docker exec poster bash ./bin/deploy.sh
-    - docker exec poster php artisan config:clear
-    - docker exec poster vendor/bin/phpunit
-    - docker-compose -f compose.base.yml -f compose.prod.yml down -v
-      
 deploy:
   stage: deploy
   script:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.prod.yml pull
-    - docker-compose -f compose.base.yml -f compose.prod.yml build
+    - bin/docker-deploy.prod.sh build
     - docker-compose -f compose.base.yml -f compose.prod.yml push
+    - docker-compose -f compose.base.yml -f compose.prod.yml down -v
     - scp compose.base.yml just1ce@185.249.255.224:~/www
     - scp compose.prod.yml just1ce@185.249.255.224:~/www
     - scp -r ./bin just1ce@185.249.255.224:~/www
