@@ -1,5 +1,6 @@
-FROM registry.gitlab.com/just1ce/poster/app-php-base
+FROM registry.gitlab.com/just1ce/poster/php-base:dev
 
 COPY ./ /var/www
 
-RUN chown -R www-data:www-data /var/www
+RUN chown -R www-data:www-data /var/www && \
+	sh ./bin/installDeps.sh prod

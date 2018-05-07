@@ -1,0 +1,8 @@
+FROM registry.gitlab.com/just1ce/poster/php-base:dev
+
+RUN apk update && \
+	apk add \
+		$PHPIZE_DEPS \
+		&& \
+	pecl install xdebug && \
+	docker-php-ext-enable xdebug

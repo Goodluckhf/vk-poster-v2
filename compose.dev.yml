@@ -3,6 +3,7 @@ services:
   app:
     image: registry.gitlab.com/just1ce/poster/php-app:dev
     build:
+      dockerfile: ./docker-services/php-app/Dockerfile.dev
       cache_from:
         - registry.gitlab.com/just1ce/poster/php-app:dev
     volumes:

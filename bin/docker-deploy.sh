@@ -6,6 +6,7 @@
 GREEN='\033[1;32m'
 NC='\033[0m'
 
+docker build -t registry.gitlab.com/just1ce/poster/php-base:dev --cache-from registry.gitlab.com/just1ce/poster/php-base:dev -f ./docker-services/php-base/Dockerfile ./
 docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
 
 # Ждем пока мускул оклимается
