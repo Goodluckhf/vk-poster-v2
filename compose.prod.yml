@@ -28,5 +28,6 @@ services:
   phpmyadmin:
     ports:
       - 8996:80
+    restart: always
   mysql:
     restart: always

@@ -12,10 +12,11 @@ docker-compose -f compose.base.yml -f compose.dev.yml up -d --build
 # Ждем пока мускул оклимается
 bash ./bin/wait_mysql.sh
 
-docker exec poster php artisan migrate --seed
 
 echo -e "${GREEN}Start install dependencies ${NC}"
 docker exec poster bash ./bin/installDeps.sh
+
+docker exec poster php artisan migrate --seed
 
 for service in "poster" "php-cron"
 do
