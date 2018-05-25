@@ -28,14 +28,6 @@ services:
       - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - 81:80
-  prometheus:
-    ports:
-      - 9090:9090
-  node-exporter:
-    ports:
-      - 9100:9100
   grafana:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=pass
-    ports:
-      - 3000:3000
