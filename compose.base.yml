@@ -70,5 +70,36 @@ services:
       options:
         max-size: "30m"
         max-file: "10"
+  prometheus:
+    container_name: prometheus
+    build:
+      context: ./
+      dockerfile: ./docker-services/prometheus/Dockerfile
+    image: registry.gitlab.com/just1ce/poster/prometheus
+    volumes:
+      - prometheus-data:/prometheus
+    restart: on-failure
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:v0.15.2
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - 9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:5.1.3
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
 volumes:
   mysql-data:
+  prometheus-data:
+  grafana-data:
