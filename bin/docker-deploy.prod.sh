@@ -13,12 +13,11 @@ then
 else
 	docker-compose -f compose.base.yml -f compose.prod.yml pull
 	docker-compose -f compose.base.yml -f compose.prod.yml up -d
+    # Ждем пока мускул оклимается
+    bash ./bin/wait_mysql.sh
+    docker exec poster php artisan migrate --seed
 fi
 
-# Ждем пока мускул оклимается
-bash ./bin/wait_mysql.sh
-
-docker exec poster php artisan migrate --seed
 
 for service in "poster" "php-cron"
 do
