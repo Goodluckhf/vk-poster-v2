@@ -70,7 +70,7 @@ services:
     logging: *default-logging
   node-exporter:
     container_name: node-exporter
-    image: prom/node-exporter:v0.15.2
+    image: prom/node-exporter:v0.16.0
     restart: unless-stopped
     privileged: true
     ports:
