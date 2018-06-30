@@ -76,8 +76,8 @@ services:
     ports:
       - 9100
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
+      - /proc:/proc:ro
+      - /sys:/sys:ro
       - /:/rootfs:ro
     logging: *default-logging
   grafana:
