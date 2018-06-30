@@ -70,15 +70,14 @@ services:
     logging: *default-logging
   node-exporter:
     container_name: node-exporter
-    image: prom/node-exporter:v0.16.0
+    image: prom/node-exporter:v0.15.2
     restart: unless-stopped
-    privileged: true
+    command: --path.procfs /host/proc --path.sysfs /host/sys --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns)($$|/)"
     ports:
       - 9100
     volumes:
-      - /proc:/proc:ro
-      - /sys:/sys:ro
-      - /:/rootfs:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
     logging: *default-logging
   grafana:
     container_name: grafana
