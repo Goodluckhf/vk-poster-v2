@@ -1,4 +1,12 @@
-version: "3.2"
+version: "2.2"
+
+x-default-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: '5m'
+    max-file: '1'
+
 services:
   app:
     container_name: poster
@@ -7,11 +15,7 @@ services:
       context: ./
     depends_on:
       - mysql
-    logging:    
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "10"
+    logging: *default-logging
   php-cron:
     container_name: php-cron
     restart: on-failure
@@ -21,11 +25,7 @@ services:
     depends_on:
       - mysql
       - app
-    logging:    
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "10"
+    logging: *default-logging
   web:
     container_name: nginx
     build:
@@ -37,11 +37,7 @@ services:
       - 80:80
     depends_on:
       - app
-    logging:    
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "10"
+    logging: *default-logging
   mysql:
     container_name: mysql
     image: mysql:5.7
@@ -53,11 +49,7 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE}
     volumes:
       - mysql-data:/var/lib/mysql:cached
-    logging:    
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "10"
+    logging: *default-logging
   phpmyadmin: 
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin
@@ -65,11 +57,7 @@ services:
       - PMA_HOST=mysql
     depends_on:
       - mysql
-    logging:    
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "10"
+    logging: *default-logging
   prometheus:
     container_name: prometheus
     build:
@@ -79,6 +67,7 @@ services:
     volumes:
       - prometheus-data:/prometheus
     restart: on-failure
+    logging: *default-logging
   node-exporter:
     container_name: node-exporter
     image: prom/node-exporter:v0.15.2
@@ -90,6 +79,7 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+    logging: *default-logging
   grafana:
     container_name: grafana
     image: grafana/grafana:5.1.3
@@ -99,6 +89,7 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
+    logging: *default-logging
 volumes:
   mysql-data:
   prometheus-data:
