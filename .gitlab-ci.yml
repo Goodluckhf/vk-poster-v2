@@ -21,6 +21,9 @@ before_script:
 
 tests:
   stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /skip-test/
   script:
     - cp -u .env.example .env
     - docker-compose -f compose.base.yml -f compose.dev.yml pull
