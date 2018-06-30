@@ -1,4 +1,4 @@
-version: "3.2"
+version: "2.2"
 services:
   app:
     image: registry.gitlab.com/just1ce/poster/php-app:dev
