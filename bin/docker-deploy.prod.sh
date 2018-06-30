@@ -9,7 +9,7 @@ then
 	docker build -t registry.gitlab.com/just1ce/poster/php-base:dev --cache-from registry.gitlab.com/just1ce/poster/php-base:dev -f ./docker-services/php-base/Dockerfile ./
 	docker build -t registry.gitlab.com/just1ce/poster/php-base:prod --cache-from registry.gitlab.com/just1ce/poster/php-base:prod -f ./docker-services/php-base/Dockerfile.prod ./
 	docker-compose -f compose.base.yml -f compose.dev.yml build
-	docker-compose -f compose.base.yml -f compose.prod.yml up -d --build
+	docker-compose -f compose.base.yml -f compose.prod.yml build
 else
 	docker-compose -f compose.base.yml -f compose.prod.yml pull
 	docker-compose -f compose.base.yml -f compose.prod.yml up -d
